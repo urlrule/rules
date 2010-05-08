@@ -17,9 +17,21 @@ use strict;
 # $result{pass_arg}      : Additional arguments to be passed to next level of urlrule
 #================================================================
 use MyPlace::HTML;
+
+sub _moko_get_postclass {
+    my ($id,$host,$dir,$result) = @_;
+    open FI,"-|","netcat \'$host$dir\'";# or return $dir;
+    while(<FI>) {
+        if(m/(\/weblogPostShowList\|showPosts\.action\?wKey=[^&]+&classID=[^&]+&curPage=\d+)/i) {
+            $result->{$1}=1;
+        }
+    }
+    close FI;
+}
+
 sub apply_rule {
     my $rule_base= shift(@_);
-	if($rule_base =~ /\/www\.moko\.cc\/([^\/]+)\/?$/) {
+	if($rule_base =~ /\/www\.moko\.cc\/post\/([^\/]+)\/?/) {
 		$rule_base = "http://www.moko.cc/post/$1/indexpost.html";
 	}
 	my $id;
@@ -29,6 +41,7 @@ sub apply_rule {
     my %rule = %{shift(@_)};
     my %r;
     $r{base}=$rule_base;
+    my %pass_data;
     open FI,"-|","netcat \'$rule_base\'";
 	my @text =<FI>;
 	close FI;
@@ -37,11 +50,19 @@ sub apply_rule {
 		$r{work_dir} = $id . ($r{work_dir} ? "_" . $r{work_dir} : "");
 	}
 	$r{work_dir} =~ s/'s.*$// if($r{work_dir});
-	foreach(get_hrefs(@text)) {
-		push @{$r{pass_data}},$_ if(/postclass\.html$/);
+	foreach(@text) {
+            if($_ =~ m/(\/post\/$id\/indexpage\/\d+\.html)/) {
+                $pass_data{$rule_base}=1;
+                $pass_data{$1} = 1;
+            }
+            elsif(m/(\/post\/$id\/\d+\/\d+\/postclass\.html)/) {
+                $pass_data{$1}=1;
+                &_moko_get_postclass($id,"http://www.moko.cc/",$1,\%pass_data);
+            }
 	}
-	push @{$r{pass_data}},$rule_base unless($r{pass_data});
 	$r{no_subdir}=1;
+        $pass_data{$rule_base}=1 unless(%pass_data);
+        @{$r{pass_data}}=keys %pass_data;
     return %r;
 }
 

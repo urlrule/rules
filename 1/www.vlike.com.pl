@@ -55,7 +55,7 @@ sub apply_rule {
                 $count=$1;
             }
         }
-        elsif($_ =~ m/\/pic\/.*index.html$/) {
+        elsif($_ =~ m/\/pic\/$id\/.*index.html$/) {
             $data{$_}=1;
         }
 	}

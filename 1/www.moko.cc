@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
-#http://www.moko.cc/post/zhangyinghan/818/1/postclass.html
 #Thu Jun 25 15:23:48 2009
+#http://www.moko.cc/post/zhangyinghan/818/1/postclass.html
 use strict;
 
 #================================================================
@@ -22,12 +22,17 @@ sub apply_rule {
     my %rule = %{shift(@_)};
     my %r;
     $r{base}=$rule_base;
-	my %data;
-    open FI,"-|:utf8","wget -O - \"$rule_base\"";
+    my %data;
+    open FI,"-|:utf8","netcat \"$rule_base\"";
     while(<FI>) {
 		my $title = get_text("h1",$_) unless($r{work_dir});
 		$r{work_dir}=$title if($title);
-		$data{$1}=1 if(/(\/post\/\d+[^"']*\/\d+\.html)/i);
+		if(/(\/post\/[^\/]+\/\d+\/\d+\.html)/i) {
+		    $data{$1}=1; 
+                }
+                elsif(/(\/post\/[^\/]+\/\d+\/\d+\/\d+\.html)/i) {
+                    $data{$1}=1;
+                }
     }
     close FI;
 	push @{$r{pass_data}},keys %data if(%data);

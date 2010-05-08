@@ -20,15 +20,16 @@ sub apply_rule {
     my $url=shift;
     my %r;
     $r{base}=$url;
-    $r{action}="batchget -r \"$url\"";
+#    $r{action}="batchget -r \"$url\"";
     open FI,"-|","netcat \'$url\'";
     my @DATA=<FI>;
-    my @imgs = get_props("img","src",@DATA);
+    my @imgs = get_props("img","real_src",@DATA);
     close FI;
     for(@imgs) {
-        if(m{/(bmiddle|pic|orignal)/}) {
-            s{/bmiddle/}{/orignal/};
-            s{//static8}{//static11};
+        if(m{/(middle|pic|orignal)/}) {
+            s{/middle/}{/orignal/};
+            s{//static\d+}{//service};
+            s{&amp;690$}{};
             push @{$r{data}},$_;
         }
         elsif(/\.jpg$/i) {

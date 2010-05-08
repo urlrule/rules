@@ -28,6 +28,7 @@ sub apply_rule {
             if(/<title>([^<]+?)\s*_\s*新浪博客<\/title>/) {
                 $title=$1;
                 $title =~ s/&nbsp;/ /;
+                $title =~ s/博文_//;
                 $r{work_dir}=$title;
             }
             
@@ -39,8 +40,13 @@ sub apply_rule {
         }
     }
     close FI;
-    for my $i(1..$count) {
-        push @{$r{pass_data}},"$base" . "_$i.html";
+    if($count) {
+        for my $i(1..$count) {
+            push @{$r{pass_data}},"$base" . "_$i.html";
+        }
+    }
+    else {
+        push @{$r{pass_data}},$url;
     }
     $r{no_subdir}=1;
     return %r;
