@@ -1,0 +1,97 @@
+#!/usr/bin/perl -w
+#http://www.emu-zone.org/disland/cwjm/xlyx/fccn.htm
+#Tue Feb 24 01:50:26 2009
+use strict;
+
+#================================================================
+# apply_rule will be called with ($RuleBase,%Rule),the result returned have these meaning:
+# $result{base}          : Base url to build the full url
+# $result{work_dir}      : Working directory (will be created if not exists)
+# $result{data}          : Data array extracted from url,will be passed to $result{action}(see followed)
+# $result{action}        : Command which the $result{data} will be piped to,can be overrided
+# $result{pipeto}        : Same as action,Command which the $result{data} will be piped to,can be overrided
+# $result{hook}          : Hook action,function process_data will be called
+# $result{no_subdir}     : Do not create sub directories
+# $result{pass_data}     : Data array which will be passed to next level of urlrule
+# $result{pass_name}     : Names of each $result{pass_data}
+# $result{pass_arg}      : Additional arguments to be passed to next level of urlrule
+#================================================================
+use HTML::TreeBuilder;
+use Data::Dumper;
+sub apply_rule {
+    my $rule_base= shift(@_);
+    my %rule = %{shift(@_)};
+    my %r;
+    $r{base}=undef;
+    open FI,"-|","netcat \'$rule_base\' | gb2utf";
+    my @text = <FI>;
+    close FI;
+    my $tree = HTML::TreeBuilder->new_from_content(@text);
+    my (undef,$table) = $tree->look_down("_tag","table");
+    if($table) {
+        my (undef,@items) = $table->content_list;#look_down("_tag","tr");
+        foreach my $item (@items) {
+            my @desc = $item->content_list;
+            next unless(@desc);
+            next if($#desc<3);
+            if(@desc) {
+                my ($href,$name,$pic,$desc,$type);
+                my ($temp) = $desc[0]->look_down("_tag","a");
+                if($temp) {
+                    $href = $temp->attr("href");
+                    $name = $temp->as_text();
+                }
+                next unless($href);
+                ($temp) = $desc[1]->look_down("_tag","a");
+                $pic = $temp->attr("href") if($temp);
+                $type = $desc[2]->as_text() if($desc[2]);
+                $desc = $desc[3]->as_text() if($desc[3]);
+                if($desc[4]) {
+                    ($desc,$type)  = ($type,$desc);
+                    $type = "$type." . $desc[4]->as_text();
+                }
+                push @{$r{data}},$href;
+                $r{roms}{$href}=[$name,$pic,$desc,$type];
+            }
+        }
+    }
+    $tree->delete;
+    $r{url}=$rule_base;
+    $r{no_subdir}=1;
+    $r{hook}=1;
+    return %r;
+}
+
+#use encoding 'utf8';
+#use utf8;
+use URI;
+use URI::Escape;#qw/uri_unescape/;
+sub process_data {
+    my $href = shift;
+    my $r = shift;
+    my ($name,$pic,$desc,$type) = @{$r->{roms}{$href}};
+    if($desc && $desc =~ m/^\s*[A-Za-z]{3,3}\s*$/) {
+        ($desc,$type) = ($type,$desc);
+    }
+    my $fullname = uri_unescape($href); $fullname =~ s/.*\///; $fullname =~ s/\.[^\.]+$//;
+    if($name) {
+        if($name =~ s/\(?中文\)?//g) {
+            $type = $type ? "中文.$type" : "中文";
+        }
+    }
+    $fullname = "${name}_${fullname}" if($name);
+    $fullname = "$type.$fullname" if($type);
+    $href = URI->new_abs($href,$r->{url})->as_string;
+    $pic = URI->new_abs($pic,$r->{url})->as_string;
+    my $re;
+    $re = system("download","-n","[$name]","-s","$fullname.zip",$href);
+    return 2 if($re eq 2 or $re eq 512);
+    $re = system("download","-n","[$name]","-s","$fullname.jpg",$pic);
+    return 2 if($re eq 2 or $re eq 512);
+    if($desc) {
+        open FO,">","$fullname.txt";
+        print FO $desc;
+        close FO;
+    }
+    return 1;
+}

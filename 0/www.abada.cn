@@ -1,0 +1,69 @@
+#!/usr/bin/perl -w
+#http://www.abada.cn/xiandai/7622.htm
+#Sat Jan 31 06:46:29 2009
+use strict;
+
+#================================================================
+# apply_rule will be called with ($RuleBase,%Rule),the result returned have these meaning:
+# $result{base}          : Base url to build the full url
+# $result{work_dir}      : Working directory (will be created if not exists)
+# $result{data}          : Data array extracted from url,will be passed to $result{action}(see followed)
+# $result{action}        : Command which the $result{data} will be piped to,can be overrided
+# $result{pipeto}        : Same as action,Command which the $result{data} will be piped to,can be overrided
+# $result{hook}          : Hook action,function process_data will be called
+# $result{no_subdir}     : Do not create sub directories
+# $result{pass_data}     : Data array which will be passed to next level of urlrule
+# $result{pass_name}     : Names of each $result{pass_data}
+# $result{pass_arg}      : Additional arguments to be passed to next level of urlrule
+#================================================================
+
+sub apply_rule {
+    my $rule_base= shift(@_);
+    my %rule = %{shift(@_)};
+    my %r;
+    $r{base}=$rule_base;
+    open FI,"-|","netcat \'$rule_base\' | gb2utf";
+    while(<FI>) {
+        if(/href\s*=\s*\"(.*\/upload\/.*\.rar)\"/) {
+            push @{$r{data}},$1;
+            last;
+        }
+        if(!$r{title} && /<title>([^<>]+)<\/title>/) {
+            $r{title}=$1;
+        }
+    }
+    close FI;
+    $r{hook}=1;
+    return %r;
+}
+
+sub process_data {
+    my $url=shift;
+    my $r=shift;
+    return 1 unless($url);
+    my $filename = "";
+    if($url =~ /\/([^\/]+)\.rar$/) {
+        $filename = $1;
+    }
+    $filename .= "_" . $r->{title} if($r && $r->{title});
+    $filename .= ".rar";
+    mkdir "source" unless(-d "source");
+    return 1 unless(-d "source");
+    $filename = "source/$filename";
+    unless(-f $filename) {
+        system("download","-u",$url,"-s",$filename);
+    }
+    unless(-f $filename) {
+        print STDERR "File not found:$filename\n";
+        return 1;
+    }
+#    print STDERR "Unpacking $filename...\t";
+    if(system("unrar","x","-y","-c-","-cfg-","-cl","-idcdp",$filename)==0) {
+        return 1;
+#        print STDERR "[OK]\n";
+    }
+    else {
+        return 1;
+#        print STDERR "[Failed]\n";
+    }
+}

@@ -1,0 +1,37 @@
+#!/usr/bin/perl -w
+#URL rule for http://www.xindm.net/type.asp?typeid=438
+#Example Url:http://www.xindm.net/type.asp?typeid=438
+#Date Created:Tue Mar 25 22:47:59 CST 2008
+use strict;
+
+sub apply_rule {
+    my $url=shift;
+    my %result;
+    $result{base}=$url;
+    $result{work_dir}="";
+    $result{action}="";
+    $result{data}=[];
+    $result{pass_data}=[];
+    $result{pass_name}=[];
+    $result{pass_arg}="";
+    open FI,"-|","netcat '$url'|gb2utf";
+    while(<FI>) {
+        unless($result{work_dir}) {
+            my @match = $_ =~ /\<title\>.*\s+([^\>]+)\s*\<\/title\>/i;
+            if(@match) {
+                $result{work_dir}=$match[0];
+                $result{work_dir} =~ s/\[[^\[]*\]//g;
+                $result{pass_arg} = $result{work_dir};
+            }
+        }
+        my @match= $_ =~ /<a[^\<\>]+href\s*=\s*\'(\/display\.asp\?id=[0-9]+)\'[^\<\>]*\>([^\<\>]*)\<\/a/gi;
+        for(my $i=0;$i<@match;$i+=2) {
+            push(@{$result{pass_data}},$match[$i]);
+            push(@{$result{pass_name}},$match[$i+1]);
+        }
+    }
+    close FI;
+    @{$result{pass_data}} = reverse(@{$result{pass_data}});
+    @{$result{pass_name}} = reverse(@{$result{pass_name}});
+    return %result;
+}

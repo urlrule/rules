@@ -1,0 +1,39 @@
+#!/usr/bin/perl -w
+#URL rule for http://www.xindm.net/display.asp?id=8777
+#Example Url:http://www.xindm.net/display.asp?id=8777
+#Date Created:Wed Mar 26 10:14:51 CST 2008
+use strict;
+
+sub apply_rule {
+    my $url=shift;
+    my $jobname=shift;
+    my %result;
+    $result{base}=$url;
+    $result{work_dir}="";
+    $result{action}= $jobname ? "batchget -n $jobname" : "batchget";
+    $result{data}=[];
+    $result{pass_data}=[];
+    $result{pass_name}=[];
+    $result{pass_arg}="";
+    open FI,"-|","netcat '$url'|gb2utf";
+    my $count;
+    my $baseurl;
+    my $fn_len;
+    while(<FI>) {
+        unless($baseurl) {
+            my @match = $_ =~ /\<img\s+src=\"\.\.([^\"]+\/)([0-9]+)\.jpg\"\s+/;
+            if(@match) {
+                $baseurl = $match[0];
+                $fn_len = length($match[1])/2;
+            }
+        }
+        my @match = $_ =~ /\<option\s+value\s*=\s*\"([0-9]+)\"\>/gi;
+        $count=$match[@match-1] if(@match);
+    }
+    close FI;
+    return %result unless($count or $fn_len);
+    for(my $i=1;$i<=$count;$i++) {
+        push(@{$result{data}},$baseurl . "0" x ($fn_len - length($i-1)) . ($i-1) . "0" x ($fn_len - length($i)) . $i .  ".jpg");
+    }
+    return %result;
+}

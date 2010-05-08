@@ -1,0 +1,19 @@
+#!/usr/bin/perl -w
+#URL rule for http://www.gentoo.org/doc/en/handbook/handbook-x86.xml
+#Example Url:http://www.gentoo.org/doc/en/handbook/handbook-x86.xml
+#Date Created:Thu Apr  3 23:13:38 CST 2008
+use strict;
+use MyPlace::Filename;
+use MyPlace::HTML;
+sub apply_rule {
+    my $url=shift;
+    my %result;
+    $result{base}=$url;
+    $result{work_dir}="";
+    open FI,"-|","netcat '$url'|gb2utf";
+    $result{data}=[grep /^\?part=[0-9]+&amp;chap=[0-9]+$/,get_hrefs(<FI>)];
+    close FI;
+    $result{action}="batchget";
+    $result{no_subdir}="true";
+    return %result;
+}

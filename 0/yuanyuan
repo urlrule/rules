@@ -1,0 +1,56 @@
+#!/usr/bin/perl -w
+#http://yuanyuan
+#http://205.209.177.79/modules/article/articleinfo.php?id=249
+#Sat Nov 28 12:05:13 2009
+use strict;
+
+#================================================================
+# apply_rule will be called with ($RuleBase,%Rule),the result returned have these meaning:
+# $r{base}          : Base url to build the full url
+# $r{work_dir}      : Working directory (will be created if not exists)
+# $r{data}          : Data array extracted from url,will be passed to $r{action}(see followed)
+# $r{action}        : Command which the $r{data} will be piped to,can be overrided
+# $r{pipeto}        : Same as action,Command which the $r{data} will be piped to,can be overrided
+# $r{hook}          : Hook action,function process_data will be called
+# $r{no_subdir}     : Do not create sub directories
+# $r{pass_data}     : Data array which will be passed to next level of urlrule
+# $r{pass_name}     : Names of each $r{pass_data}
+# $r{pass_arg}      : Additional arguments to be passed to next level of urlrule
+#================================================================
+use HTML::TreeBuilder;
+use MyPlace::HTML::Convertor;
+sub apply_rule {
+    my $rule_base= shift(@_);
+    my %rule = %{shift(@_)};
+    my %r;
+    my $title = shift @{$rule{args}} if($rule{args});
+    $r{base}=$rule_base;
+    open FI,"-|","netcat \'$rule_base\' | gb2utf";
+    my $tree = HTML::TreeBuilder->new();
+    while(<FI>) {
+        $tree->parse($_);
+    }
+    close FI;
+    $tree->eof();
+    my @elms;
+    unless($title) {
+        @elms = $tree->look_down("_tag","title");
+        $title = $elms[0]->as_text if(@elms);
+    }
+    die("Invalid URL\n") unless($title);
+    $title =~ s/\s*-.*$//;
+    $title =~ s/[\/\\]//g; 
+    $title = $1 if($title =~ /^(\d+)\.\d+$/);
+    @elms = $tree->look_down("_tag","div");
+    die("Invalid URL\n") unless(@elms);
+    $r{file} = $title . ".txt";
+    foreach my $idx (0..$#elms) {
+        if($elms[$idx]->look_down("_tag","h2")) {
+            push @{$r{data}},@{text_from_node($elms[$idx])},"\n";
+            push @{$r{data}},@{text_from_node($elms[$idx+1])} if($elms[$idx+1]);
+            last;
+        }
+    }
+    $tree->delete();
+    return %r;
+}

@@ -1,0 +1,45 @@
+#!/usr/bin/perl -w
+#URL rule for http://www.sexydesktop.co.uk/kirsty.htm
+#Example Url:http://www.sexydesktop.co.uk/kirsty.htm
+#Date Created:Wed Apr 16 18:28:27 CST 2008
+use strict;
+
+sub apply_rule {
+    my $url=shift;
+    my %result;
+    $result{base}=$url;
+    $result{work_dir}=$url;
+    $result{work_dir} =~ s/^.*\///;
+    $result{action}="batchget";
+    $result{data}=[];
+    $result{pass_data}=[];
+    $result{pass_name}=[];
+    $result{pass_arg}="";
+    open FI,"-|","netcat '$url'|gb2utf";
+    my $dn;
+    my $fn;
+    my $count;
+    while(<FI>) {
+        #addbm('kirsty', 'Kirsty%20Gallacher', i);
+        if((!$fn) and /addbm\(\'([^\']+)\',\s*\'([^\']+)\'\,\s*i\);/) {
+            $fn=$1;
+            $result{work_dir}=$2;
+            $result{work_dir} =~ s/%20/\ /;
+        }
+        if((!$dn) and /showPic\(i,\s*\'[^\']*\',\s*\'([^\']+)\',\s*av/) {
+            $dn=$1;
+        }
+        #Avail(32755, 76, 'k/kirsty', 0, -1, '9-Jan-08')<
+        if(!$count) {
+            if(/Avail\(\s*\d+\s*,\s*(\d+)\s*,\s*\'[^\']+\',\s*\d+\s*,\s*[-\d]+\s*,\s*'[^\']+\'\)/) {
+                $count=$1;
+            }
+        }
+        last if($count and $dn and $result{work_dir});
+    }
+    close FI;
+    for(my $i=1;$i<=$count;$i++) {
+        push @{$result{data}},"http://www.imgsvr.com/$dn/$fn$i" . "1280x960.jpg";
+    }
+    return %result;
+}

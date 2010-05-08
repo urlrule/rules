@@ -1,0 +1,30 @@
+#!/usr/bin/perl -w
+#URL rule for http://www.mday.com.cn/html/voltest/cvol/20080303/7653_2.html
+#Example Url:http://www.mday.com.cn/html/voltest/cvol/20080303/7653_2.html
+#Date Created:Mon Mar 24 22:48:10 CST 2008
+use strict;
+
+sub apply_rule($) {
+    my $url=shift;
+    my %result;
+    $result{base}="http://img.mday.com.cn";
+    $result{work_dir}="";
+    $result{action}="batchget -i";
+    $result{data}=[];
+    $result{pass_data}=[];
+    open FI,"-|","netcat '$url'|gb2utf";
+    my $base="";
+    while(<FI>) {
+        unless($base) {
+            my @match= $_ =~ /function\s*RepVol\(\)\s*\{\s*var\s*ds\s*=\s*\"([^\"]+)\";/;
+            if(@match) {
+                $base = $match[0];
+                $base =~ s/@/\//g;
+            }
+        }
+        my @match= $_ =~ /\s*ComicImg\[[0-9]+\]\s*=\s*\"([^\"]+)\";\s*$/;
+        push(@{$result{data}},$base . $match[0]) if(@match);
+    }
+    close FI;
+    return %result;
+}

@@ -1,0 +1,28 @@
+#!/usr/bin/perl -w
+#URL rule for http://www.mday.com.cn/s/hougong//20071008/1770.html
+#Example Url:http://www.mday.com.cn/s/hougong//20071008/1770.html
+#Date Created:Mon Mar 24 22:19:36 CST 2008
+
+sub apply_rule($) {
+    my $url=shift;
+    $url =~ s/^.*:\/\///;
+    $url =~ s/\/\//\//g;
+    $url = 'http://' . $url;
+    my %result;
+    $result{base}=$url;
+    $result{work_dir}="";
+    $result{action}="";
+    $result{data}=[];
+    $result{pass_data}=[];
+    open FI,"-|","netcat '$url'|gb2utf";
+    while(<FI>) {
+        unless($result{work_dir}) {
+            my @match = $_ =~ /\<TITLE\>\s*(.*)\s*\.\.+.*\<\/TITLE\>/i;
+            $result{work_dir}=$match[0] if(@match);
+        }
+        my @match = $_ =~ /javascript:winOpen\(\'(.*)\'\);/i;
+        push(@{$result{pass_data}},$match[0]) if(@match);
+    }
+    close FI;
+    return %result;
+}
