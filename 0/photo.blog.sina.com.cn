@@ -1,0 +1,77 @@
+#!/usr/bin/perl -w
+#http://photo.blog.sina.com.cn/category/u/1278629132/s/223080
+#Mon May 17 17:16:02 2010
+use strict;
+
+#================================================================
+# apply_rule will be called with ($RuleBase,%Rule),the result returned have these meaning:
+# $result{base}          : Base url to build the full url
+# $result{work_dir}      : Working directory (will be created if not exists)
+# $result{data}          : Data array extracted from url,will be passed to $result{action}(see followed)
+# $result{action}        : Command which the $result{data} will be piped to,can be overrided
+# $result{pipeto}        : Same as action,Command which the $result{data} will be piped to,can be overrided
+# $result{hook}          : Hook action,function process_data will be called
+# $result{no_subdir}     : Do not create sub directories
+# $result{pass_data}     : Data array which will be passed to next level of urlrule
+# $result{pass_name}     : Names of each $result{pass_data}
+# $result{pass_arg}      : Additional arguments to be passed to next level of urlrule
+#================================================================
+use utf8;
+
+sub get_data {
+    my $rule_base = shift;
+    my %r;
+    open FI,"-|","netcat -v \'$rule_base\'";
+    while(<FI>) {
+        my @match = $_ =~ /["']([^"']+\/small\/[^""\/\\]+)["']/g;
+        foreach(@match) {
+            $_ =~ s/small/orignal/;
+            $_ =~ s/&amp;690$//;
+            $r{$_}=1;
+        }
+    }
+    close FI;
+    return %r ? keys %r: ();
+}
+
+
+sub apply_rule {
+    my $rule_base= shift(@_);
+    my %rule = %{shift(@_)};
+    my %r;
+    $r{base}=$rule_base;
+    my $count = 0;
+    my $prefix = $rule_base;
+    if($rule_base =~ /(^.+\/category\/u\/\d+\/s\/\d+)/) {
+        $prefix = $1;
+    }
+    open FI,"-|","netcat -v \'$rule_base\'";
+    while(<FI>) {
+        if(!$r{work_dir} && /\<title\>([^<>]+)\</i) {
+            $r{work_dir} = $1;
+            $r{work_dir} =~ s/新浪博客//;
+            $r{work_dir} =~ s/&nbsp;/_/g;
+        }
+        my @match = $_ =~ /["']([^"']+\/small\/[^""\/\\]+)["']/g;
+        foreach(@match) {
+            $_ =~ s/small/orignal/;
+            $_ =~ s/&amp;690$//;
+            $r{data}{$_}=1;
+        }
+        @match = $_ =~ /\/category\/u\/\d+\/s\/\d+\/page(\d+)/g;
+        foreach(@match) {
+            $count=$_ if($_ > $count);
+        }
+    }
+    close FI;
+    $r{data} = [keys %{$r{data}}];
+    if($count>1) {
+        for my $page (2 .. $count) {
+            push @{$r{data}},&get_data("$prefix/page$page");
+        }
+    }
+    foreach (@{$r{data}}) {
+        s/static\d+\./service./;
+    }
+    return %r;
+}
