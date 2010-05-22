@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
-#http://www.moko.cc/post/5163.html
-#Thu Jun 25 15:13:09 2009
+#http://snarkerati.com/galleries/index.php/Kirsty-Gallacher
+#Fri May 21 18:06:24 2010
 use strict;
 
 #================================================================
@@ -16,30 +16,22 @@ use strict;
 # $result{pass_name}     : Names of each $result{pass_data}
 # $result{pass_arg}      : Additional arguments to be passed to next level of urlrule
 #================================================================
-use utf8;
+
 sub apply_rule {
     my $rule_base= shift(@_);
     my %rule = %{shift(@_)};
     my %r;
-	my %data;
     $r{base}=$rule_base;
-    open FI,"-|:utf8","netcat \"$rule_base\"";
-    my $title;
+    open FI,"-|","netcat \'$rule_base\'";
     while(<FI>) {
-        unless($title) {
-            if($_ =~ /<title\s*>([^<>]+)</i) {
-                $title = $1;
-                $title =~ s/.*\|\s*//;
-                $title =~ s/\s*展示\s*//;
-                $r{work_dir}=$title if($title);
-            }
+        foreach($_ =~ m/(\/galleries\/index\.php\/[^"\/]+\/[^"\/]+)\?action=thumb"/g) {
+            s/\/index\.php//;
+            push @{$r{data}},$_;
         }
-        $data{$1}=1 if($_ =~ m/(\/users\/[^"']+\/[^\/]+\.jpg)/i);
     }
     close FI;
-	push @{$r{data}},keys %data;
     return %r;
 }
 
 
-#   vim:filetype=perl
+#       vim:filetype=perl

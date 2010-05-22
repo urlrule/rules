@@ -35,6 +35,7 @@ sub apply_rule {
                 }
     }
     close FI;
+    $r{no_subdir}=1;
 	push @{$r{pass_data}},keys %data if(%data);
     return %r;
 }

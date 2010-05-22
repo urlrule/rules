@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
-#http://www.moko.cc/post/5163.html
-#Thu Jun 25 15:13:09 2009
+#http://www.mademan.com/chickipedia/lucy-pinder/photosgallery/
+#Sat May 22 00:55:14 2010
 use strict;
 
 #================================================================
@@ -16,30 +16,39 @@ use strict;
 # $result{pass_name}     : Names of each $result{pass_data}
 # $result{pass_arg}      : Additional arguments to be passed to next level of urlrule
 #================================================================
-use utf8;
+
+
+use MyPlace::HTTPGet;
+#use MyPlace::HTML;
+
+sub _process {
+    my ($url,$r,$rule,$data) = @_;
+    $url = $url . '/' unless($url =~ /\/$/);
+    #my @data = split(/\n/,$data);
+    my $page = 0;
+    my @match = $data =~ m/href\s*=\s*"[^"]+\/page(\d+)\.html?"/gi;
+    foreach(@match) {
+        $page=$_ if($_>$page);
+    }
+    push @{$r->{data}},$url;
+    foreach(2 .. $page) {
+        push @{$r->{pass_data}},$url . "page$_.html";
+    }
+    $r->{base}=$url;
+    $r->{no_subdir}=1;
+    return $r;
+}
+
 sub apply_rule {
-    my $rule_base= shift(@_);
+    my $url = shift(@_);
     my %rule = %{shift(@_)};
     my %r;
-	my %data;
-    $r{base}=$rule_base;
-    open FI,"-|:utf8","netcat \"$rule_base\"";
-    my $title;
-    while(<FI>) {
-        unless($title) {
-            if($_ =~ /<title\s*>([^<>]+)</i) {
-                $title = $1;
-                $title =~ s/.*\|\s*//;
-                $title =~ s/\s*展示\s*//;
-                $r{work_dir}=$title if($title);
-            }
-        }
-        $data{$1}=1 if($_ =~ m/(\/users\/[^"']+\/[^\/]+\.jpg)/i);
-    }
-    close FI;
-	push @{$r{data}},keys %data;
+    my $http = MyPlace::HTTPGet->new();
+    my (undef,$html) = $http->get($url);
+    &_process($url,\%r,\%rule,$html);
     return %r;
 }
 
 
-#   vim:filetype=perl
+
+#       vim:filetype=perl

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
-#http://www.moko.cc/post/5163.html
-#Thu Jun 25 15:13:09 2009
+#http://lucy-pinder.celebscentral.net/celebrity/484/mode,pictures/
+#Thu May 20 20:46:41 2010
 use strict;
 
 #================================================================
@@ -16,30 +16,35 @@ use strict;
 # $result{pass_name}     : Names of each $result{pass_data}
 # $result{pass_arg}      : Additional arguments to be passed to next level of urlrule
 #================================================================
-use utf8;
+
 sub apply_rule {
     my $rule_base= shift(@_);
     my %rule = %{shift(@_)};
     my %r;
-	my %data;
     $r{base}=$rule_base;
-    open FI,"-|:utf8","netcat \"$rule_base\"";
-    my $title;
+    open FI,"-|","netcat \'$rule_base\'";
+    my $prefix;
+    my $pages=0;
+    if($rule_base =~ /\/\/([^\.\/]+)/) {
+        $r{work_dir}=$1;
+        $r{work_dir} = ucfirst($r{work_dir});
+        $r{work_dir} =~ s/-(\w)/ \u$1/g;
+    }
     while(<FI>) {
-        unless($title) {
-            if($_ =~ /<title\s*>([^<>]+)</i) {
-                $title = $1;
-                $title =~ s/.*\|\s*//;
-                $title =~ s/\s*展示\s*//;
-                $r{work_dir}=$title if($title);
+        if(/href="([^"]+\/page,\s*)(\d+)\s*\/"/) {
+            if($2 > $pages) {
+                $pages=$2;
+                $prefix=$1;
             }
         }
-        $data{$1}=1 if($_ =~ m/(\/users\/[^"']+\/[^\/]+\.jpg)/i);
     }
     close FI;
-	push @{$r{data}},keys %data;
+    $r{no_subdir}=1;
+    if($prefix) {
+        $r{pass_data}=[map $prefix . $_,(1 .. $pages)];
+    }
     return %r;
 }
 
 
-#   vim:filetype=perl
+#       vim:filetype=perl

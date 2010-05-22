@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
-#http://www.moko.cc/post/5163.html
-#Thu Jun 25 15:13:09 2009
+#http://adrianalimafan.net/gallery/hq/
+#Thu May 20 19:59:16 2010
 use strict;
 
 #================================================================
@@ -16,30 +16,26 @@ use strict;
 # $result{pass_name}     : Names of each $result{pass_data}
 # $result{pass_arg}      : Additional arguments to be passed to next level of urlrule
 #================================================================
-use utf8;
+
 sub apply_rule {
     my $rule_base= shift(@_);
     my %rule = %{shift(@_)};
     my %r;
-	my %data;
     $r{base}=$rule_base;
-    open FI,"-|:utf8","netcat \"$rule_base\"";
-    my $title;
+    open FI,"-|","netcat \'$rule_base\'";
+    my $page=0;
     while(<FI>) {
-        unless($title) {
-            if($_ =~ /<title\s*>([^<>]+)</i) {
-                $title = $1;
-                $title =~ s/.*\|\s*//;
-                $title =~ s/\s*展示\s*//;
-                $r{work_dir}=$title if($title);
-            }
+        my @match = m/\/P(\d+)\//g;
+        foreach(@match) {
+            $page = $_ if($_>$page);
         }
-        $data{$1}=1 if($_ =~ m/(\/users\/[^"']+\/[^\/]+\.jpg)/i);
     }
     close FI;
-	push @{$r{data}},keys %data;
+    my $index=0;
+    while($index<=$page) {
+        push @{$r{pass_data}},"P$index/";
+        $index +=32;
+    }
+    $r{no_subdir}=1;
     return %r;
 }
-
-
-#   vim:filetype=perl
