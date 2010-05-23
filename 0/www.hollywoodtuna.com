@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
-#http://www.celebies.com/update/1685/patriot-82-keeley-hazell
-#Sat May 22 02:40:50 2010
+#http://www.hollywoodtuna.com/?cat=77
+#Sun May 23 03:23:28 2010
 use strict;
 
 #================================================================
@@ -19,24 +19,34 @@ use strict;
 
 
 use MyPlace::HTTPGet;
-#use MyPlace::HTML;
+use MyPlace::HTML;
 
 sub _process {
-    my ($url,$rule,$html) = @_;
+    my ($url,$rule,$html,$status) = @_;
     my @data;
     my @pass_data;
-    
-    #my @html = split(/\n/,$html);
-    my $page=0;
-    foreach($html =~ /href\s*=\s*"[^"]*\/update\/[^"]+\/(\d+)"\s*\>/g) {
-        $page = $_ if($_>$page);
+    $status = {} unless($status);
+    my @href = get_hrefs($html);
+    foreach(@href) {
+        s/(?:\&amp;|\&#38;)/\&/g;
+#        print $_,"\n";
+        if(/([^"]*)\/photo(\d*)\.php\?id=([^"\&]+)\&[^"]+loc=(\d+)/) {
+            push @data,"$1/images$4/bigimages$4/$3.jpg";
+        }
+        elsif(/([^"]*)\/photo(\d*)\.php\?id=([^"\&]+)\&/) {
+            push @data,"$1/images/bigimages$2/$3.jpg";
+        }
+        elsif(/paged=(\d+)/) {
+            next if($status->{$1});
+            $status->{$1}=1;
+            my $page = "$url&paged=$1";
+            my $http = MyPlace::HTTPGet->new();
+            app_message "processing $page...\n";
+            my (undef,$htmlpage) = $http->get($page);
+            my %r = &_process($url,$rule,$htmlpage,$status);
+            push @data,@{$r{data}} if($r{data});
+        }
     }
-    push @pass_data,$url;
-    foreach(2 .. $page) {
-        push @pass_data,"$url/$_";
-    }
-
-
     return (data=>[@data],pass_data=>[@pass_data],base=>$url,no_subdir=>1,work_dir=>undef);
 }
 

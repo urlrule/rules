@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
-#http://www.celebies.com/update/1685/patriot-82-keeley-hazell
-#Sat May 22 02:40:50 2010
+#http://hq-celebrity.com/monica-bellucci/
+#Sun May 23 01:14:03 2010
 use strict;
 
 #================================================================
@@ -25,18 +25,14 @@ sub _process {
     my ($url,$rule,$html) = @_;
     my @data;
     my @pass_data;
-    
+
     #my @html = split(/\n/,$html);
     my $page=0;
-    foreach($html =~ /href\s*=\s*"[^"]*\/update\/[^"]+\/(\d+)"\s*\>/g) {
+    foreach($html =~ /page\/(\d+)\/"/g) {
         $page = $_ if($_>$page);
     }
     push @pass_data,$url;
-    foreach(2 .. $page) {
-        push @pass_data,"$url/$_";
-    }
-
-
+    push @pass_data,$url . "page/$_/" for(2 .. $page);
     return (data=>[@data],pass_data=>[@pass_data],base=>$url,no_subdir=>1,work_dir=>undef);
 }
 
