@@ -38,10 +38,10 @@ sub apply_rule {
         $key =~ s/^.*\///;
     }
     if($params) {
-        open FI,"-|","google.search.image",$key,"pages=10",split('&',$params);
+        open FI,"-|","google.search.image",$key,"pages=5",split('&',$params);
     }
     else {
-        open FI,"-|","google.search.image",$key,"pages=10";
+        open FI,"-|","google.search.image",$key,"pages=5";
     }
     if(*FI) {
         while(<FI>) {
