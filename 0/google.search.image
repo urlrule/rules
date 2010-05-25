@@ -37,16 +37,16 @@ sub apply_rule {
         $key = $url;
         $key =~ s/^.*\///;
     }
-    if($params) {
-        open FI,"-|","google.search.image",$key,"pages=5",split('&',$params);
-    }
-    else {
-        open FI,"-|","google.search.image",$key,"pages=5";
-    }
-    if(*FI) {
+    my @params = $params ? split('&',$params) : ();
+    foreach my $startpage (1 .. 1) {
+        open FI,"-|","google.search.image",$key,@params, "startpage=$startpage";
         while(<FI>) {
             chomp;
             push @data,$_;
+        }
+        if(@data>50) {
+            &callback_process_data("google.search.image",\%rule,{no_subdir=>1,data=>[@data]});
+            @data = ();
         }
         close FI;
     }
