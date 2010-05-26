@@ -60,7 +60,7 @@ sub apply_rule {
         }
 	}
     push @{$r{pass_data}},keys %data;
-    warn("Count=$count\n");
+#    warn("Count=$count\n");
     foreach my $idx(2..$count) {
         push @{$r{pass_data}},get_sub_items("http://www.vlike.com/pic/$id/$idx.html");
     }

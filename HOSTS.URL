@@ -1,0 +1,51 @@
+CopperminePhotoGallery
+    http://###ID###/###TEXT1###/index.php?###TEXT2###
+        1
+celebies.com
+    http://www.celebies.com/celebrity/###ID###
+        2
+celebrity-pictures.ca
+    http://www.celebrity-pictures.ca/###ID###
+        1
+celebscentral.net
+    http://###ID###.celebscentral.net/
+        2
+celebuzz.com
+    http://www.celebuzz.com/celebrities/###ID###-photos/thumbnail/
+        1
+digicelebs.com
+    http://www.digicelebs.com/cpg/thumbnails-###TEXT1###.html
+        1
+google.search.image
+    google.search.image/###ID###
+        3
+hollywoodtuna.com
+    http://www.hollywoodtuna.com/?cat=###TEXT1###
+        0
+hq-celebrity.com
+    http://hq-celebrity.com/###ID###/
+        2
+hqpics.org
+    http://www.hqpics.org/index.php?spgmGal=###ID###
+        1
+mademan.com
+    http://www.mademan.com/chickipedia/###ID###/photosgallery/
+        1
+moko.cc
+    http://www.moko.cc/post/###ID###/
+        2
+picsius.com
+    http://www.picsius.com/###TEXT1###/###ID###/
+        1
+skins.be
+    http://www.skins.be/###ID###/
+        2
+snarkerati.com
+    http://snarkerati.com/galleries/index.php/###ID###
+        1
+vlike.com
+    http://www.vlike.com/pic/###ID###/
+        1
+yahoo.search.image
+    yahoo.search.image/###ID###
+        3
