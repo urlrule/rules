@@ -1,5 +1,8 @@
+gallery.script.coppermine
+    http://gallery.script.coppermine/###ID###/###TEXT1###/index.php?###TEXT2###
+        1
 CopperminePhotoGallery
-    http://###ID###/###TEXT1###/index.php?###TEXT2###
+    http://gallery.script.coppermine/###ID###/###TEXT1###/index.php?###TEXT2###
         1
 celebies.com
     http://www.celebies.com/celebrity/###ID###
