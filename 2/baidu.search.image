@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-#http://google.search.image
+#http://baidu.search.image
 #Sun May 23 21:36:13 2010
 use strict;
 
@@ -25,7 +25,7 @@ sub apply_rule {
     my $url = shift(@_);
     my %rule = %{shift(@_)};
 
-    #$url is a fake url: google.search.image/keyword?imgsz=huge&start=
+    #$url is a fake url: baidu.search.image/keyword?imgsz=huge&start=
     my $key;
     my $params = "";
     my @data;
@@ -39,13 +39,13 @@ sub apply_rule {
     }
     my @params = $params ? split('&',$params) : ();
     foreach my $startpage (1 .. 30) {
-        open FI,"-|","google.search.image",$key,@params, "startpage=$startpage";
+        open FI,"-|","baidu.search.image",$key,@params, "startpage=$startpage";
         while(<FI>) {
             chomp;
             push @data,$_;
         }
         if(@data>50) {
-            &callback_process_data("google.search.image",\%rule,{no_subdir=>1,data=>[@data]});
+            &callback_process_data("baidu.search.image",\%rule,{no_subdir=>1,data=>[@data]});
             @data = ();
         }
         close FI;

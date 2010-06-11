@@ -29,13 +29,13 @@ sub apply_rule {
     my $key;
     my $params = "";
     my @data;
-    if($url =~ /\/([^\?]+)\?(.*)$/) {
+    if($url =~ /\/([^\?\/]+)\?(.*)$/) {
         $key = $1;
         $params=$2;
     }
     else {
         $key = $url;
-        $key =~ s/^.*\///;
+        $key =~ s/^.*\///g;
     }
     my @params = $params ? split('&',$params) : ();
     foreach my $startpage (1 .. 1) {

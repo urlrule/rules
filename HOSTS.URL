@@ -55,3 +55,9 @@ yahoo.search.image
 qzone.qq.com
     http://###ID###.qzone.qq.com
         2
+photo.blog.sina.com.cn
+    http://photo.blog.sina.com.cn/###ID###
+        3
+baidu.search.image
+    baidu.search.image/###ID###
+
