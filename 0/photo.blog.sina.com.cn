@@ -27,7 +27,10 @@ sub get_data {
         foreach(@match) {
             $_ =~ s/small/orignal/;
             $_ =~ s/&amp;690$//;
-            $r{$_}=1;
+            my $data_url = build_url($rule_base,$_);
+            my $data_name = "$_.jpg";
+            $data_name =~ s/.*\///;
+            $r{$data_url . "\t" . $data_name}=1;
         }
     }
     close FI;
@@ -39,10 +42,10 @@ sub apply_rule {
     my $rule_base= shift(@_);
     my %rule = %{shift(@_)};
     my %r;
-    $r{base}=$rule_base;
+#    $r{base}=$rule_base;
     my $count = 0;
     my $prefix = $rule_base;
-    if($rule_base =~ /(^.+\/category\/u\/\d+\/s\/\d+)/) {
+    if($rule_base =~ /(^.+\/(?:blogpiclist\/u\/\d+|category\/u\/\d+\/s\/\d+))/) {
         $prefix = $1;
     }
     open FI,"-|","netcat -v \'$rule_base\'";
@@ -56,9 +59,12 @@ sub apply_rule {
         foreach(@match) {
             $_ =~ s/small/orignal/;
             $_ =~ s/&amp;690$//;
-            $r{data}{$_}=1;
+            my $data_url = build_url($rule_base,$_);
+            my $data_name = "$_.jpg";
+            $data_name =~ s/.*\///;
+            $r{data}{$data_url . "\t" . $data_name}=1;
         }
-        @match = $_ =~ /\/category\/u\/\d+\/s\/\d+\/page(\d+)/g;
+        @match = $_ =~ /\/(?:blogpiclist\/u\/\d+|category\/u\/\d+\/s\/\d+)\/page(\d+)/g;
         foreach(@match) {
             $count=$_ if($_ > $count);
         }

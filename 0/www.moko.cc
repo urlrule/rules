@@ -34,7 +34,12 @@ sub apply_rule {
                 $r{work_dir}=$title if($title);
             }
         }
-        $data{$1}=1 if($_ =~ m/(\/users\/[^"']+\/[^\/]+\.jpg)/i);
+        if($_ =~ m/(\/users\/[^"']+\/[^\/]+\.jpg)/i) 
+        {
+            my $url = $1;
+            $url =~ s/\/thumb\//\/src\//;
+            $data{$url} = 1;
+        }
     }
     close FI;
 	push @{$r{data}},keys %data;
