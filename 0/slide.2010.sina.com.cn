@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
-#http://google.search.image
-#Sun May 23 21:36:13 2010
+#http://slide.2010.sina.com.cn/slide_23_2202_3802.html
+#Thu Jul  8 23:11:37 2010
 use strict;
 
 #================================================================
@@ -17,48 +17,39 @@ use strict;
 # $result{pass_arg}      : Additional arguments to be passed to next level of urlrule
 #================================================================
 
-#use MyPlace::Google;
-#use MyPlace::HTTPGet;
+
+use MyPlace::HTTPGet;
+use Encode;
+my $GB2312 = find_encoding("gb2312");
+
 #use MyPlace::HTML;
+
+sub _process {
+    my ($url,$rule,$html) = @_;
+    my @data;
+    my @pass_data;
+    my @html = split(/\n/,$html);
+    my $workdir=undef;
+    foreach(@html) {
+        if((!$workdir) and ($_ =~ /<title>([^<>_]+)/i)) {
+            $workdir = $GB2312->decode($1);
+        }
+        elsif(/<dd>(http:\/\/[^<>]+\/slidenews\/[^<>\/]+_img\/[^<>]+)</) {
+            push @data,$1;
+        }
+    }
+        
+    return (count=>scalar(@data),data=>[@data],pass_data=>[@pass_data],base=>$url,no_subdir=>1,work_dir=>$workdir);
+}
 
 sub apply_rule {
     my $url = shift(@_);
     my %rule = %{shift(@_)};
-    #$url is a fake url: google.search.image/keyword?imgsz=huge&start=
-    my $level = $rule{level};
-   # shift(@_);
-    my $key;
-    my $params = "";
-    my @data;
-    if($url =~ /\/([^\/\?]+)\?(.*)$/) {
-        $key = $1;
-        $params=$2;
-    }
-    else {
-        $key = $url;
-        $key =~ s/^.*\///g;
-    }
-    my @params = $params ? split('&',$params) : ();
-    my $page_count = $level*20 + 1;
-    #foreach my $startpage (1 .. 60) {
-        open FI,"-|","google.search.image",$key,@params, "pages=$page_count";
-        #startpage=$startpage";
-        while(<FI>) {
-            chomp;
-            push @data,$_;
-            if(@data>180) {
-                &callback_process_data("google.search.image",\%rule,{no_subdir=>1,data=>[@data]});
-                @data = ();
-            }
-        }
-        close FI;
-    #}
-    return (
-        no_subdir=>1,
-        data=>[@data],
-    );
+    my $http = MyPlace::HTTPGet->new();
+    my (undef,$html) = $http->get($url);
+    return &_process($url,\%rule,$html);
 }
-1;
+
 
 
 #       vim:filetype=perl

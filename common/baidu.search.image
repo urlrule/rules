@@ -46,7 +46,7 @@ sub apply_rule {
         while(<FI>) {
             chomp;
             push @data,$_;
-            if(@data>50) {
+            if(@data>180) {
                 &callback_process_data("baidu.search.image",\%rule,{no_subdir=>1,data=>[@data]});
                 @data = ();
             }
