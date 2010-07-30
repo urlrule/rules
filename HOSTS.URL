@@ -61,4 +61,9 @@ photo.blog.sina.com.cn
 baidu.search.image
     baidu.search.image/###ID###
         3
-
+5show.com
+    http://www.5show.com/GirlShow.aspx?fid=###ID###
+        2
+icelebz.com
+    http://www.icelebz.com/celebs/###ID###/
+        0
