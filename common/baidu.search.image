@@ -39,7 +39,7 @@ sub apply_rule {
         $key =~ s/^.*\///g;
     }
     my @params = $params ? split('&',$params) : ();
-    my $page_count = $level*20 + 1;
+    my $page_count = $level*10 + 1;
     #foreach my $startpage (1 .. 60) {
         open FI,"-|","baidu.search.image",$key,@params, "pages=$page_count";
         #startpage=$startpage";
