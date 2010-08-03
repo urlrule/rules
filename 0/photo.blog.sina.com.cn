@@ -77,7 +77,7 @@ sub apply_rule {
         }
     }
     foreach (@{$r{data}}) {
-        s/static\d+\./service./;
+        s/static(\d+)\.photo\.sina\.com\.cn\//ss$1.sinaimg.cn\//;
     }
     return %r;
 }
