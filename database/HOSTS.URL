@@ -55,6 +55,9 @@ yahoo.search.image
 qzone.qq.com
     http://###ID###.qzone.qq.com
         2
+blog.sina.com.cn
+    http://photo.blog.sina.com.cn/###ID###
+        3
 photo.blog.sina.com.cn
     http://photo.blog.sina.com.cn/###ID###
         3
@@ -67,3 +70,12 @@ baidu.search.image
 icelebz.com
     http://www.icelebz.com/celebs/###ID###/
         0
+moko.mywhere.org
+    http://www.m.mywhere.org/mtg/moko/###ID###/
+        0
+renren.com
+    http://page.renren.com/###ID###/album
+        3
+tieba.baidu.com
+    http://tieba.baidu.com/f/good?kw=
+        3
