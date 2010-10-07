@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
-#http://www.hollywoodtuna.com/?s=Jordan+carver&button
-#Tue Aug 24 02:38:16 2010
+#http://www.adultdocument.info/List.asp?So=5&AS=10
+#Sat Aug 28 02:12:24 2010
 use strict;
 
 
@@ -8,16 +8,18 @@ use strict;
 sub apply_rule {
  return (
        '#use quick parse'=>1,
-       'pass_exp'=>'id="post-\\d+"><a href\\s*=\\s*"([^"]+)"',
-       'pass_map'=>'$1',
        'data_exp'=>undef,
        'data_map'=>undef,
-       'pages_exp'=>undef,
-       'pages_map'=>undef,
-       'pages_pre'=>undef,
-       'pages_suf'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pages_exp'=>'href="(List\.asp\?[^"]*GuPage=)(\d+)([^"]*)"',
+       'pages_map'=>'$2',
+       'pages_pre'=>'$1',
+       'pages_suf'=>'$3',
        'pages_start'=>undef,
-       'charset'=>undef
+       'title_exp'=>'<title>([^<]+)\s*-',
+       'title_map'=>'$1',
+       'charset'=>'gbk',
  );
 }
 

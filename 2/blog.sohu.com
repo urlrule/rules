@@ -1,17 +1,18 @@
 #!/usr/bin/perl -w
-#http://www.hollywoodtuna.com/?s=Jordan+carver&button
-#Tue Aug 24 02:38:16 2010
+#http://blog.sohu.com
+#Mon Sep 13 23:53:58 2010
 use strict;
 
 
 
+=method1
 sub apply_rule {
  return (
        '#use quick parse'=>1,
-       'pass_exp'=>'id="post-\\d+"><a href\\s*=\\s*"([^"]+)"',
-       'pass_map'=>'$1',
        'data_exp'=>undef,
        'data_map'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
        'pages_exp'=>undef,
        'pages_map'=>undef,
        'pages_pre'=>undef,
@@ -20,8 +21,8 @@ sub apply_rule {
        'charset'=>undef
  );
 }
+=cut
 
-=method2
 use MyPlace::HTTPGet;
 #use MyPlace::HTML;
 
@@ -30,7 +31,33 @@ sub _process {
     my $title = undef;
     my @data;
     my @pass_data;
-    #my @html = split(/\n/,$html);
+    my $prefix;
+    my $ebi;
+    my $per = 20;
+    my $count = 0;
+    my @html = split(/\n/,$html);
+    foreach(@html) {
+        if((!$prefix) and m/var\s*_blog_base_url\s*=\s*'([^']+)'/) {
+            $prefix = $1;
+        }
+        elsif((!$ebi) and m/var\s*_ebi\s*=\s*'([^']+)'/) {
+            $ebi = $1;
+        }
+        elsif((!$per) and m/var\s*itemPerPage\s*=\s*(\d+)/) {
+            $per = $1;
+        }
+        elsif((!$count) and m/var\s*totalCount\s*=\s*(\d+)/) {
+            $count = $1;
+        }
+    }
+    if($ebi) {
+        push @pass_data,$prefix . 'action/v_frag-ebi_' . $ebi . '/entry/';
+        my $page=1; 
+        while($page*$per < $count) {
+            $page++;
+            push @pass_data,$prefix . 'action/v_frag-ebi_' . $ebi . '-pg_' . $page . '/entry/';
+        }
+    }
     return (
         count=>scalar(@data),
         data=>[@data],
@@ -46,6 +73,7 @@ sub apply_rule {
     my $url = shift(@_);
     my $rule = shift(@_);
     my $http = MyPlace::HTTPGet->new();
+    $url = $url . '/entry/' unless($url =~ m/entry\/$/);
     my (undef,$html) = $http->get($url);
     return &_process($url,$rule,$html,@_);
 }

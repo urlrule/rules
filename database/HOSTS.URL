@@ -23,7 +23,16 @@ google.search.image
     google.search.image/###ID###?type=xxlarge
         3
 hollywoodtuna.com
-    http://www.hollywoodtuna.com/?cat=###TEXT1###
+    http://www.hollywoodtuna.com/?###ID###
+        2
+s.hollywoodtuna.com        
+    http://www.hollywoodtuna.com/?s=###ID###
+        2
+cat.hollywoodtuna.com
+    http://www.hollywoodtuna.com/?cat=###ID###
+        1
+p.hollywoodtuna.com
+    http://www.hollywoodtuna.com/?p=###ID###
         0
 hq-celebrity.com
     http://hq-celebrity.com/###ID###/
@@ -43,6 +52,9 @@ picsius.com
 skins.be
     http://www.skins.be/###ID###/
         2
+tags.skins.be
+    http://www.skins.be/tags/###ID###/
+        1
 snarkerati.com
     http://snarkerati.com/galleries/index.php/###ID###
         1
@@ -94,6 +106,9 @@ yayaxiu.com
 pp.sohu.com
     http://pp.sohu.com/user/###ID###/setlist
         3
+blog.sohu.com
+    http://###ID###.blog.sohu.com/entry/
+        2
 album.hi.baidu.com
     http://hi.baidu.com/###ID###/album/###TEXT1###
         1
@@ -130,4 +145,27 @@ hankyung.com
 forum.phpBB
     http://forum.phpBB/###ID###
         4
-    
+photobucket.com
+    http://photobucket.com/images/###ID###/
+        1
+forum.skins.be
+    http://forum.skins.be/###ID###/
+        1
+meeya.cc
+    http://meeya.cc/album.php?id=###ID###&aid=###TEXT1###
+        1
+onemodelplace.com
+    http://www.onemodelplace.com/linked_images_new.cfm?temp_id=###ID###&ist_type=Model&rimagesoff=FALSE
+        1
+boobieblog.com
+    http://www.boobieblog.com/?s=###ID###
+        1
+mtime.com
+    http://www.mtime.com/person/###ID###/photo_gallery/
+        1
+yymax.com
+    http://www.yymax.com/class###ID###/
+        1
+facebook.com
+    http://www.facebook.com/###ID###?v=photos
+        1

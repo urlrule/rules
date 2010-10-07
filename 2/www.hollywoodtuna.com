@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
-#http://www.moko.cc/post/5163.html
-#Thu Jun 25 15:13:09 2009
+#http://www.hollywoodtuna.com/?cat=77
+#Sun May 23 03:21:01 2010
 use strict;
 
 #================================================================
@@ -16,38 +16,35 @@ use strict;
 # $result{pass_name}     : Names of each $result{pass_data}
 # $result{pass_arg}      : Additional arguments to be passed to next level of urlrule
 #================================================================
+
+
 use MyPlace::HTTPGet;
-use utf8;
-sub apply_rule {
-    my $rule_base= shift(@_);
-    my %rule = %{shift(@_)};
-    my %r;
-	my %data;
-    $r{base}=$rule_base;
-    my $http = MyPlace::HTTPGet->new();
-    my (undef,$html) = $http->get($rule_base,'charset:utf8');
-    my $title;
-    foreach(split('\n',$html)) {
-        unless($title) {
-            if($_ =~ /<title\s*>([^<>]+?)\s*</i) {
-                $title = $1;
-                $title =~ s/.*\|\s*//;
-                $title =~ s/^\s*展示\s*//;
-                $title =~ s/(?:\s+|\s*\(\s*\d+\s*\)\s*)$//;
-                $r{work_dir}=$title if($title);
-            }
-        }
-        if($_ =~ m/src\s*=\s*"([^"]*\/users\/\d+[^"]+)"/) 
-        {
-            my $url = $1;
-            $url =~ s/\/thumb\//\/src\//;
-            $data{$url} = 1;
-        }
+#use MyPlace::HTML;
+
+sub _process {
+    my ($url,$rule,$html) = @_;
+    my @data;
+    my @pass_data;
+
+    #my @html = split(/\n/,$html);
+    my $page=0;
+    foreach($html =~ /paged=(\d+)"/g) {
+        $page=$_ if($_ > $page);
     }
-    close FI;
-	push @{$r{data}},keys %data;
-    return %r;
+    push @pass_data,$url;
+    push @pass_data,"$url&paged=$_" foreach(2 .. $page);
+
+    return (data=>[@data],pass_data=>[@pass_data],base=>$url,no_subdir=>1,work_dir=>undef);
+}
+
+sub apply_rule {
+    my $url = shift(@_);
+    my %rule = %{shift(@_)};
+    my $http = MyPlace::HTTPGet->new();
+    my (undef,$html) = $http->get($url);
+    return &_process($url,\%rule,$html);
 }
 
 
-#   vim:filetype=perl
+
+#       vim:filetype=perl

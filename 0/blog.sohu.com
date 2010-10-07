@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
-#http://www.hollywoodtuna.com/?s=Jordan+carver&button
-#Tue Aug 24 02:38:16 2010
+#http://hanxiao8506.blog.sohu.com/156610692.html
+#Mon Sep 13 23:40:00 2010
 use strict;
 
 
@@ -8,10 +8,10 @@ use strict;
 sub apply_rule {
  return (
        '#use quick parse'=>1,
-       'pass_exp'=>'id="post-\\d+"><a href\\s*=\\s*"([^"]+)"',
-       'pass_map'=>'$1',
-       'data_exp'=>undef,
-       'data_map'=>undef,
+       'data_exp'=>'src\s*=\s*"([^"]+sohu\.com[^"]+\.jpg)"',
+       'data_map'=>'$1',
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
        'pages_exp'=>undef,
        'pages_map'=>undef,
        'pages_pre'=>undef,

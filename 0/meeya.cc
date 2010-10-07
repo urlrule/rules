@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
-#http://www.hollywoodtuna.com/?s=Jordan+carver&button
-#Tue Aug 24 02:38:16 2010
+#http://meeya.cc/album.php?aid=7255&id=3165
+#Mon Aug 23 23:51:25 2010
 use strict;
 
 
@@ -8,10 +8,10 @@ use strict;
 sub apply_rule {
  return (
        '#use quick parse'=>1,
-       'pass_exp'=>'id="post-\\d+"><a href\\s*=\\s*"([^"]+)"',
-       'pass_map'=>'$1',
-       'data_exp'=>undef,
-       'data_map'=>undef,
+       'data_exp'=>'src="([^"]+/)t_([^"]+)"',
+       'data_map'=>'$1 . "n_" . $2',
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
        'pages_exp'=>undef,
        'pages_map'=>undef,
        'pages_pre'=>undef,

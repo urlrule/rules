@@ -1,17 +1,18 @@
 #!/usr/bin/perl -w
-#http://www.hollywoodtuna.com/?s=Jordan+carver&button
-#Tue Aug 24 02:38:16 2010
+#http://91porn.nl.am/view_video.php?viewkey=25cf93af25e86b4be04f&page=7&viewtype=basic&category=mr
+#Tue Oct  5 01:05:06 2010
 use strict;
 
 
 
+=method1
 sub apply_rule {
  return (
        '#use quick parse'=>1,
-       'pass_exp'=>'id="post-\\d+"><a href\\s*=\\s*"([^"]+)"',
-       'pass_map'=>'$1',
        'data_exp'=>undef,
        'data_map'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
        'pages_exp'=>undef,
        'pages_map'=>undef,
        'pages_pre'=>undef,
@@ -20,9 +21,9 @@ sub apply_rule {
        'charset'=>undef
  );
 }
+=cut
 
-=method2
-use MyPlace::HTTPGet;
+use MyPlace::Curl;
 #use MyPlace::HTML;
 
 sub _process {
@@ -30,7 +31,37 @@ sub _process {
     my $title = undef;
     my @data;
     my @pass_data;
-    #my @html = split(/\n/,$html);
+    my @html = split(/\n/,$html);
+    my ($host,$VID,$max_vid,$seccode,$name);
+    foreach(@html) {
+        if(m/addVariable\('([^']+)','([^']+)'/) {
+            if($1 eq 'file') {
+                $VID = $2;
+            }
+            elsif($1 eq 'max_vid') {
+                $max_vid = $2;
+            }
+            elsif($1 eq 'seccode') {
+                $seccode = $2;
+            }
+            elsif($1 eq 'location') {
+                $host = $2;
+            }
+        }
+        elsif(m/<title>Free porn video -\s+([^<]+)/) {
+            $name = $1;
+        }
+    }
+    if($host) {
+        $host =~ s/\/[^\/]+$//;
+        my $url = $host . '/getfile.php?' . 'VID=' . $VID . '&max_vid=' . $max_vid . '&mp4=1&seccode=' . $seccode; 
+        my $http = MyPlace::Curl->new();
+        print STDERR "File URL:$url\n";
+        my (undef,$html) = $http->get($url);
+        if($html =~ m/(http:\/\/\d+\.\d+\.\d+\.)(\d+)([^&]+)/) {
+            push @data,$1 . ($2 + 1) . $3 .  ($name ? "\t$name.mp4" : "");
+        }
+    }
     return (
         count=>scalar(@data),
         data=>[@data],
@@ -45,7 +76,7 @@ sub _process {
 sub apply_rule {
     my $url = shift(@_);
     my $rule = shift(@_);
-    my $http = MyPlace::HTTPGet->new();
+    my $http = MyPlace::Curl->new();
     my (undef,$html) = $http->get($url);
     return &_process($url,$rule,$html,@_);
 }

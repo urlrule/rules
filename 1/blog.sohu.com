@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
-#http://www.hollywoodtuna.com/?s=Jordan+carver&button
-#Tue Aug 24 02:38:16 2010
+#http://blog.sohu.com
+#Mon Sep 13 23:52:38 2010
 use strict;
 
 
@@ -8,10 +8,10 @@ use strict;
 sub apply_rule {
  return (
        '#use quick parse'=>1,
-       'pass_exp'=>'id="post-\\d+"><a href\\s*=\\s*"([^"]+)"',
-       'pass_map'=>'$1',
        'data_exp'=>undef,
        'data_map'=>undef,
+       'pass_exp'=>'data-url="([^"]+)"',
+       'pass_map'=>'$1',
        'pages_exp'=>undef,
        'pages_map'=>undef,
        'pages_pre'=>undef,
@@ -20,6 +20,7 @@ sub apply_rule {
        'charset'=>undef
  );
 }
+=cut
 
 =method2
 use MyPlace::HTTPGet;

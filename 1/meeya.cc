@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
-#http://www.hollywoodtuna.com/?s=Jordan+carver&button
-#Tue Aug 24 02:38:16 2010
+#http://meeya.cc/album.php?aid=7255&id=3165
+#Mon Aug 23 23:53:21 2010
 use strict;
 
 
@@ -8,15 +8,15 @@ use strict;
 sub apply_rule {
  return (
        '#use quick parse'=>1,
-       'pass_exp'=>'id="post-\\d+"><a href\\s*=\\s*"([^"]+)"',
-       'pass_map'=>'$1',
        'data_exp'=>undef,
        'data_map'=>undef,
-       'pages_exp'=>undef,
-       'pages_map'=>undef,
-       'pages_pre'=>undef,
-       'pages_suf'=>undef,
-       'pages_start'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pages_exp'=>'href="([^"]+&page=)(\d+)([^"]*)"',
+       'pages_map'=>'$2',
+       'pages_pre'=>'$1',
+       'pages_suf'=>'$3',
+       'pages_start'=>2,
        'charset'=>undef
  );
 }

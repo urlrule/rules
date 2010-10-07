@@ -1,17 +1,17 @@
 #!/usr/bin/perl -w
-#http://www.hollywoodtuna.com/?s=Jordan+carver&button
-#Tue Aug 24 02:38:16 2010
+#http://www.mtime.com/person/1095614/photo_gallery/
+#Wed Oct  6 00:11:09 2010
 use strict;
 
 
-
+=method1
 sub apply_rule {
  return (
        '#use quick parse'=>1,
-       'pass_exp'=>'id="post-\\d+"><a href\\s*=\\s*"([^"]+)"',
-       'pass_map'=>'$1',
-       'data_exp'=>undef,
-       'data_map'=>undef,
+       'data_exp'=>'<img src="([^"]+)_100X140([^"]+)"\s+alt=',
+       'data_map'=>'"$1$2"',
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
        'pages_exp'=>undef,
        'pages_map'=>undef,
        'pages_pre'=>undef,
@@ -20,8 +20,8 @@ sub apply_rule {
        'charset'=>undef
  );
 }
+=cut
 
-=method2
 use MyPlace::HTTPGet;
 #use MyPlace::HTML;
 
@@ -30,7 +30,15 @@ sub _process {
     my $title = undef;
     my @data;
     my @pass_data;
-    #my @html = split(/\n/,$html);
+    my @html = split(/\n/,$html);
+    foreach(@html) {
+        if(/<img src="([^"]+\/pi\/\d+[^"]+)_100X140([^"]+)"\s+alt=/) {
+            push @data,$1 . $2;
+        }
+        elsif(/<img src="([^"]+\/pi\/d\/[^"]+)_100X140([^"]+)"\s+alt=/) {
+            push @data,$1 . '_10000x14000' . $2;
+        }
+    }
     return (
         count=>scalar(@data),
         data=>[@data],

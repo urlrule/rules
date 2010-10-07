@@ -26,7 +26,10 @@ sub apply_rule {
     open FI,"-|:utf8","netcat \"$rule_base\"";
     while(<FI>) {
 		my $title = get_text("h1",$_) unless($r{work_dir});
-		$r{work_dir}=$title if($title);
+                if($title) {
+                    $title =~ s/(\s+|\s*\(\s*\d+\s*\)\s*)$//;
+    		    $r{work_dir}=$title;
+                }
 		if(/(\/post\/[^\/]+\/\d+\/\d+\.html)/i) {
 		    $data{$1}=1; 
                 }

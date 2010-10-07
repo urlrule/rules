@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
-#http://www.hollywoodtuna.com/?s=Jordan+carver&button
-#Tue Aug 24 02:38:16 2010
+#http://www.facebook.com/Alina.fans#!/Alina.fans?v=photos
+#Wed Oct  6 03:27:48 2010
 use strict;
 
 
@@ -8,10 +8,12 @@ use strict;
 sub apply_rule {
  return (
        '#use quick parse'=>1,
-       'pass_exp'=>'id="post-\\d+"><a href\\s*=\\s*"([^"]+)"',
-       'pass_map'=>'$1',
        'data_exp'=>undef,
        'data_map'=>undef,
+       'pass_exp'=>'href="(/album\.php\?[^"]+)"\s*title="([^"]*)"',
+       #<strong><a href="([^"]*album\.php\?[^"]+)"[^>]*>([^<]*])<',
+       'pass_map'=>'$1',
+       'pass_name_exp'=>'$2',
        'pages_exp'=>undef,
        'pages_map'=>undef,
        'pages_pre'=>undef,
@@ -20,9 +22,10 @@ sub apply_rule {
        'charset'=>undef
  );
 }
+=cut
 
 =method2
-use MyPlace::HTTPGet;
+use MyPlace::Curl;
 #use MyPlace::HTML;
 
 sub _process {
@@ -45,7 +48,7 @@ sub _process {
 sub apply_rule {
     my $url = shift(@_);
     my $rule = shift(@_);
-    my $http = MyPlace::HTTPGet->new();
+    my $http = MyPlace::Curl->new();
     my (undef,$html) = $http->get($url);
     return &_process($url,$rule,$html,@_);
 }

@@ -1,22 +1,20 @@
 #!/usr/bin/perl -w
-#http://www.hollywoodtuna.com/?s=Jordan+carver&button
-#Tue Aug 24 02:38:16 2010
+#http://photobucket.com/images/sara+varone/
+#Mon Aug 23 21:31:00 2010
 use strict;
 
 
 
 sub apply_rule {
+# return urlrule_quick_parse($_[0],$_[1],$data_exp,$data_map,$pass_exp,$pass_map,$charset);
+# return urlrule_parse_data($_[0],$_[1],$data_exp,$data_map,$charset);
+# return urlrule_parse_pass_data($_[0],$_[1],$pass_exp,$pass_map,$charset);
  return (
        '#use quick parse'=>1,
-       'pass_exp'=>'id="post-\\d+"><a href\\s*=\\s*"([^"]+)"',
-       'pass_map'=>'$1',
-       'data_exp'=>undef,
-       'data_map'=>undef,
-       'pages_exp'=>undef,
-       'pages_map'=>undef,
-       'pages_pre'=>undef,
-       'pages_suf'=>undef,
-       'pages_start'=>undef,
+       'data_exp'=>"'mediaUrl':'([^']+)'",
+       'data_map'=>'$1',
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
        'charset'=>undef
  );
 }

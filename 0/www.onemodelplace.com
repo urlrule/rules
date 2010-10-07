@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
-#http://www.hollywoodtuna.com/?s=Jordan+carver&button
-#Tue Aug 24 02:38:16 2010
+#http://www.onemodelplace.com/linked_images_new.cfm?temp_id=49893&ist_type=Model&rimagesoff=FALSE
+#Tue Aug 24 00:55:38 2010
 use strict;
 
 
@@ -8,10 +8,10 @@ use strict;
 sub apply_rule {
  return (
        '#use quick parse'=>1,
-       'pass_exp'=>'id="post-\\d+"><a href\\s*=\\s*"([^"]+)"',
-       'pass_map'=>'$1',
-       'data_exp'=>undef,
-       'data_map'=>undef,
+       'data_exp'=>'src="([^"]+_image_content.cfm\\?[^"]+)&tn=true([^"]*)"',
+       'data_map'=>'"$1$2\t$1.jpg"',
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
        'pages_exp'=>undef,
        'pages_map'=>undef,
        'pages_pre'=>undef,
