@@ -21,6 +21,26 @@ use strict;
 use MyPlace::HTTPGet;
 #use MyPlace::HTML;
 
+sub _process_tupian {
+    my ($url,$rule,$html) = @_;
+    my $title = undef;
+    my @data;
+    my @pass_data;
+    while($html =~ /picID\s*:\s*'([^']+)',/g) {
+        push @data,'http://imgsrc.baidu.com/forum/pic/item/' . "$1.jpg";
+    }
+    return (
+        count=>scalar(@data),
+        data=>[@data],
+        pass_count=>scalar(@pass_data),
+        pass_data=>[@pass_data],
+        base=>$url,
+        no_subdir=>1,
+        work_dir=>$title,
+    );
+}
+
+
 sub _process {
     my ($url,$rule,$html) = @_;
     my $title = undef;
@@ -45,7 +65,12 @@ sub apply_rule {
     my %rule = %{shift(@_)};
     my $http = MyPlace::HTTPGet->new();
     my (undef,$html) = $http->get($url);
-    return &_process($url,\%rule,$html);
+    if($url =~ m/tupian\/getAlbum\//) {
+        return &_process_tupian($url,\%rule,$html);
+    }
+    else {
+        return &_process($url,\%rule,$html);
+    }
 }
 
 

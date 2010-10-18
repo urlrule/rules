@@ -1,5 +1,7 @@
 #!/usr/bin/perl -w
 #http://tieba.baidu.com/f?kz=847145683
+#http://tieba.baidu.com/%BB%F4%CB%BC%D1%E0/tupian/view/1
+#http://tieba.baidu.com/%BB%F4%CB%BC%D1%E0/tupian/list/%E7%8E%AB%E7%91%B0%E6%B1%9F%E6%B9%96%E5%89%A7%E7%85%A7
 #Wed Aug  4 21:05:19 2010
 use strict;
 
@@ -19,7 +21,64 @@ use strict;
 
 
 use MyPlace::HTTPGet;
-#use MyPlace::HTML;
+
+sub _process_view {
+    my ($url,$rule,$html) = @_;
+    my $title;
+    my @pass_data;
+    my @pass_name;
+    my $pic_per_page=12;
+    my $api_url = $url;
+    $api_url =~ s/\/tupian\/view.*/\/tupian\/getAlbum/;
+    $html =~ s/[\n\r]+//g;
+    while($html =~ m/albumName:"([^"]+)",\s*albumPicNum:"(\d+)",/g) {
+        for(my $i=1;($i-1)*$pic_per_page<=$2;$i++) {
+            push @pass_data,"$api_url/$1/$i";
+            push @pass_name,$1;
+        }
+    }
+    return (
+        count=>0,
+        data=>undef,
+        pass_count=>scalar(@pass_data),
+        pass_data=>\@pass_data,
+        pass_name=>\@pass_name,
+        base=>$url,
+        no_subdir=>0,
+        work_dir=>$title,
+    );
+}
+sub _process_tupian {
+    my ($url,$rule,$html) = @_;
+    my $title;
+    my @pass_data;
+    my $pic_count=0;
+    my $pic_per_page=12;
+    my @html = split(/\n/,$html);
+    my $api_url = $url;
+    $api_url =~ s/\/list\//\/getAlbum/;
+    foreach(@html) {
+        last if($title and $pic_count);
+        if((!$title) and m/var\s*curAlbumName\s*=\s*'([^']+)';/) {
+            $title = $1;
+        }
+        elsif((!$pic_count) and m/var\s*picTotalNum\s*=\s*'(\d+)';/) {
+            $pic_count = $1;
+        }
+    }
+    for(my $i=1;($i-1)*$pic_per_page<=$pic_count;$i++) {
+        push @pass_data,"$api_url/$i";
+    }
+    return (
+        count=>0,
+        data=>undef,
+        pass_count=>scalar(@pass_data),
+        pass_data=>\@pass_data,
+        base=>$url,
+        no_subdir=>1,
+        work_dir=>$title,
+    );
+}
 
 sub _process {
     my ($url,$rule,$html) = @_;
@@ -69,9 +128,17 @@ sub apply_rule {
     my %rule = %{shift(@_)};
     my $http = MyPlace::HTTPGet->new();
     my (undef,$html) = $http->get($url);
-    use Encode;
-    my $gbk=find_encoding('gbk');
-    return &_process($url,\%rule,$gbk->decode($html));
+    use Encode qw/from_to/;
+    from_to($html,'gbk','utf8');
+    if($url =~ m/tupian\/list\//) {
+        return &_process_tupian($url,\%rule,$html);
+    }
+    elsif($url =~ m/tupian\/view\//) {
+        return &_process_view($url,\%rule,$html);
+    }
+    else {
+        return &_process($url,\%rule,$html);
+    }
 }
 
 

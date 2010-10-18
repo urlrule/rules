@@ -27,9 +27,20 @@ sub _process {
     my @data;
     my @pass_data;
     my @html = split(/\n/,$html);
+    my $pre = "";
+    my $pages = 1;
     foreach(@html) {
         if(/href="(\/f\?kz=\d+)" target="_blank"/) {
             push @pass_data,$1;
+        }
+        while(/href="([^"]+\/tupian\/view\/)(\d+)"/g) {
+            $pre = $1 unless($pre);
+            $pages = $2 unless($pages > $2);
+        }
+    }
+    if($url =~ m/\/tupian\//) {
+        for(my $i=1;$i<=$pages;$i++) {
+            push @pass_data,"$pre$i";
         }
     }
     return (

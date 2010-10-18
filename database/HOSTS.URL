@@ -91,6 +91,9 @@ renren.com
 tieba.baidu.com
     http://tieba.baidu.com/f/good?kw=###ID###
         3
+tupian.baidu.com
+    http://tieba.baidu.com/###ID###/tupian/
+        2
 game.163.com
     http://game.163.com/photoview/###ID###
         0
@@ -159,6 +162,9 @@ onemodelplace.com
         1
 boobieblog.com
     http://www.boobieblog.com/?s=###ID###
+        1
+person.mtime.com
+    http://www.mtime.com/person/###ID###/photo_gallery/
         1
 mtime.com
     http://www.mtime.com/person/###ID###/photo_gallery/
