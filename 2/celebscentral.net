@@ -22,13 +22,19 @@ sub apply_rule {
     my %rule = %{shift(@_)};
     my %r;
     $r{base}=$rule_base;
-    open FI,"-|","netcat \'$rule_base\'";
-    while(<FI>) {
-        if(/(\/celebrity\/\d+\/mode,pictures\/)/) {
-            $r{pass_data}=[$1];
-        }
+    $rule_base =~ s/,wallpapers|,collages/pictures/;
+    if($rule_base =~ m/\/user\/pictures\/|mode,pictures/) {
+        $r{pass_data}=[$rule_base];
     }
-    close FI;
+    else {
+        open FI,"-|","netcat \'$rule_base\'";
+        while(<FI>) {
+            if(/(\/celebrity\/\d+\/mode,pictures\/)/) {
+                $r{pass_data}=[$1];
+            }
+        }
+        close FI;
+    }
     $r{no_subdir}=1;
     return %r;
 }

@@ -11,8 +11,11 @@ celebrity-pictures.ca
     http://www.celebrity-pictures.ca/###ID###
         1
 celebscentral.net
-    http://###ID###.celebscentral.net/
+    http://###ID###.celebscentral.net
         2
+search.celebscentral.net
+    http://www.celebscentral.net/search/?search=###ID###
+        3
 celebuzz.com
     http://www.celebuzz.com/celebrities/###ID###-photos/thumbnail/
         1
@@ -54,7 +57,7 @@ skins.be
         2
 tags.skins.be
     http://www.skins.be/tags/###ID###/
-        1
+        2
 snarkerati.com
     http://snarkerati.com/galleries/index.php/###ID###
         1

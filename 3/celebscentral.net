@@ -1,23 +1,23 @@
 #!/usr/bin/perl -w
-#http://lucy-pinder.celebscentral.net/celebrity/484/mode,pictures/
-#Thu May 20 20:46:41 2010
+#http://www.celebscentral.net/search/?search=monica+bellucci
+#Tue Oct 19 22:31:49 2010
 use strict;
 
 
-#http://lucy-pinder.celebscentral.net/celebrity/484/mode,pictures/
-#http://www.celebscentral.net/user/picture/367881/Monica%20Bellucci
+
 sub apply_rule {
  return (
        '#use quick parse'=>1,
        'data_exp'=>undef,
        'data_map'=>undef,
-       'pass_exp'=>undef,
-       'pass_map'=>undef,
-       #http://www.celebscentral.net/user/pictures/0000007420-19/Lucy+Pinder
-       'pages_exp'=>'href="([^"]+/page,\s*|[^"]*\/user/pictures/\d+-)(\d+)([^"]*)"',
-       'pages_map'=>'$2',
-       'pages_pre'=>'$1',
-       'pages_suf'=>'$3',
+       #'pass_exp'=>'<td [^>]+class="tableItem"[^>]+><a href="[^"]*(http:\/\/[^\.]+\.celebscentral.net/?|/celebrity/\d+/mode,(?:wallpapers|collages|pictures)/|/user/pictures/\d+-\d+/[^"]+)"[^>]*>(.+?)</a',
+       'pass_exp'=>'<td [^>]+class="tableItem"[^>]+><a href="[^"]*(http:\/\/[^\.]+\.celebscentral.net/?|/user/pictures/\d+-\d+/[^"]+)"[^>]*>(.+?)</a',
+       'pass_map'=>'my $url=$1;$url =~ s/mode,(?:wallpapers|collages)/mode,pictures/;$url;',
+       'pass_name_exp'=>'my $url=$2;$url =~ s/<b>|<\/b>//gi;$url;',
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
        'pages_start'=>undef,
        'charset'=>undef
  );
@@ -74,37 +74,5 @@ __END__
 # urlrule_parse_data($url,$rule,$data_exp,$data_map,$charset)
 # urlrule_parse_pass_data($url,$rule,$pass_exp,$pass_map,$charset)
 #================================================================
-
-#       vim:filetype=perl
-
-#sub apply_rule {
-#    my $rule_base= shift(@_);
-#    my %rule = %{shift(@_)};
-#    my %r;
-#    $r{base}=$rule_base;
-#    open FI,"-|","netcat \'$rule_base\'";
-#    my $prefix;
-#    my $pages=0;
-#    if($rule_base =~ /\/\/([^\.\/]+)/) {
-#        $r{work_dir}=$1;
-#        $r{work_dir} = ucfirst($r{work_dir});
-#        $r{work_dir} =~ s/-(\w)/ \u$1/g;
-#    }
-#    while(<FI>) {
-#        if(/href="([^"]+\/page,\s*)(\d+)\s*\/"/) {
-#            if($2 > $pages) {
-#                $pages=$2;
-#                $prefix=$1;
-#            }
-#        }
-#    }
-#    close FI;
-#    $r{no_subdir}=1;
-#    if($prefix) {
-#        $r{pass_data}=[map $prefix . $_,(1 .. $pages)];
-#    }
-#    return %r;
-#}
-
 
 #       vim:filetype=perl

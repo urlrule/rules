@@ -35,7 +35,7 @@ sub apply_rule {
     }
     push @{$r{pass_data}},$rule_base;
     for my $idx (2..$page) {
-        push @{$r{pass_data}},"$rule_base$page/"
+        push @{$r{pass_data}},"$rule_base$idx/"
     }
     $r{no_subdir}=1;
     return %r;
