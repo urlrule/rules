@@ -17,8 +17,7 @@ use strict;
 # $result{pass_arg}      : Additional arguments to be passed to next level of urlrule
 #================================================================
 use MyPlace::HTML;
-use Encode;
-my $gb = find_encoding("gb2312");
+use Encode qw/from_to/;
 
 sub apply_rule {
     my $rule_base= shift(@_);
@@ -28,9 +27,13 @@ sub apply_rule {
     $r{base}=$rule_base;
     open FI,"-|","netcat \"$rule_base\"";
     while(<FI>) {   
-        $_ = $gb->decode($_);
         if(!$r{work_dir}) {
             $r{work_dir} = get_title($_);
+            if($r{work_dir}) {
+                from_to($r{work_dir},'GBK','UTF8');
+                $r{work_dir} =~ s/(\d+[Pp])?\s*_[^_]+_微来美女网\s*$//;
+                $r{work_dir} =~ s/_//g;
+            }
         }
         my @imgs = get_props("img","src",$_);
         foreach(@imgs) {

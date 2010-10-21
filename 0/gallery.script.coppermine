@@ -34,9 +34,12 @@ sub _process {
             if($_ =~ /"[^"]+page=(\d+)"/) {
                 $page = $1 if($1>$page);
             }
-            if((!$title) and $_ =~ /<title>[^-]+-\s+(.+)</) {
+            if((!$title) and $_ =~ /<title>([^<]+)</) {
                 $title = $1;
-                $title =~ s/[\s\.]*$//;
+                $title =~ s/[^-]+\.com\s*-\s*//;
+                $title =~ s/\s*-\s*[^-]+\.com$//;
+                $title =~ s/\s*-\s*[^-]*$//;
+                $title =~ s/[-\s\.]+$//g;
             }
         }
         if(/src\s*=\s*"([^"]+thumb_[^"]+)"/) {

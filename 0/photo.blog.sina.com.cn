@@ -16,7 +16,7 @@ use strict;
 # $result{pass_name}     : Names of each $result{pass_data}
 # $result{pass_arg}      : Additional arguments to be passed to next level of urlrule
 #================================================================
-use utf8;
+#use utf8;
 
 sub get_data {
     my $rule_base = shift;
@@ -52,7 +52,8 @@ sub apply_rule {
     while(<FI>) {
         if(!$r{work_dir} && /\<title\>([^<>]+)\</i) {
             $r{work_dir} = $1;
-            $r{work_dir} =~ s/新浪博客//;
+            $r{work_dir} =~ s/^博客相册[_-]//;
+            $r{work_dir} =~ s/(_[^_]+)?_[^_]+_新浪博客$//;
             $r{work_dir} =~ s/&nbsp;/_/g;
         }
         my @match = $_ =~ /["']([^"']+\/small\/[^""\/\\]+)["']/g;

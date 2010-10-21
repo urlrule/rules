@@ -28,7 +28,9 @@ sub apply_rule {
     my (undef,$data) = $http->get($rule_base);
         foreach($data =~ /src\s*=\s*"(http:\/\/\d+thumb\.skins\.be\/[^"]+)"/gi) {
             $_ =~ s/(\d+)thumb/$1img/;
-            push @{$r{data}},$_;
+            my $name = $_;
+            $name =~ s/http:\/\/\d+img\./img./g;
+            push @{$r{data}},"$_\t$name";
         }
     close FI;
     return %r;

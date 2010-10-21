@@ -31,25 +31,26 @@ sub _moko_get_postclass {
 
 sub apply_rule {
     my $rule_base= shift(@_);
-	if($rule_base =~ /\/www\.moko\.cc\/post\/([^\/]+)\/?/) {
+    my %rule = %{shift(@_)};
+    my %r;
+	if($rule_base =~ /moko\.cc\/post\/([^\/]+)\/?/) {
 		$rule_base = "http://www.moko.cc/post/$1/indexpost.html";
 	}
 	my $id;
 	if($rule_base =~ /\/post\/([^\/]+)\//) {
 		$id=$1;
+                $r{work_dir}=$id;
 	}
-    my %rule = %{shift(@_)};
-    my %r;
     $r{base}=$rule_base;
     my %pass_data;
     open FI,"-|","netcat \'$rule_base\'";
 	my @text =<FI>;
 	close FI;
-	$r{work_dir} = get_title(@text);
-	if($id) {
-		$r{work_dir} = $id . ($r{work_dir} ? "_" . $r{work_dir} : "");
-	}
-	$r{work_dir} =~ s/'s.*$// if($r{work_dir});
+#	$r{work_dir} = get_title(@text);
+#	if($id) {
+#		$r{work_dir} = $id . ($r{work_dir} ? "_" . $r{work_dir} : "");
+#	}
+#	$r{work_dir} =~ s/'s.*$// if($r{work_dir});
 	foreach(@text) {
             if($_ =~ m/(\/post\/$id\/indexpage\/\d+\.html)/) {
                 $pass_data{$rule_base}=1;

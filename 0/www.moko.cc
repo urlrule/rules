@@ -17,7 +17,6 @@ use strict;
 # $result{pass_arg}      : Additional arguments to be passed to next level of urlrule
 #================================================================
 use MyPlace::HTTPGet;
-use utf8;
 sub apply_rule {
     my $rule_base= shift(@_);
     my %rule = %{shift(@_)};
@@ -25,13 +24,13 @@ sub apply_rule {
 	my %data;
     $r{base}=$rule_base;
     my $http = MyPlace::HTTPGet->new();
-    my (undef,$html) = $http->get($rule_base,'charset:utf8');
+    my (undef,$html) = $http->get($rule_base);#,'charset:utf8');
     my $title;
     foreach(split('\n',$html)) {
         unless($title) {
             if($_ =~ /<title\s*>([^<>]+?)\s*</i) {
                 $title = $1;
-                $title =~ s/.*\|\s*//;
+                $title =~ s/^[^\|]+\|\s*//;
                 $title =~ s/^\s*展示\s*//;
                 $title =~ s/(?:\s+|\s*\(\s*\d+\s*\)\s*)$//;
                 $r{work_dir}=$title if($title);

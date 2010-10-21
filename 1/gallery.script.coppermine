@@ -27,12 +27,20 @@ sub _process_cat {
     my($url,$html,$cats,$albums) = @_;
     my @html = split(/\n/,$html);
     foreach(@html) {
-        if(/(index\.php\?cat=\d+)/) {
-            if(!$cats->{$1}) {
-                $cats->{$1}=1;
+        s/&amp;/&/g;
+        my $cat;
+        if(/(index\.php\?cat=\d+&page=\d+)/) {
+            $cat = $1;
+        }
+        elsif(/(index\.php\?cat=\d+)/) {
+            $cat = $1;
+        }
+        if($cat) {
+            if(!$cats->{$cat}) {
+                $cats->{$cat}=1;
                 my $http = MyPlace::HTTPGet->new();
-                app_message "Process $url/$1\n";
-                my (undef,$data) = $http->get("$url/$1");
+                app_message "Process $url/$cat\n";
+                my (undef,$data) = $http->get("$url/$cat");
                 &_process_cat($url,$data,$cats,$albums);
             }
         }

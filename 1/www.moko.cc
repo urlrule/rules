@@ -23,7 +23,7 @@ sub apply_rule {
     my %r;
     $r{base}=$rule_base;
     my %data;
-    open FI,"-|:utf8","netcat \"$rule_base\"";
+    open FI,"-|","netcat \"$rule_base\"";
     while(<FI>) {
 		my $title = get_text("h1",$_) unless($r{work_dir});
                 if($title) {

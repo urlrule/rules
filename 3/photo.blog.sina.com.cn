@@ -17,18 +17,20 @@ use strict;
 # $result{pass_arg}      : Additional arguments to be passed to next level of urlrule
 #================================================================
 
-use utf8;
 sub apply_rule {
     my $rule_base= shift(@_);
     my %rule = %{shift(@_)};
     my %r;
     $r{base}=$rule_base;
+    if($rule_base =~ m/blog\.sina\.com\.cn\/([^\/]+)/) {
+        $r{work_dir} = $1;
+    }
     open FI,"-|","netcat \'$rule_base\'";
     while(<FI>) {
-        if(!$r{work_dir} && /\<title\>([^<>]+)\</i) {
-            $r{work_dir} = $1;
-            $r{work_dir} =~ s/_新浪博客//;
-        }
+#        if(!$r{work_dir} && /\<title\>([^<>]+)\</i) {
+#            $r{work_dir} = $1;
+#            $r{work_dir} =~ s/_新浪博客//;
+#        }
         if(/(\/categorys\/p\/\d+)/) {
             $r{pass_data}{$1} = 1;
         }
