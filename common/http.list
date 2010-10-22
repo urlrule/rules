@@ -45,7 +45,7 @@ sub apply_rule {
     my $real_url = shift(@_);
     my %rule = %{shift(@_)};
     my $http = MyPlace::HTTPGet->new();
-    $real_url = $real_url . '/' unless($real_url =~ /\/$/);
+#    $real_url = $real_url . '/' unless($real_url =~ /\/$/);
     my (undef,$html) = $http->get($real_url);
     return &_process($real_url,\%rule,$html);
 }

@@ -184,3 +184,18 @@ album.shawei.com
 shawei.com
     http://###ID###.shawei.com/###TEXT1###
         2
+links
+    http://links/###ID###
+        0
+sweeboo.com
+    http://sweeboo.com/###ID###/
+        1
+coldcherry.com
+    http://www.coldcherry.com/###ID###/
+        1
+definebabe.com
+    http://www.definebabe.com/models/###ID###/galleries
+        1
+htmlprops
+    http://htmlprops/###ID#######TEXT1###
+        0
