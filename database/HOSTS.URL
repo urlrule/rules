@@ -23,7 +23,7 @@ digicelebs.com
     http://www.digicelebs.com/cpg/thumbnails-###TEXT1###.html
         1
 google.search.image
-    google.search.image/###ID###?type=xxlarge
+    google.search.image/###ID###?type=large
         3
 hollywoodtuna.com
     http://www.hollywoodtuna.com/?###ID###
