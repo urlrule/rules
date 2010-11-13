@@ -1,44 +1,40 @@
 #!/usr/bin/perl -w
-#http://cafe.daum.net/feeljihye
-#Wed Aug 18 02:25:47 2010
+#http://car.mt.co.kr/photovod/racingmodel_profile.html?modelNo=22
+#Sat Nov 13 03:01:03 2010
 use strict;
 
 
-#
-#sub apply_rule {
-# return urlrule_quick_parse($_[0],$_[1],$data_exp,$data_map,$pass_exp,$pass_map,$charset);
-# return urlrule_parse_data($_[0],$_[1],$data_exp,$data_map,$charset);
-# return urlrule_parse_pass_data($_[0],$_[1],$pass_exp,$pass_map,$charset);
-# return (
-#       '#use quick parse'=>1,
-#       'data_exp'=>undef,
-#       'data_map'=>undef,
-#       'pass_exp'=>undef,
-#       'pass_map'=>undef,
-#       'charset'=>undef
-# );
-#}
 
+sub apply_rule {
+ return (
+       '#use quick parse'=>1,
+       'data_exp'=>undef,
+       'data_map'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+       'pages_exp'=>'<li><a href="([^"]+&page=)(\d+)([^"]*)"',
+       'pages_map'=>'$2',
+       'pages_pre'=>'$1',
+       'pages_suf'=>'$3',
+       'pages_start'=>2,
+       'title_exp'=>'<li><span>이름 :<\/span>([^<]+)</li>',
+#\s+([^\s]+)\s+<\/title>',
+       'title_map'=>'$1',
+       'charset'=>'euc-kr'
+ );
+}
+=cut
 
-use MyPlace::HTTPGet;
+=method2
+use MyPlace::Curl;
 #use MyPlace::HTML;
 
 sub _process {
     my ($url,$rule,$html) = @_;
     my $title = undef;
-    if($url =~ m/daum\.net\/([^\/]+)$/) {
-        $title = $1;
-    }
     my @data;
     my @pass_data;
-    my $server='http://cafe.daum.net';
-    my $grpid=0;
-    if($html =~ m/location\.href="([^"]*cafe\d+\.daum\.net)\/[^"]+grpid=([^"&]+)"/) {
-        $server = $1;
-        $grpid =$2;
-    }
-    @pass_data = map "$server/_c21_/image_bbs_list?grpid=$grpid&listnum=20&page=$_",(1 .. 30);
-    
     #my @html = split(/\n/,$html);
     return (
         count=>scalar(@data),
@@ -54,11 +50,11 @@ sub _process {
 sub apply_rule {
     my $url = shift(@_);
     my $rule = shift(@_);
-    my $http = MyPlace::HTTPGet->new();
+    my $http = MyPlace::Curl->new();
     my (undef,$html) = $http->get($url);
     return &_process($url,$rule,$html,@_);
 }
-
+=cut
 
 1;
 

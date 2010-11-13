@@ -4,18 +4,11 @@
 use strict;
 
 
-#
 sub apply_rule {
-# return urlrule_quick_parse($_[0],$_[1],$data_exp,$data_map,$pass_exp,$pass_map,$charset);
-# return urlrule_parse_data($_[0],$_[1],$data_exp,$data_map,$charset);
-# return urlrule_parse_pass_data($_[0],$_[1],$pass_exp,$pass_map,$charset);
  return (
        '#use quick parse'=>1,
-       'data_exp'=>'"([^"]+)/T120x120/([^"]+)"',
-       'data_map'=>'"$1/image/$2"',
-#       'pass_exp'=>undef,
-#       'pass_map'=>undef,
-#       'charset'=>undef
+       'data_exp'=>'"([^"]*)/[Tt]\d+[xX]\d+/([^"]+)"',
+       'data_map'=>'"$1/original/$2\t$2.jpg"',
  );
 }
 
