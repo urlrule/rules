@@ -19,10 +19,18 @@ sub _process {
             push @pass_data,$1;
         }
         if(m/src\s*=\s*"([^"]+)\.thumb(\.[^"\/]+)/) {
-            push @data,$1 . $2;
+            my $fullurl = $1 . $2;
+            if($fullurl =~ m/snaapa\.com\/(.+)$/) {
+                my $baseurl = $1;
+                $baseurl =~ s/\//_/g;
+                push @data,$fullurl . "\t" . $baseurl;
+            }
+            else {
+                push @data,$fullurl;
+            }
         }
-        if((!$title) and m/<title>\s*(.+?)\s+--\s+snaapa\.com/) {
-            $title =$1;
+        if((!$title) and m/<title>\s*([^<>]+?)\s+--\s+snaapa\.com|\s*(.+?)\s+--\s+snaapa\.com[^<]+<\/title/) {
+            $title =$1 if($1);
         }
         if(m/href\s*=\s*["\']?([^<>\'"]*page=)(\d+)([^<>\'"]*)/) {
             if($2 > $pages) {
@@ -32,11 +40,26 @@ sub _process {
             }
         }
     }
-    if($url !~ m/[&\?]page=\d+/ and $pages>1) {
-        for(my $idx=1;$idx<=$pages;$idx++) {
-            push @pass_data,$pre . $idx . $suf;
+    if($url !~ m/[&\?]page=\d+/) {
+        if($pages>1) {
+            for(my $idx=1;$idx<=$pages;$idx++) {
+                push @pass_data,$pre . $idx . $suf;
+            }
+            @data = ();
         }
-        @data = ();
+        else {
+            @data = () if(@pass_data);
+        }
+        my $path_name = "";
+        if($url =~ m/(.+?snaapa\.com\/)\/+(.+)$/) {
+            $url = "$1$2";
+            $path_name = $2;
+            $path_name =~ s/\//_/g;
+        }
+        elsif($url =~ m/\/([^\/]+)$/) {
+            $path_name = $1;
+        }
+        $title = $title ? $path_name . '_' . $title : $path_name;
     }
     else {
         @data = () if(@pass_data);
