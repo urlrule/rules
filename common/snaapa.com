@@ -50,16 +50,14 @@ sub _process {
         else {
             @data = () if(@pass_data);
         }
-        my $path_name = "";
         if($url =~ m/(.+?snaapa\.com\/)\/+(.+)$/) {
             $url = "$1$2";
-            $path_name = $2;
-            $path_name =~ s/\//_/g;
+            $title = $2;
+            $title =~ s/\//_/g;
         }
         elsif($url =~ m/\/([^\/]+)$/) {
-            $path_name = $1;
+            $title = $title ? $1 . '_' . $title : $1;
         }
-        $title = $title ? $path_name . '_' . $title : $path_name;
     }
     else {
         @data = () if(@pass_data);
