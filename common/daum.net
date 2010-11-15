@@ -1,0 +1,60 @@
+#!/usr/bin/perl -w
+use MyPlace::URLRule qw/callback_process_result callback_process_data/;
+use MyPlace::HTTPGet;
+use MyPlace::Script::Message qw/print_yellow/;
+my $http = MyPlace::HTTPGet->new();
+#use MyPlace::HTML;
+sub process_page {
+    my $url = shift;
+    my (undef,$html) = $http->get($url);    
+    my @data;
+    while($html =~ m/"([^"]*)\/(?:[Tt]\d+[xX]\d+|original)\/([^"]+)"/g) {
+        push @data,"$1/original/$2\t$2.jpg";
+    }
+    if(@data) {
+        return {data=>\@data,count=>scalar(@data)};
+    }
+    return undef;
+}
+
+sub _process {
+    my ($url,$rule,$html) = @_;
+    my $title = undef;
+    if($url =~ m/daum\.net\/([^\/]+)$/) {
+        $title = $1;
+    }
+    my @data;
+    my @pass_data;
+    my $server='http://cafe.daum.net';
+    my $grpid=0;
+    if($html =~ m/location\.href="([^"]*cafe\d+\.daum\.net)\/[^"]+grpid=([^"&]+)"/){ 
+        $server = $1;
+        $grpid =$2;
+    }
+    my $name = $url . "[$rule->{level}] ";
+    my $page=1;
+    my $base_url = "$server/_c21_/image_bbs_list?grpid=$grpid&listnum=20&page=";
+    my $page_url = $base_url . $page;
+    print_yellow($name,"Get baseurl = $base_url\n");
+    my $result = process_page($page_url);
+    if($result) {
+        print_yellow($name,"initializing...\n");
+        callback_process_result($name,$rule,{work_dir=>$title});
+    }
+    while($result) {
+        print_yellow($name,"processing page $page...\n");
+        callback_process_data($page_url,$rule,$result);
+        $page++;
+        $page_url = $base_url . $page;
+        $result = process_page($page_url);
+    }
+    print_yellow($name, "finished at page $page.\n");
+    return undef; 
+}
+
+sub apply_rule {
+    my $url = shift(@_);
+    my $rule = shift(@_);
+    my (undef,$html) = $http->get($url);
+    return &_process($url,$rule,$html,@_);
+}
