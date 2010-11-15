@@ -23,6 +23,15 @@ digicelebs.com
     http://www.digicelebs.com/cpg/thumbnails-###TEXT1###.html
         1
 google.search.image
+    google.search.image/###ID###?size=svga
+        3
+google.search.image.all
+    google.search.image/###ID###
+        3
+google.search.image.xxlarge
+    google.search.image/###ID###?type=xxlarge
+        3
+google.search.image.large
     google.search.image/###ID###?type=large
         3
 hollywoodtuna.com
@@ -144,7 +153,7 @@ showgirl.com.tw
         0
 cafe.daum.net
     http://cafe.daum.net/###ID###
-        1
+        0
 photo.blog.163.com
     http://photo.blog.163.com/###ID###
         1
