@@ -220,3 +220,12 @@ fotop.net
 snaapa.com
     http://www.snaapa.com/###ID###
         0
+user.shareapic.net
+    http://www.shareapic.net/userfull.php?user=###ID###
+        1
+gallery.shareapic.net
+    http://www.shareapic.net/content.php?gid=769956
+        0
+album.redflava.com
+    http://www.redflava.com/gallery/thumbnails.php?album=192
+        1
