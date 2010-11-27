@@ -232,3 +232,13 @@ album.redflava.com
 7koreangirls.cn
 	http://www.7koreangirls.cn/###ID###
 		1
+me2day.net
+	http://me2day.net/###ID###/archive/me2photo
+		0
+cyworld.com
+	http://www.cyworld.com/###ID###
+		3
+minihp.cyworld.com
+	http://minihp.cyworld.com/svcs/MiniHp.cy/photoLeft/###ID###?tid=###ID###&urlstr=phot&seq=
+		2
+
