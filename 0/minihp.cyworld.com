@@ -9,7 +9,7 @@ sub apply_rule {
  return (
        '#use quick parse'=>1,
        'data_exp'=>'src\s*=\s*"([^"]+file_down\.asp[^"]+)"',
-       'data_map'=>'$1',
+       'data_map'=>'"$1" . "\t" . uri_unescape($1)',
        'pass_exp'=>undef,
        'pass_map'=>undef,
        'pass_name_map'=>undef,

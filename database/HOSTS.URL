@@ -190,7 +190,7 @@ yymax.com
 facebook.com
     http://www.facebook.com/###ID###?v=photos
         1
-album.shawei.com
+album.shawei.com/
     http://photo.shawei.com/album/###ID###.html
         1
 shawei.com
@@ -241,4 +241,9 @@ cyworld.com
 minihp.cyworld.com
 	http://minihp.cyworld.com/svcs/MiniHp.cy/photoLeft/###ID###?tid=###ID###&urlstr=phot&seq=
 		2
-
+imjihye.com		
+	http://imjihye.com/###ID###
+		2
+bbs.discuz
+	http://bbs.discuz/###TEXT1###/###TEXT2###/###TEXT3###/###ID###
+		0

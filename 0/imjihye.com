@@ -1,47 +1,47 @@
 #!/usr/bin/perl -w
-#http://minihp.cyworld.com/svcs/MiniHp.cy/photoLeft/40442043?tid=40442043&urlstr=phot&seq=
-#Sun Nov 28 03:14:49 2010
+#http://imjihye.com/image/tid/2
+#Mon Nov 29 00:48:18 2010
 use strict;
 
 
-#http://minihp.cyworld.com/pims/board/image/imgbrd_list.asp?tid=40442043&urlstr=phot&list_type=2&board_no=52
 
+sub apply_rule {
+ return (
+       '#use quick parse'=>1,
+       'data_exp'=>'src="([^"]+)\.thumbnail([^"]+)"',
+       'data_map'=>'"$1$2"',
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
+       'pages_start'=>undef,
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef
+ );
+}
+=cut
+
+=method2
 use MyPlace::Curl;
 #use MyPlace::HTML;
 
-my $host = 'http://minihp.cyworld.com/pims/board/image/imgbrd_list.asp?urlstr=phot&list_type=2';
-#&board_no=52
 sub _process {
     my ($url,$rule,$html) = @_;
     my $title = undef;
     my @data;
-	my @pass_name;
     my @pass_data;
-	my $tid;
-	if($url =~ m/photoLeft\/(\d+)\?/) {
-		$tid = $1;
-	}
-	else {
-		return undef;
-	}
-	$host = $host . "&tid=$tid";
-    my @html = split(/\n/,$html);
-	foreach(@html) {
-		if(m/:InframeNavi\('(\d+)','\d+'\)[^>]+>\s*([^<>\n\r]+)\s*/ or m/:InframeNavi\('(\d+)','\d+'\)[^>]+>\s*<\s*font\s*[^>]+>\s*([^<>\n\r]+)\s*/) {
-			my $board_no=$1;
-			my $name = $2;
-			push @pass_data, $host  . '&board_no=' . $board_no;
-			push @pass_name,$name;
-		}
-
-	}
+    #my @html = split(/\n/,$html);
     return (
         count=>scalar(@data),
         data=>[@data],
         pass_count=>scalar(@pass_data),
         pass_data=>[@pass_data],
-		pass_name=>[@pass_name],
         base=>$url,
+        no_subdir=>1,
         work_dir=>$title,
     );
 }
@@ -50,7 +50,7 @@ sub apply_rule {
     my $url = shift(@_);
     my $rule = shift(@_);
     my $http = MyPlace::Curl->new();
-    my (undef,$html) = $http->get($url,'charset:euc-kr');
+    my (undef,$html) = $http->get($url);
     return &_process($url,$rule,$html,@_);
 }
 =cut

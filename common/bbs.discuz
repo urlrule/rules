@@ -1,58 +1,34 @@
 #!/usr/bin/perl -w
-#http://minihp.cyworld.com/svcs/MiniHp.cy/photoLeft/40442043?tid=40442043&urlstr=phot&seq=
-#Sun Nov 28 03:14:49 2010
+#http://bbs.discuz
+#Mon Nov 29 01:45:06 2010
 use strict;
 
 
-#http://minihp.cyworld.com/pims/board/image/imgbrd_list.asp?tid=40442043&urlstr=phot&list_type=2&board_no=52
-
-use MyPlace::Curl;
-#use MyPlace::HTML;
-
-my $host = 'http://minihp.cyworld.com/pims/board/image/imgbrd_list.asp?urlstr=phot&list_type=2';
-#&board_no=52
-sub _process {
-    my ($url,$rule,$html) = @_;
-    my $title = undef;
-    my @data;
-	my @pass_name;
-    my @pass_data;
-	my $tid;
-	if($url =~ m/photoLeft\/(\d+)\?/) {
-		$tid = $1;
-	}
-	else {
-		return undef;
-	}
-	$host = $host . "&tid=$tid";
-    my @html = split(/\n/,$html);
-	foreach(@html) {
-		if(m/:InframeNavi\('(\d+)','\d+'\)[^>]+>\s*([^<>\n\r]+)\s*/ or m/:InframeNavi\('(\d+)','\d+'\)[^>]+>\s*<\s*font\s*[^>]+>\s*([^<>\n\r]+)\s*/) {
-			my $board_no=$1;
-			my $name = $2;
-			push @pass_data, $host  . '&board_no=' . $board_no;
-			push @pass_name,$name;
-		}
-
-	}
-    return (
-        count=>scalar(@data),
-        data=>[@data],
-        pass_count=>scalar(@pass_data),
-        pass_data=>[@pass_data],
-		pass_name=>[@pass_name],
-        base=>$url,
-        work_dir=>$title,
-    );
-}
-
+use Cwd qw/getcwd/;
 sub apply_rule {
-    my $url = shift(@_);
-    my $rule = shift(@_);
-    my $http = MyPlace::Curl->new();
-    my (undef,$html) = $http->get($url,'charset:euc-kr');
-    return &_process($url,$rule,$html,@_);
+    my ($url,$rule) = @_;
+	if($url =~ m/bbs\.discuz\/([^\/]*)\/([^\/]*)\/([^\/]*)\/(.+)$/) {
+		my ($user,$pass,$save_what,$bbs) = ($1,$2,$3,$4);
+		return unless $bbs;
+		$save_what = 'attachment' unless($save_what);
+		my $cwd = getcwd();
+		my $domain;
+		if($bbs =~ m/([^\/]+)\//) {
+			$domain = $1;
+		}
+		$bbs = 'http://' . $bbs unless($bbs =~ /:\/\//);
+		if($domain) {
+			mkdir $domain unless(-d $domain);
+			chdir $domain or die("$!\n");
+		}
+		my @cmd = ('discuz_download','--save',$save_what,$bbs);
+		push @cmd,$user,$pass if($user);
+		print STDERR join(" ",@cmd),"\n";
+		system(@cmd);
+	}
+	return undef;
 }
+
 =cut
 
 1;
