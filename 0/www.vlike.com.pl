@@ -19,7 +19,13 @@ use strict;
 use MyPlace::HTML;
 use Encode qw/from_to/;
 
+
 sub apply_rule {
+		sub get_name {
+			my $url = shift;
+			$url =~ s/.+\///g;
+			return $url;
+		}
     my $rule_base= shift(@_);
     my %rule = %{shift(@_)};
     my %r;
@@ -31,7 +37,7 @@ sub apply_rule {
             $r{work_dir} = get_title($_);
             if($r{work_dir}) {
                 from_to($r{work_dir},'GBK','UTF8');
-                $r{work_dir} =~ s/(\d+[Pp])?\s*_[^_]+_微来美女网\s*$//;
+                $r{work_dir} =~ s/(\d+[Pp])?\s*_[^_]+_未了美女网\s*$//;
                 $r{work_dir} =~ s/_//g;
             }
         }
@@ -40,7 +46,7 @@ sub apply_rule {
         #http://www.tu365.net/girl/UploadFiles_9401/201004/06/20100406142838148911_s.jpg
             if($_ =~ m/_s\.jpe?g$/i) {
                 $_ =~ s/_s\.(jpe?g)$/_big.$1/i;
-                $data{$_}=1;
+                $data{$_ . "\t" . &get_name($_)}=1;
             }
         }
     }
