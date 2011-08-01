@@ -1,29 +1,32 @@
 #!/usr/bin/perl -w
-#http://blog.sohu.com
-#Mon Sep 13 23:53:58 2010
+#http://book.yunduan.cn/list/abover/comm,desc
+#Mon Aug  1 20:30:33 2011
 use strict;
 
 
 
-=method1
 sub apply_rule {
  return (
        '#use quick parse'=>1,
        'data_exp'=>undef,
        'data_map'=>undef,
-       'pass_exp'=>undef,
-       'pass_map'=>undef,
+       'pass_exp'=>'href\s*=\s*"([^"]*book\/\d+)"',
+       'pass_map'=>'$1',
+       'pass_name_map'=>undef,
        'pages_exp'=>undef,
        'pages_map'=>undef,
        'pages_pre'=>undef,
        'pages_suf'=>undef,
        'pages_start'=>undef,
+       'title_exp'=>undef,
+       'title_map'=>undef,
        'charset'=>undef
  );
 }
 =cut
 
-use MyPlace::HTTPGet;
+=method2
+use MyPlace::Curl;
 #use MyPlace::HTML;
 
 sub _process {
@@ -31,33 +34,7 @@ sub _process {
     my $title = undef;
     my @data;
     my @pass_data;
-    my $prefix;
-    my $ebi;
-    my $per = 20;
-    my $count = 0;
-    my @html = split(/\n/,$html);
-    foreach(@html) {
-        if((!$prefix) and m/var\s*_blog_base_url\s*=\s*'([^']+)'/) {
-            $prefix = $1;
-        }
-        elsif((!$ebi) and m/var\s*_ebi\s*=\s*'([^']+)'/) {
-            $ebi = $1;
-        }
-        elsif((!$per) and m/var\s*itemPerPage\s*=\s*(\d+)/) {
-            $per = $1;
-        }
-        elsif((!$count) and m/var\s*totalCount\s*=\s*(\d+)/) {
-            $count = $1;
-        }
-    }
-    if($ebi) {
-        push @pass_data,$prefix . 'action/v_frag-ebi_' . $ebi . '/entry/';
-        my $page=1; 
-        while($page*$per < $count) {
-            $page++;
-            push @pass_data,$prefix . 'action/v_frag-ebi_' . $ebi . '-pg_' . $page . '/entry/';
-        }
-    }
+    #my @html = split(/\n/,$html);
     return (
         count=>scalar(@data),
         data=>[@data],
@@ -72,8 +49,7 @@ sub _process {
 sub apply_rule {
     my $url = shift(@_);
     my $rule = shift(@_);
-    my $http = MyPlace::HTTPGet->new();
-    $url = $url . '/entry/' unless($url =~ m/entry\/$/);
+    my $http = MyPlace::Curl->new();
     my (undef,$html) = $http->get($url);
     return &_process($url,$rule,$html,@_);
 }
@@ -98,6 +74,9 @@ __END__
 # urlrule_quick_parse($url,$rule,$data_exp,$data_map,$pass_exp,$pass_map,$charset)
 # urlrule_parse_data($url,$rule,$data_exp,$data_map,$charset)
 # urlrule_parse_pass_data($url,$rule,$pass_exp,$pass_map,$charset)
+# 
+# $result{same_level}    : Keep same rule level for passing down
+# $result{level}         : Specify rule level for passing down
 #================================================================
 
 #       vim:filetype=perl
