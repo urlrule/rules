@@ -17,27 +17,51 @@ use strict;
 # $result{pass_arg}      : Additional arguments to be passed to next level of urlrule
 #================================================================
 use MyPlace::HTML;
+use MyPlace::Script::Message;
+
+sub _moko_parse_page {
+	my $data = shift;
+	foreach(@_) {
+		if(/(\/post\/[^\/]+\/\d+\/\d+\.html)/i) {
+		    $data->{$1}=1; 
+        }
+        elsif(/(\/post\/[^\/]+\/\d+\/\d+\/\d+\.html)/i) {
+             $data->{$1}=1;
+        }
+	}
+	return $data;
+}
+
 sub apply_rule {
     my $rule_base= shift(@_);
     my %rule = %{shift(@_)};
     my %r;
     $r{base}=$rule_base;
     my %data;
+	my %urls;
     open FI,"-|","netcat \"$rule_base\"";
-    while(<FI>) {
-		my $title = get_text("h1",$_) unless($r{work_dir});
-                if($title) {
-                    $title =~ s/(\s+|\s*\(\s*\d+\s*\)\s*)$//;
+	my @text =<FI>;
+	close FI;
+    foreach(@text) {
+		while(m/href\s*=\s*"([^"]+\/\d+\/\d+\/postclass\.html)"/g) {
+			$urls{$1} = 1;
+		}
+		if(!$r{work_dir}) {
+			my $title = get_text("h1",$_) unless($r{work_dir});
+            if($title) {
+                $title =~ s/(\s+|\s*\(\s*\d+\s*\)\s*)$//;
     		    $r{work_dir}=$title;
-                }
-		if(/(\/post\/[^\/]+\/\d+\/\d+\.html)/i) {
-		    $data{$1}=1; 
-                }
-                elsif(/(\/post\/[^\/]+\/\d+\/\d+\/\d+\.html)/i) {
-                    $data{$1}=1;
-                }
+            }
+		}
+		_moko_parse_page(\%data,$_);
     }
-    close FI;
+	foreach(keys %urls) {
+		my $url = 'http://www.moko.cc' . $_;
+		open FI,"-|","netcat",$url;
+		app_message('Retriving ' . "$url\n"); 
+		_moko_parse_page(\%data,<FI>);
+		close FI;
+	}
     $r{no_subdir}=1;
 	push @{$r{pass_data}},keys %data if(%data);
     return %r;

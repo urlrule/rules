@@ -36,12 +36,15 @@ sub apply_rule {
                 $r{work_dir}=$title if($title);
             }
         }
-        if($_ =~ m/src\s*=\s*"([^"]*\/users\/\d+[^"]+)"/) 
-        {
-            my $url = $1;
-            $url =~ s/\/thumb\//\/src\//;
-            $data{$url} = 1;
-        }
+		if(m/src2\s*="([^"]+)"/) {
+			$data{$1} = 1;
+		}
+        #elsif($_ =~ m/src\s*=\s*"([^"]*\/users\/\d+[^"]+)"/) 
+        #{
+        #    my $url = $1;
+        #    $url =~ s/\/thumb\//\/src\//;
+        #    $data{$url} = 1;
+        #}
     }
     close FI;
 	push @{$r{data}},keys %data;

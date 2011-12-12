@@ -18,17 +18,6 @@ use strict;
 #================================================================
 use MyPlace::HTML;
 
-sub _moko_get_postclass {
-    my ($id,$host,$dir,$result) = @_;
-    open FI,"-|","netcat \'$host$dir\'";# or return $dir;
-    while(<FI>) {
-        if(m/(\/weblogPostShowList\|showPosts\.action\?wKey=[^&]+&classID=[^&]+&curPage=\d+)/i) {
-            $result->{$1}=1;
-        }
-    }
-    close FI;
-}
-
 sub apply_rule {
     my $rule_base= shift(@_);
     my %rule = %{shift(@_)};
@@ -53,17 +42,15 @@ sub apply_rule {
 #	$r{work_dir} =~ s/'s.*$// if($r{work_dir});
 	foreach(@text) {
             if($_ =~ m/(\/post\/$id\/indexpage\/\d+\.html)/) {
-                $pass_data{$rule_base}=1;
                 $pass_data{$1} = 1;
             }
             elsif(m/(\/post\/$id\/\d+\/\d+\/postclass\.html)/) {
                 $pass_data{$1}=1;
-                &_moko_get_postclass($id,"http://www.moko.cc/",$1,\%pass_data);
             }
 	}
 	$r{no_subdir}=1;
-        $pass_data{$rule_base}=1 unless(%pass_data);
-        @{$r{pass_data}}=keys %pass_data;
+    $pass_data{$rule_base}=1 unless(%pass_data);
+    @{$r{pass_data}}=keys %pass_data;
     return %r;
 }
 
