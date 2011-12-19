@@ -10,7 +10,7 @@ sub apply_rule {
        '#use quick parse'=>1,
        'data_exp'=>undef,
        'data_map'=>undef,
-       'pass_exp'=>'href="(/link\.php\?[^"]+)"[^>]*><font [^>]+>([^<]+)<',
+       'pass_exp'=>'href="(/link\.php\?[^"]+)"[^>]*>(:?<font [^>]+>([^<]+)<)?',
        'pass_map'=>'$1',
        'pass_name_map'=>'$2',
        'pages_exp'=>undef,

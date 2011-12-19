@@ -10,7 +10,7 @@ sub apply_rule {
     my $rule = shift(@_);
     my $http = MyPlace::Curl->new();
     my (undef,$html) = $http->get($url);
-	if($html =~ m/window\.location\s*=\s*'([^']+)'/) {
+	if(length($html) < 1000 and $html =~ m/window\.location\s*=\s*'([^']+)'/) {
 		my $new_url = $1;
 		print STDERR "Redirect to $new_url\n";
 		return (count=>0,pass_data=>[$new_url],base=>$url,no_subdir=>1,same_level=>1);
