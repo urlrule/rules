@@ -1,54 +1,57 @@
 #!/usr/bin/perl -w
-#http://www.babelistings.com/cgi-bin/atx/out.cgi?s=100&c=1&l=sid:256;iid:30;gid:3507641;kwid:11518;pos:1&u=http://www.sunnyleone.com/gal/new/pictures/13/index.php?nats=ODQ6Mzox
-#Mon Dec 19 02:19:18 2011
+#http://www.gals4free.net/pornstars/sunny-leone.html
+#Tue Dec 20 01:55:13 2011
 use strict;
+
+
+
+sub apply_rule {
+ return (
+       '#use quick parse'=>1,
+       'data_exp'=>undef,
+       'data_map'=>undef,
+       'pass_exp'=>'class="n"\s*href="([^"]+)"[^>]*>([^<]*)<',
+       'pass_map'=>'"http://fake.href.img/" . $1',
+       'pass_name_map'=>'$2',
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
+       'pages_start'=>undef,
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef
+ );
+}
+=cut
+
+=method2
 use MyPlace::Curl;
-use URI;
+#use MyPlace::HTML;
+
+sub _process {
+    my ($url,$rule,$html) = @_;
+    my $title = undef;
+    my @data;
+    my @pass_data;
+    #my @html = split(/\n/,$html);
+    return (
+        count=>scalar(@data),
+        data=>[@data],
+        pass_count=>scalar(@pass_data),
+        pass_data=>[@pass_data],
+        base=>$url,
+        no_subdir=>1,
+        work_dir=>$title,
+    );
+}
 
 sub apply_rule {
     my $url = shift(@_);
     my $rule = shift(@_);
-	if($url =~ m/^http:\/\/fake\.href\.img\/(.+)$/) {
-		$url = $1;
-	}
     my $http = MyPlace::Curl->new();
     my (undef,$html) = $http->get($url);
-	if(length($html) < 1000 and $html =~ m/window\.location\s*=\s*'([^']+)'/) {
-		my $new_url = $1;
-		print STDERR "Redirect to $new_url\n";
-		return (count=>0,pass_data=>[$new_url],base=>$url,no_subdir=>1,same_level=>1);
-	}
-	else {
-		my $base= $url;
-		my %data;
-		if($base =~ m/&u=(.+)$/) {
-			$base = $1;
-		}
-		elsif($base =~ m/link\.php\?(.+)$/){
-			$base = $1;
-		}
-		if(!($base eq $url)) {
-			open FI,'-|',qw/curl --progress-bar -I/,$base;
-			while(<FI>) {
-				if(m/^Location:\s*(.+)$/) {
-					$base = $1;
-					last;
-				}
-			}
-			close FI;
-			print STDERR ("Location changed to $base\n") unless($base eq $url);
-		}
-		while($html =~ m/href="([^"]+\.(:?jpg|mpg|wmv|rmvb|mpeg|jpeg|png|gif))"/g) {
-			$data{$1}=1;
-		}
-		my @data = keys %data;
-		return (
-			count=>scalar(@data),
-			base=>$base,
-			data=>\@data,
-			no_subdir=>1
-		);
-	}
+    return &_process($url,$rule,$html,@_);
 }
 =cut
 
