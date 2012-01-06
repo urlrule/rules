@@ -44,3 +44,4 @@ sub apply_rule {
     }
     return %r;
 }
+1;

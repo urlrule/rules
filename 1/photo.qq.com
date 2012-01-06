@@ -41,7 +41,7 @@ sub _process
     my @data;
     my @pass_data;
     my @pass_name;
-    my @html = split(/\n/,$gb->decode($html));
+    my @html = split(/\n/,$html);#$gb->decode($html));
     my $list_ref = &get_album_list(@html);
     return undef unless($list_ref and ref $list_ref);
     my $albums = $list_ref->{"album"};
@@ -66,7 +66,7 @@ sub apply_rule {
     my $url = shift(@_);
     my %rule = %{shift(@_)};
     my $http = MyPlace::HTTPGet->new();
-    my (undef,$html) = $http->get($url);
+    my (undef,$html) = $http->get($url,'charset:gbk');
     my ($status,@result) =  &_process($url,\%rule,$html);
     return $status ? ($status,@result) : ('base'=>$url);
 }
@@ -74,3 +74,4 @@ sub apply_rule {
 
 
 #       vim:filetype=perl
+1;

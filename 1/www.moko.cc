@@ -66,3 +66,4 @@ sub apply_rule {
 	push @{$r{pass_data}},keys %data if(%data);
     return %r;
 }
+1;

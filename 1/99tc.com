@@ -45,3 +45,4 @@ sub apply_rule {
     $r{work_dir} =~ s/\s*-.*$// if($r{work_dir});
     return %r;
 }
+1;

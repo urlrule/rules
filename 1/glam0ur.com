@@ -38,3 +38,4 @@ sub apply_rule {
     close FI;
     return %r;
 }
+1;

@@ -46,3 +46,4 @@ sub apply_rule {
     $r{data} = [keys %urls];
     return %r;
 }
+1;

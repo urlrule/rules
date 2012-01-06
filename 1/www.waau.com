@@ -31,3 +31,4 @@ sub apply_rule {
     @{$result{pass_data}}= reverse(@{$result{pass_data}}) if($result{pass_data});
     return %result;
 }
+1;

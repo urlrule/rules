@@ -17,3 +17,4 @@ sub apply_rule {
     $result{no_subdir}="true";
     return %result;
 }
+1;

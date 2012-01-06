@@ -38,8 +38,8 @@ sub apply_rule {
 			close FI;
 			print STDERR ("Location changed to $base\n") unless($base eq $url);
 		}
-		while($html =~ m/href="([^"]+\.(:?jpg|mpg|wmv|rmvb|mpeg|jpeg|png|gif))"/g) {
-			$data{$1}=1;
+		while($html =~ m/href=(["'])([^'"]+\.(:?jpg|mpg|wmv|rmvb|mpeg|jpeg|png|gif))\1/g) {
+			$data{$2}=1;
 		}
 		my @data = keys %data;
 		return (
@@ -77,3 +77,4 @@ __END__
 #================================================================
 
 #       vim:filetype=perl
+1;

@@ -53,3 +53,4 @@ sub wy_decode($) {
     return $dst;
 }
 
+1;

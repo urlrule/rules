@@ -1,0 +1,4 @@
+#!/bin/sh
+SRC=/myplace/overjoy/
+cp -av "$SRC/HOSTS.URL" .
+cp -av "$SRC/ladies/DATABASE.URL" .

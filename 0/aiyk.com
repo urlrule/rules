@@ -57,3 +57,4 @@ sub apply_rule {
     close FO;
     return %result;
 }
+1;

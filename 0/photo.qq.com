@@ -19,8 +19,8 @@ use strict;
 
 
 use MyPlace::HTTPGet;
-use Encode;
-my $gb = find_encoding('gb2312');
+#use Encode;
+#my $gb = find_encoding('gb2312');
 
 #use MyPlace::HTML;
 
@@ -29,14 +29,16 @@ sub _process
     my ($url,$rule,$html) = @_;
     my @data;
     my @pass_data;
-    my @html = split(/\n/,$gb->decode($html));
+    my @html = split(/\n/,$html);
     foreach(@html)
     {
         $_ =~ s/^\s*_Callback\s*\(//;
         $_ =~ s/^\s*\);\s*$/;/;
-        $_ =~ s/\s+:\s+/=>/g;
+        $_ =~ s/"\s+:\s+/"=>/g;
+		s/([\@\%\$])/\\$1/g;
     }
-    my $photo_list_ref = eval(join("\n",@html));
+    my $photo_list_ref = eval join("\n",@html);
+	print STDERR "Error: (eval) $@\n" if($@);
     if($photo_list_ref and ref $photo_list_ref)
     {
         my $photos = $photo_list_ref->{"pic"};
@@ -46,7 +48,9 @@ sub _process
             {
                 if($photo->{'origin_url'}) 
                 {
-                   my $filename = $photo->{"name"};
+					use URI::Escape;
+                   my $filename = $photo->{"name"} || "";
+				   $filename = uri_unescape($filename);
                    $filename =~ s/^[　\s]+//;
                    $filename =~ s/[\s　]+$//;
                    $filename .= "_" . $photo->{"lloc2"} . ".jpg";
@@ -62,10 +66,10 @@ sub apply_rule {
     my $url = shift(@_);
     my %rule = %{shift(@_)};
     my $http = MyPlace::HTTPGet->new();
-    my (undef,$html) = $http->get($url);
+    my (undef,$html) = $http->get($url,'charset:gbk');
     return &_process($url,\%rule,$html);
 }
-
+1;
 
 
 #       vim:filetype=perl

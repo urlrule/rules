@@ -20,3 +20,4 @@ sub apply_rule {
     @{$result{data}} = $data =~ /images_arr\[[0-9]+\]\s*=\s*\'([^\']+)\';/gi;
     return %result;
 }
+1;

@@ -46,8 +46,8 @@ sub apply_rule {
         while(<FI>) {
             chomp;
             push @data,$_;
-            if(@data>200) {
-                &MyPlace::URLRule::callback_process_data("google.search.image",\%rule,{no_subdir=>1,data=>[@data]});
+            if(@data>59) {
+                &MyPlace::URLRule::callback_apply_rule("google.search.image",\%rule,{no_subdir=>1,data=>[@data]});
                 @data = ();
             }
         }
@@ -62,3 +62,4 @@ sub apply_rule {
 
 
 #       vim:filetype=perl
+1;

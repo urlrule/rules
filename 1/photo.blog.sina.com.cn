@@ -34,3 +34,4 @@ sub apply_rule {
     $r{pass_data}=[keys %{$r{pass_data}}] if($r{pass_data});
     return %r;
 }
+1;

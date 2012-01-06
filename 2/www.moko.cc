@@ -55,3 +55,4 @@ sub apply_rule {
 }
 
 #	vi: set filetype=perl : 
+1;

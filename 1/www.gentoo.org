@@ -19,3 +19,4 @@ sub apply_rule {
     push @{$result{data}},@{$result{pass_data}};
     return %result;
 }
+1;

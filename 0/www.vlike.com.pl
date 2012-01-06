@@ -57,3 +57,4 @@ sub apply_rule {
 	push @{$r{data}},keys %data;
     return %r;
 }
+1;

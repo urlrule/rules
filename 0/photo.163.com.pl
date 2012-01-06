@@ -62,3 +62,4 @@ sub apply_rule {
     $r{work_dir}=$a_id if($a_id);
     return %r;
 }
+1;

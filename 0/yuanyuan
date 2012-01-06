@@ -54,3 +54,4 @@ sub apply_rule {
     $tree->delete();
     return %r;
 }
+1;

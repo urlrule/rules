@@ -27,3 +27,4 @@ sub apply_rule {
     }
     return %result;
 }
+1;

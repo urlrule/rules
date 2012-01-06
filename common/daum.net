@@ -1,5 +1,4 @@
 #!/usr/bin/perl -w
-use MyPlace::URLRule qw/callback_process_result callback_process_data/;
 use MyPlace::HTTPGet;
 use MyPlace::Script::Message qw/print_yellow/;
 my $http = MyPlace::HTTPGet->new();
@@ -39,17 +38,18 @@ sub _process {
     my $result = process_page($page_url);
     if($result) {
         print_yellow($name,"initializing...\n");
-        callback_process_result($name,$rule,{work_dir=>$title});
+#        callback_process_result($name,$rule,{work_dir=>$title});
     }
     while($result) {
         print_yellow($name,"processing page $page...\n");
-        callback_process_data($page_url,$rule,$result);
+        &MyPlace::URLRule::callback_apply_rule($page_url,$rule,$result);
+#        callback_process_data($page_url,$rule,$result);
         $page++;
         $page_url = $base_url . $page;
         $result = process_page($page_url);
     }
     print_yellow($name, "finished at page $page.\n");
-    return undef; 
+    return ();
 }
 
 sub apply_rule {
@@ -58,3 +58,4 @@ sub apply_rule {
     my (undef,$html) = $http->get($url);
     return &_process($url,$rule,$html,@_);
 }
+1;

@@ -47,3 +47,4 @@ sub apply_rule {
 }
 
 
+1;

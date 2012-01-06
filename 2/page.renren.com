@@ -66,3 +66,4 @@ sub apply_rule {
 
 
 #       vim:filetype=perl
+1;

@@ -33,3 +33,4 @@ sub apply_rule {
     $r{pipeto}="lcyl_persist_content";
     return %r;
 }
+1;

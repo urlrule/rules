@@ -71,3 +71,4 @@ __END__
 # urlrule_parse_pass_data($url,$rule,$pass_exp,$pass_map,$charset)
 #================================================================
 
+1;

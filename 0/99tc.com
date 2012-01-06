@@ -31,3 +31,4 @@ sub apply_rule {
     $r{action}='html_persist_content';
     return %r;
 }
+1;

@@ -35,3 +35,4 @@ sub apply_rule {
     @{$result{pass_name}} = reverse(@{$result{pass_name}});
     return %result;
 }
+1;

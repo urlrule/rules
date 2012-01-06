@@ -4,6 +4,7 @@
 use strict;
 
 use MyPlace::HTTPGet;
+use MyPlace::163::Blog;
 #use MyPlace::HTML;
 
 sub _process {
@@ -11,7 +12,17 @@ sub _process {
     my $title = undef;
     my @data;
     my @pass_data;
-    #my @html = split(/\n/,$html);
+	if($html =~ m/userId:(\d+).+?userName:'([^']+)'/) {
+		my $id = $1;
+		my $name = $2;
+		my $hd = new MyPlace::163::Blog;
+		$hd->{id} = $id;
+		$hd->{name} = $name;
+		my $blogs = $hd->get_blogs;
+		if($blogs) {
+			push @pass_data,@{$blogs};
+		}
+	}
     return (
         count=>scalar(@data),
         data=>[@data],
@@ -54,3 +65,4 @@ __END__
 #================================================================
 
 #       vim:filetype=perl
+1;

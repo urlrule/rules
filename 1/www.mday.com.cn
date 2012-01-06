@@ -26,3 +26,4 @@ sub apply_rule($) {
     close FI;
     return %result;
 }
+1;

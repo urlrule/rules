@@ -22,7 +22,14 @@ sub apply_rule {
     my %rule = %{shift(@_)};
     my %r;
     $r{base}=$rule_base;
-    if($rule_base =~ m/blog\.sina\.com\.cn\/([^\/]+)/) {
+	if($rule_base =~ m/blog\.sina\.com\.cn\/(\d+)$/) {
+		$r{work_dir} = $1;
+		$rule_base =~ s/\/(\d+)/\/u\/$1/;
+	}
+	elsif($rule_base =~ m/blog\.sina\.com\.cn\/u\/(\d+)$/) {
+		$r{work_dir} = $1;
+	}
+    elsif($rule_base =~ m/blog\.sina\.com\.cn\/([^\/]+)/) {
         $r{work_dir} = $1;
     }
     open FI,"-|","netcat \'$rule_base\'";
@@ -40,3 +47,4 @@ sub apply_rule {
     $r{no_subdir}=1;
     return %r;
 }
+1;

@@ -32,3 +32,4 @@ sub apply_rule {
     $r{no_subdirs}=1;
     return %r;
 }
+1;

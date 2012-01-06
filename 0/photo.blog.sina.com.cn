@@ -27,7 +27,7 @@ sub get_data {
         foreach(@match) {
             $_ =~ s/small/orignal/;
             $_ =~ s/&amp;690$//;
-            my $data_url = build_url($rule_base,$_);
+            my $data_url = $_;#build_url($rule_base,$_);
             my $data_name = "$_.jpg";
             $data_name =~ s/.*\///;
             $r{$data_url . "\t" . $data_name}=1;
@@ -60,7 +60,7 @@ sub apply_rule {
         foreach(@match) {
             $_ =~ s/small/orignal/;
             $_ =~ s/&amp;690$//;
-            my $data_url = build_url($rule_base,$_);
+            my $data_url = $_;#build_url($rule_base,$_);
             my $data_name = "$_.jpg";
             $data_name =~ s/.*\///;
             $r{data}{$data_url . "\t" . $data_name}=1;
@@ -82,3 +82,4 @@ sub apply_rule {
     }
     return %r;
 }
+1;

@@ -39,3 +39,4 @@ sub apply_rule {
     $r{no_subdir}=1;
     return %r;
 }
+1;
