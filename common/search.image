@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-#http://sogou.search.image
+#http://baidu.search.image
 #Sun May 23 21:36:13 2010
 use strict;
 
@@ -15,12 +15,18 @@ sub apply_rule {
         $key = $url;
         $key =~ s/^.*\///g;
     }
-	my $pass_to = "http://SearchImage/MyPlace::Search::Sogou/$key" . ($params ? "?$params" : "");
+	my @search_engine = qw/
+		MyPlace::Google::Search
+		MyPlace::Baidu::Search
+		MyPlace::Search::Sogou
+	/;
+	my @pass_data = map {"http://SearchImage/$_/$key" . ($params ? "?$params" : "")} @search_engine;
 	return (
 		pass_count=>1,
-		pass_data=>[$pass_to],
+		pass_data=>\@pass_data,
 		level=>$rule->{level},
 		no_subdir=>1,
 	);
 }
 1;
+

@@ -1,5 +1,4 @@
 #!/usr/bin/perl -w
-#http://google.search.image
 #Sun May 23 21:36:13 2010
 use strict;
 
@@ -22,14 +21,9 @@ use strict;
 #use MyPlace::HTML;
 
 sub apply_rule {
-    my $url = shift(@_);
-    my %rule = %{shift(@_)};
-    #$url is a fake url: google.search.image/keyword?imgsz=huge&start=
-    my $level = $rule{level};
-   # shift(@_);
+	my ($url,$rule) = @_;
     my $key;
     my $params = "";
-    my @data;
     if($url =~ /\/([^\/\?]+)\?(.*)$/) {
         $key = $1;
         $params=$2;
@@ -38,28 +32,15 @@ sub apply_rule {
         $key = $url;
         $key =~ s/^.*\///g;
     }
-    my @params = $params ? split('&',$params) : ();
-    my $page_count = $level*20 + 1;
-    #foreach my $startpage (1 .. 60) {
-        open FI,"-|","google.search.image",$key,@params, "pages=$page_count";
-        #startpage=$startpage";
-        while(<FI>) {
-            chomp;
-            push @data,$_;
-            if(@data>59) {
-                &MyPlace::URLRule::callback_apply_rule("google.search.image",\%rule,{no_subdir=>1,data=>[@data]});
-                @data = ();
-            }
-        }
-        close FI;
-    #}
-    return (
-        no_subdir=>1,
-        data=>[@data],
-    );
+	my $pass_to = "http://SearchImage/MyPlace::Google::Search/$key" . ($params ? "?$params" : "");
+	return (
+		pass_count=>1,
+		pass_data=>[$pass_to],
+		level=>$rule->{level},
+		no_subdir=>1,
+	);
 }
 1;
 
 
 #       vim:filetype=perl
-1;

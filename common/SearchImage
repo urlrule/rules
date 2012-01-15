@@ -1,0 +1,141 @@
+#!/usr/bin/perl -w
+#http://SearchImage/Google::Search::Image/keyword?params
+#Sun May 23 21:36:13 2010
+use strict;
+
+#================================================================
+# apply_rule will be called with ($RuleBase,%Rule),the result returned have these meaning:
+# $result{base}          : Base url to build the full url
+# $result{work_dir}      : Working directory (will be created if not exists)
+# $result{data}          : Data array extracted from url,will be passed to $result{action}(see followed)
+# $result{action}        : Command which the $result{data} will be piped to,can be overrided
+# $result{pipeto}        : Same as action,Command which the $result{data} will be piped to,can be overrided
+# $result{hook}          : Hook action,function process_data will be called
+# $result{no_subdir}     : Do not create sub directories
+# $result{pass_data}     : Data array which will be passed to next level of urlrule
+# $result{pass_name}     : Names of each $result{pass_data}
+# $result{pass_arg}      : Additional arguments to be passed to next level of urlrule
+#================================================================
+
+#use MyPlace::Google;
+#use MyPlace::HTTPGet;
+#use MyPlace::HTML;
+#use MyPlace::Google::Search;
+
+sub apply_rule {
+    my $url = shift(@_);
+    my %rule = %{shift(@_)};
+    #$url is a fake url: google.search.image/keyword?imgsz=huge&start=
+    my $level = $rule{level};
+   # shift(@_);
+    my $key;
+    my $params = "";
+    my @data;
+	my $Package;
+	my $query;
+	if($url =~ /http:\/\/SearchImage\/([^\/]*)\/(.+)$/) {
+		$Package = $1;
+		$query = $2;
+	}
+	if($query =~ m/^([^\/\?]+)\?(.*)$/) {
+        $key = $1;
+        $params=$2;
+    }
+    else {
+        $key = $query;
+        $key =~ s/^.*\///g;
+    }
+	return (
+		'ERROR'=>'Invalid URL',
+	) unless($key);
+
+	$Package = "MyPlace::Google::Search" unless($Package);
+    my @params = $params ? split('&',$params) : ();
+	my %params;
+	foreach(@params) {
+		if(m/([^=]+)=(.*)/) {
+			$params{$1} = $2 ? $2 : '';
+		}
+		else {
+			$params{$1} = "";
+		}
+	}
+	eval("require $Package");
+	my $search_images = "$Package" . "::" . 'search_images';
+	if($level) {
+	    my $page_count = $level*20 + 1;
+		my $page_begin = 1;
+		my $page_end = $page_count;
+		while($page_begin <= $page_end) {
+			print STDERR "Search last page between [$page_begin - $page_end]\n";
+			my $cur_page = int(($page_begin + $page_end) / 2);
+			no strict 'refs';
+			my ($status,$images) = &$search_images($key,$cur_page,%params);
+			use strict 'refs';
+			if($status and ref $images) {
+				push @data, map "$_->{url}",@{$images};
+				if(scalar(@{$images}) < 10) {
+					$page_end = $cur_page - 1;
+					print STDERR "$cur_page [bad]\n";
+					next;
+				}
+				$page_begin  = $cur_page + 1;
+				print STDERR "$cur_page [good]\n";
+				next;
+			}
+			$page_end = $cur_page - 1;
+			print STDERR "$cur_page [bad]\n";
+			
+		}
+		print STDERR "Last page is [$page_end]\n";
+		my @pass_data = map "$url&page=$_",(1 .. $page_end) if($page_end >0);
+		return (
+			level=>0,
+			data=>\@data,
+			pass_data=>\@pass_data,
+		);
+	}
+	
+	no strict 'refs';
+	my ($status,$images) = &$search_images($key,undef,%params);
+	use strict 'refs';
+#	my($status,$images) = MyPlace::Google::Search::search_images($key,undef,%params);
+	if($status) {
+		push @data, map "$_->{url}",@{$images};
+	}
+	return (
+		level=>0,
+		no_subdir=>1,
+		data=>\@data,
+		params=>\%params,
+		key=>$key,
+		query=>$query,
+	);
+	#if($level) {
+	#	my $pages = $level*20 + 1;
+	#	my @pass_data = map "$url&page=$_",(1 .. $pages);
+	#	return (
+	#		level=>0,
+	#		pass_data=>\@pass_data,
+	#	);
+	#}
+#	open FI,"-|","google.search.image",$key,@params,"pages=$page_count";
+#        while(<FI>) {
+#            chomp;
+#            push @data,$_;
+#            if(@data>59) {
+#                &MyPlace::URLRule::callback_apply_rule("google.search.image",\%rule,{no_subdir=>1,data=>\@data});
+#                @data = ();
+#            }
+#        }
+#        close FI;
+#    return (
+#        no_subdir=>1,
+#		level=>0,
+#        data=>\@data,
+#    );
+}
+1;
+
+
+#       vim:filetype=perl

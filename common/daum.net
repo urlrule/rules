@@ -8,7 +8,10 @@ sub process_page {
     my (undef,$html) = $http->get($url);    
     my @data;
     while($html =~ m/"([^"]*)\/(?:[Tt]\d+[xX]\d+|original)\/([^"]+)"/g) {
-        push @data,"$1/original/$2\t$2.jpg";
+		my $url = "$1/original/$2";
+		my $saveas = "$2.jpg";
+		$saveas =~ s/\//_/g;
+        push @data,"$url\t$saveas";
     }
     if(@data) {
         return {data=>\@data,count=>scalar(@data)};
@@ -41,6 +44,7 @@ sub _process {
 #        callback_process_result($name,$rule,{work_dir=>$title});
     }
     while($result) {
+		$result->{work_dir} = $title;
         print_yellow($name,"processing page $page...\n");
         &MyPlace::URLRule::callback_apply_rule($page_url,$rule,$result);
 #        callback_process_data($page_url,$rule,$result);

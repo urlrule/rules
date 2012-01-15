@@ -10,6 +10,21 @@ sub apply_rule {
     my $rule = shift(@_);
 	if($url =~ m/^http:\/\/fake\.href\.img\/(.+)$/) {
 		$url = $1;
+		my $test = MyPlace::URLRule::parse_rule(
+				$url,
+				$rule->{level},
+				$rule->{action},
+				@{$rule->{args}},
+		);
+		if(-f $test->{source}) {
+#			print STDERR "Redirect to $url\n";
+			return (
+				count=>0,
+				pass_data=>[$url],
+				level=>$test->{level},
+				action=>$test->{action},
+			);
+		}
 	}
     my $http = MyPlace::Curl->new();
     my (undef,$html) = $http->get($url);
