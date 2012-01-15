@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 #http://blog.sohu.com
 #Mon Sep 13 23:52:38 2010
-use strict;
 
+	no warnings 'redefine';
 
 
 sub apply_rule {

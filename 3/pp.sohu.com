@@ -1,5 +1,7 @@
 #!/usr/bin/perl -w
 #http://pp.sohu.com/user/29775191/setlist
+#http://pp.sohu.com/member/zhangxinyucn
+#<a href="/user/29775191/setlist">
 #Fri Aug 13 03:50:37 2010
 use strict;
 
@@ -24,6 +26,14 @@ use MyPlace::HTTPGet;
 sub _process {
     my ($url,$rule,$html) = @_;
     my $title = undef;
+	if($url =~ m/\/member\/([^\/]+)/) {
+		if($html =~ m/var\s*_uid\s*=\s*(\d+)\s*;/) {
+			my $http = MyPlace::HTTPGet->new();
+			$url = "http://pp.sohu.com/user/$1/setlist";
+			print STDERR ("Redirect to $url\n");
+			(undef,$html) = $http->get($url);
+		}
+	}
     my @data;
     my @pass_data;
     my $pages=0;
@@ -66,5 +76,5 @@ sub apply_rule {
 
 
 
-#       vim:filetype=perl
 1;
+#       vim:filetype=perl

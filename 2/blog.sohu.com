@@ -1,7 +1,6 @@
 #!/usr/bin/perl -w
 #http://blog.sohu.com
 #Mon Sep 13 23:53:58 2010
-use strict;
 
 
 
@@ -25,7 +24,7 @@ sub apply_rule {
 
 use MyPlace::HTTPGet;
 #use MyPlace::HTML;
-
+use strict;
 sub _process {
     my ($url,$rule,$html) = @_;
     my $title = undef;
@@ -35,6 +34,7 @@ sub _process {
     my $ebi;
     my $per = 20;
     my $count = 0;
+	my @pass_name;
     my @html = split(/\n/,$html);
     foreach(@html) {
         if((!$prefix) and m/var\s*_blog_base_url\s*=\s*'([^']+)'/) {
@@ -52,17 +52,29 @@ sub _process {
     }
     if($ebi) {
         push @pass_data,$prefix . 'action/v_frag-ebi_' . $ebi . '/entry/';
+		push @pass_name,'articles';
         my $page=1; 
         while($page*$per < $count) {
             $page++;
             push @pass_data,$prefix . 'action/v_frag-ebi_' . $ebi . '-pg_' . $page . '/entry/';
+			push @pass_name,'articles';
         }
     }
+	if($url =~ m/([^\.\/]+)\.blog\.sohu\.com/) {
+#		@pass_data = ();
+		push @pass_data, {
+			url=>"http://pp.sohu.com/member/$1",
+			level=>'3',
+			title=>'albums',
+		};
+		push @pass_name,'albums',
+	}
     return (
         count=>scalar(@data),
-        data=>[@data],
+        data=>\@data,
         pass_count=>scalar(@pass_data),
-        pass_data=>[@pass_data],
+        pass_data=>\@pass_data,
+		pass_name=>\@pass_name,
         base=>$url,
         no_subdir=>1,
         work_dir=>$title,

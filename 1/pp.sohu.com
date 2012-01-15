@@ -26,8 +26,18 @@ sub _process {
     my $title = undef;
     my @data;
     my @pass_data;
-    if($html =~ m/"userId":(\d+),[^}]+,"id":(\d+),/) {
-        push @pass_data,"http://pp.sohu.com/photoview-$2-$1.html";
+    if($html =~ m/"(userId|id)":(\d+),[^}]+,"(id|userId)":(\d+),/) {
+		my $uid;
+		my $pid;
+		if($1 eq 'userId') {
+			$uid = $2;
+			$pid = $4;
+		}
+		else {
+			$uid = $4;
+			$pid = $2;
+		}
+        push @pass_data,"http://pp.sohu.com/photoview-$pid-$uid.html";
     }
     #my @html = split(/\n/,$html);
     return (

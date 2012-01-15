@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 #http://hanxiao8506.blog.sohu.com/156610692.html
 #Mon Sep 13 23:40:00 2010
-use strict;
 
+	no warnings 'redefine';
 
 
 sub apply_rule {
@@ -17,7 +17,9 @@ sub apply_rule {
        'pages_pre'=>undef,
        'pages_suf'=>undef,
        'pages_start'=>undef,
-       'charset'=>undef
+	   'title_exp'=>'<title>\s*(.+?)\s*-\s*[^-]+(?:-+搜狐博客)?-我的搜狐</title>',
+	   'title_map'=>'$1',
+       'charset'=>'gbk',
  );
 }
 
