@@ -1,8 +1,9 @@
 #!/usr/bin/perl -w
-#http://blog.sohu.com
-#Mon Sep 13 23:52:38 2010
+#http://www.moko.cc/post/yumiko/29641/1/postclass.html
+#http://www.moko.cc/post/zhangyinghan/1/postsortid.html" 
+#Mon Jan 16 17:59:46 2012
+use strict;
 
-	no warnings 'redefine';
 
 
 sub apply_rule {
@@ -10,20 +11,23 @@ sub apply_rule {
        '#use quick parse'=>1,
        'data_exp'=>undef,
        'data_map'=>undef,
-       'pass_exp'=>'data-url="([^"]+)"',
-       'pass_map'=>'$1',
-       'pages_exp'=>undef,
-       'pages_map'=>undef,
-       'pages_pre'=>undef,
-       'pages_suf'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+       'pages_exp'=>'href="([^"]*post\/[^\/"]+\/(?:\d+\/)?)(\d+)(\/(?:postclass|postsortid)[^"]+)"',
+       'pages_map'=>'$2',
+       'pages_pre'=>'$1',
+       'pages_suf'=>'$3',
        'pages_start'=>undef,
+       #'title_exp'=>'title="([^"]+)"\s*[^\<]*class="mwC u"',
+       #'title_map'=>'$1',
        'charset'=>undef
  );
 }
 =cut
 
 =method2
-use MyPlace::LWP;
+use MyPlace::Curl;
 #use MyPlace::HTML;
 
 sub _process {
@@ -46,7 +50,7 @@ sub _process {
 sub apply_rule {
     my $url = shift(@_);
     my $rule = shift(@_);
-    my $http = MyPlace::LWP->new();
+    my $http = MyPlace::Curl->new();
     my (undef,$html) = $http->get($url);
     return &_process($url,$rule,$html,@_);
 }
@@ -71,7 +75,9 @@ __END__
 # urlrule_quick_parse($url,$rule,$data_exp,$data_map,$pass_exp,$pass_map,$charset)
 # urlrule_parse_data($url,$rule,$data_exp,$data_map,$charset)
 # urlrule_parse_pass_data($url,$rule,$pass_exp,$pass_map,$charset)
+# 
+# $result{same_level}    : Keep same rule level for passing down
+# $result{level}         : Specify rule level for passing down
 #================================================================
 
 #       vim:filetype=perl
-1;

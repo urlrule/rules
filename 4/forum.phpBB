@@ -22,7 +22,7 @@ sub apply_rule {
 =cut
 
 =method2
-use MyPlace::HTTPGet;
+use MyPlace::LWP;
 #use MyPlace::HTML;
 
 sub _process {

@@ -16,14 +16,14 @@ use strict;
 # $result{pass_name}     : Names of each $result{pass_data}
 # $result{pass_arg}      : Additional arguments to be passed to next level of urlrule
 #================================================================
-use MyPlace::HTTPGet;
+use MyPlace::LWP;
 sub apply_rule {
     my $rule_base= shift(@_);
     my %rule = %{shift(@_)};
     my %r;
 	my %data;
     $r{base}=$rule_base;
-    my $http = MyPlace::HTTPGet->new();
+    my $http = MyPlace::LWP->new();
     my (undef,$html) = $http->get($rule_base);#,'charset:utf8');
     my $title;
     foreach(split('\n',$html)) {
@@ -52,5 +52,5 @@ sub apply_rule {
 }
 
 
-#   vim:filetype=perl
 1;
+#   vim:filetype=perl

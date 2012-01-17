@@ -1,14 +1,23 @@
 0.google.search.image
-    google.search.image/###ID###?type=large
+    google.search.image/###ID###?type=large###TEXT1###
+        0
+0.search.image
+    http://search.image/###ID###?type=large###TEXT1###
         0
 1.game.163.com
     http://game.163.com/###ID###
         1
 1.google.search.image
-    google.search.image/###ID###?type=large
+    google.search.image/###ID###?type=large###TEXT1###
+        1
+1.search.image
+    http://search.image/###ID###?type=large###TEXT1###
         1
 2.game.163.com
     http://game.163.com/###ID###
+        2
+2.search.image
+    http://search.image/###ID###?type=large###TEXT1###
         2
 5show.com
     http://www.5show.com/GirlShow.aspx?fid=###ID###
@@ -25,6 +34,9 @@ acmegirls.com
 album.hi.baidu.com
     http://hi.baidu.com/###ID###/album/###TEXT1###
         1
+album.kaixin001.com
+    http://www.kaixin001.com/photo/albumlist.php?uid=###ID###
+        3
 album.mm.taobao.com
     http://mm.taobao.com/album-###ID###.htm
         2
@@ -49,6 +61,9 @@ baidu.search.image
 bbs.discuz
     http://bbs.discuz/###TEXT1###/###TEXT2###/###TEXT3###/###ID###
         0
+blog.163.com
+    http://###ID###.blog.163.com
+        1
 blog.sina.com.cn
     http://blog.sina.com.cn/###ID###
         3
@@ -79,6 +94,12 @@ celebscentral.net
 celebuzz.com
     http://www.celebuzz.com/celebrities/###ID###-photos/thumbnail/
         1
+cgcccp.com
+    http://###ID###.cgcccp.com
+        3
+cn.google.search.image
+    google.search.image/###ID###?type=large&cr=countryCN
+        3
 coldcherry.com
     http://www.coldcherry.com/###ID###/
         1
@@ -125,20 +146,23 @@ gods-art.de
     http://gods-art.de/galleries/###ID###/1
         2
 google.search.image
-    google.search.image/###ID###?type=large
+    google.search.image/###ID###?type=large###TEXT1###
         3
 google.search.image.all
     google.search.image/###ID###
         3
 google.search.image.large
-    http://google.search.image/###ID###?type=large
+    http://google.search.image/###ID###?type=large###TEXT1###
         3
 google.search.image.xxlarge
-    google.search.image/###ID###?type=xxlarge
+    google.search.image/###ID###?type=xxlarge###TEXT1###
         3
 hankyung.com
     http://www.hankyung.com/autoplus/racingmodel_profile_view.php?no=###ID###
         2
+hk.google.search.image
+    google.search.image/###ID###?type=large&cr=countryHK
+        3
 hollywoodtuna.com
     http://www.hollywoodtuna.com/?###ID###
         2
@@ -160,6 +184,12 @@ icelebz.com
 imjihye.com
     http://imjihye.com/###ID###
         2
+jp.google.search.image
+    google.search.image/###ID###?type=large&cr=countryJP
+        3
+kr.google.search.image
+    google.search.image/###ID###?type=large&cr=countryKR
+        3
 links
     http://links/###ID###
         0
@@ -220,6 +250,9 @@ pics.acmegirls.com
 picsius.com
     http://www.picsius.com/###TEXT1###/###ID###/
         1
+poco.cn
+    http://###ID###.poco.cn
+        3
 pornstarbook.com
     http://www.pornstarbook.com/###ID###.shtml
         1
@@ -230,7 +263,7 @@ post.fotomm.com
     http://fotomm.com/nggallery/post/###ID###/
         1
 pp.sohu.com
-    http://pp.sohu.com/user/###ID###/setlist
+    http://pp.sohu.com/member/###ID###/
         3
 qzone.qq.com
     http://###ID###.qzone.qq.com
@@ -243,6 +276,12 @@ s.hollywoodtuna.com
         2
 search.celebscentral.net
     http://www.celebscentral.net/search/?search=###ID###
+        3
+search.image
+    http://search.image/###ID###?type=large###TEXT1###
+        3
+setlist.pp.sohu.com
+    http://pp.sohu.com/user/###ID###/setlist
         3
 shawei.com
     http://###ID###.shawei.com/###TEXT1###
@@ -271,6 +310,9 @@ t.sina.com.cn
 tags.skins.be
     http://www.skins.be/tags/###ID###/
         1
+th.google.search.image
+    google.search.image/###ID###?type=large&cr=countryTH
+        3
 tieba.baidu.com
     http://tieba.baidu.com/f/good?kw=###ID###
         3
@@ -280,6 +322,9 @@ tupian.baidu.com
 tuzhan.com
     http://www.tuzhan.com/search.html?sokey=###ID###
         1
+tw.google.search.image
+    google.search.image/###ID###?type=large&cr=countryTW
+        3
 user.shareapic.net
     http://www.shareapic.net/userfull.php?user=###ID###
         1
@@ -287,7 +332,7 @@ vids.acmegirls.com
     http://www.acmegirls.com/vids/###ID###/
         1
 vlike.com
-    http://www.vlike.com/pic/###ID###/
+    http://pic.vlike.com/pic/###ID###/
         1
 yahoo.search.image
     yahoo.search.image/###ID###
@@ -298,6 +343,3 @@ yayaxiu.com
 yymax.com
     http://www.yymax.com/class###ID###/
         1
-blog.163.com
-	http://###ID###.blog.163.com
-		1

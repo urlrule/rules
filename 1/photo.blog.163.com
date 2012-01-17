@@ -3,7 +3,7 @@
 #Thu Aug 19 01:44:40 2010
 use strict;
 
-#use MyPlace::HTTPGet;
+#use MyPlace::LWP;
 #use MyPlace::HTML;
 use MyPlace::163::Blog;
 

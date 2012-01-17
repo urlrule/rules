@@ -18,7 +18,7 @@ use strict;
 #================================================================
 
 
-use MyPlace::HTTPGet;
+use MyPlace::LWP;
 use MyPlace::Script::Message;
 #package MyPlace::URLRule;
 #use MyPlace::HTML;
@@ -38,7 +38,7 @@ sub _process_cat {
         if($cat) {
             if(!$cats->{$cat}) {
                 $cats->{$cat}=1;
-                my $http = MyPlace::HTTPGet->new();
+                my $http = MyPlace::LWP->new();
                 app_message "Process $url/$cat\n";
                 my (undef,$data) = $http->get("$url/$cat");
                 &_process_cat($url,$data,$cats,$albums);
@@ -72,7 +72,7 @@ sub _process {
 sub apply_rule {
     my $url = shift(@_);
     my %rule = %{shift(@_)};
-    my $http = MyPlace::HTTPGet->new();
+    my $http = MyPlace::LWP->new();
     my $realurl = $url;
     $realurl =~ s/gallery\.script\.coppermine\///;
     my (undef,$html) = $http->get($realurl);

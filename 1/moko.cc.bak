@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
-#http://www.moko.cc/busisi/
-#Thu Jun 25 15:59:40 2009
+#Thu Jun 25 15:23:48 2009
+#http://www.moko.cc/post/zhangyinghan/818/1/postclass.html
 use strict;
 
 #================================================================
@@ -17,42 +17,54 @@ use strict;
 # $result{pass_arg}      : Additional arguments to be passed to next level of urlrule
 #================================================================
 use MyPlace::HTML;
+use MyPlace::Script::Message;
+
+sub _moko_parse_page {
+	my $data = shift;
+	foreach(@_) {
+		if(/(\/post\/[^\/]+\/\d+\/\d+\.html)/i) {
+		    $data->{$1}=1; 
+        }
+        elsif(/(\/post\/[^\/]+\/\d+\/\d+\/\d+\.html)/i) {
+             $data->{$1}=1;
+        }
+	}
+	return $data;
+}
 
 sub apply_rule {
     my $rule_base= shift(@_);
     my %rule = %{shift(@_)};
     my %r;
-	if($rule_base =~ /moko\.cc\/post\/([^\/]+)\/?/) {
-		$rule_base = "http://www.moko.cc/post/$1/indexpost.html";
-	}
-	my $id;
-	if($rule_base =~ /\/post\/([^\/]+)\//) {
-		$id=$1;
-                $r{work_dir}=$id;
-	}
     $r{base}=$rule_base;
-    my %pass_data;
-    open FI,"-|","netcat \'$rule_base\'";
+    my %data;
+	my %urls;
+    open FI,"-|","netcat \"$rule_base\"";
 	my @text =<FI>;
 	close FI;
-#	$r{work_dir} = get_title(@text);
-#	if($id) {
-#		$r{work_dir} = $id . ($r{work_dir} ? "_" . $r{work_dir} : "");
-#	}
-#	$r{work_dir} =~ s/'s.*$// if($r{work_dir});
-	foreach(@text) {
-            if($_ =~ m/(\/post\/$id\/indexpage\/\d+\.html)/) {
-                $pass_data{$1} = 1;
+    foreach(@text) {
+		while(m/href\s*=\s*"([^"]+\/\d+\/\d+\/postclass\.html)"/g) {
+			$urls{$1} = 1;
+		}
+		if(!$r{work_dir}) {
+			my $title = get_text("h1",$_) unless($r{work_dir});
+            if($title) {
+                $title =~ s/(\s+|\s*\(\s*\d+\s*\)\s*)$//;
+    		    $r{work_dir}=$title;
             }
-            elsif(m/(\/post\/$id\/\d+\/\d+\/postclass\.html)/) {
-                $pass_data{$1}=1;
-            }
+		}
+		_moko_parse_page(\%data,$_);
+    }
+	foreach(keys %urls) {
+		my $url = 'http://www.moko.cc' . $_;
+		open FI,"-|","netcat",$url;
+		app_message('Retriving ' . "$url\n"); 
+		_moko_parse_page(\%data,<FI>);
+		close FI;
 	}
-	$r{no_subdir}=1;
-    $pass_data{$rule_base}=1 unless(%pass_data);
-    @{$r{pass_data}}=keys %pass_data;
+    $r{no_subdir}=1;
+	push @{$r{pass_data}},keys %data if(%data);
     return %r;
 }
-
-#	vi: set filetype=perl : 
 1;
+#   vim:filetype=perl

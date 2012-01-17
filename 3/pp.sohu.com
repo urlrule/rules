@@ -20,7 +20,7 @@ use strict;
 #================================================================
 
 
-use MyPlace::HTTPGet;
+use MyPlace::LWP;
 #use MyPlace::HTML;
 
 sub _process {
@@ -28,7 +28,7 @@ sub _process {
     my $title = undef;
 	if($url =~ m/\/member\/([^\/]+)/) {
 		if($html =~ m/var\s*_uid\s*=\s*(\d+)\s*;/) {
-			my $http = MyPlace::HTTPGet->new();
+			my $http = MyPlace::LWP->new();
 			$url = "http://pp.sohu.com/user/$1/setlist";
 			print STDERR ("Redirect to $url\n");
 			(undef,$html) = $http->get($url);
@@ -69,7 +69,7 @@ sub _process {
 sub apply_rule {
     my $url = shift(@_);
     my %rule = %{shift(@_)};
-    my $http = MyPlace::HTTPGet->new();
+    my $http = MyPlace::LWP->new();
     my (undef,$html) = $http->get($url);
     return &_process($url,\%rule,$html);
 }

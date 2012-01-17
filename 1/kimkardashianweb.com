@@ -18,7 +18,7 @@ use strict;
 #================================================================
 
 
-use MyPlace::HTTPGet;
+use MyPlace::LWP;
 #use MyPlace::HTML;
 
 sub _process_cat {
@@ -28,7 +28,7 @@ sub _process_cat {
         if(/(index\.php\?cat=\d+)/) {
             if(!$cats->{$1}) {
                 $cats->{$1}=1;
-                my $http = MyPlace::HTTPGet->new();
+                my $http = MyPlace::LWP->new();
                 app_message "Process $url/$1\n";
                 my (undef,$data) = $http->get("$url/$1");
                 &_process_cat($url,$data,$cats,$albums);
@@ -62,7 +62,7 @@ sub _process {
 sub apply_rule {
     my $url = shift(@_);
     my %rule = %{shift(@_)};
-    my $http = MyPlace::HTTPGet->new();
+    my $http = MyPlace::LWP->new();
     my (undef,$html) = $http->get($url);
     return &_process($url,\%rule,$html);
 }

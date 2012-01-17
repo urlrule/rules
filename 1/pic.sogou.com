@@ -19,7 +19,7 @@ use strict;
 # $result{pass_arg}      : Additional arguments to be passed to next level of urlrule
 #================================================================
 
-use MyPlace::HTTPGet;
+use MyPlace::LWP;
 #use MyPlace::HTML;
 sub _process {
     my ($url,$rule,$html) = @_;
@@ -53,7 +53,7 @@ sub _process {
 sub apply_rule {
     my $url = shift(@_);
     my %rule = %{shift(@_)};
-    my $http = MyPlace::HTTPGet->new();
+    my $http = MyPlace::LWP->new();
     my (undef,$html) = $http->get($url);
     return &_process($url,\%rule,$html);
 }

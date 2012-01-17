@@ -1,6 +1,7 @@
 #!/usr/bin/perl -w
-#Thu Jun 25 15:23:48 2009
-#http://www.moko.cc/post/zhangyinghan/818/1/postclass.html
+#http://www.moko.cc/busisi/
+#http://www.moko.cc/post/zhangyinghan/
+#Thu Jun 25 15:59:40 2009
 use strict;
 
 #================================================================
@@ -16,54 +17,29 @@ use strict;
 # $result{pass_name}     : Names of each $result{pass_data}
 # $result{pass_arg}      : Additional arguments to be passed to next level of urlrule
 #================================================================
-use MyPlace::HTML;
-use MyPlace::Script::Message;
-
-sub _moko_parse_page {
-	my $data = shift;
-	foreach(@_) {
-		if(/(\/post\/[^\/]+\/\d+\/\d+\.html)/i) {
-		    $data->{$1}=1; 
-        }
-        elsif(/(\/post\/[^\/]+\/\d+\/\d+\/\d+\.html)/i) {
-             $data->{$1}=1;
-        }
-	}
-	return $data;
-}
 
 sub apply_rule {
     my $rule_base= shift(@_);
     my %rule = %{shift(@_)};
     my %r;
-    $r{base}=$rule_base;
-    my %data;
-	my %urls;
-    open FI,"-|","netcat \"$rule_base\"";
-	my @text =<FI>;
-	close FI;
-    foreach(@text) {
-		while(m/href\s*=\s*"([^"]+\/\d+\/\d+\/postclass\.html)"/g) {
-			$urls{$1} = 1;
-		}
-		if(!$r{work_dir}) {
-			my $title = get_text("h1",$_) unless($r{work_dir});
-            if($title) {
-                $title =~ s/(\s+|\s*\(\s*\d+\s*\)\s*)$//;
-    		    $r{work_dir}=$title;
-            }
-		}
-		_moko_parse_page(\%data,$_);
-    }
-	foreach(keys %urls) {
-		my $url = 'http://www.moko.cc' . $_;
-		open FI,"-|","netcat",$url;
-		app_message('Retriving ' . "$url\n"); 
-		_moko_parse_page(\%data,<FI>);
-		close FI;
+	my $id;
+	if($rule_base =~ /moko\.cc\/post\/([^\/]+)\/?$/) {
+		$id = $1;
 	}
-    $r{no_subdir}=1;
-	push @{$r{pass_data}},keys %data if(%data);
+	elsif($rule_base =~ /moko\.cc\/([^\/]+)\/?$/) {
+		$id = $1;
+	}
+	else {
+		return ();
+	}
+	$rule_base = "http://www.moko.cc/post/$id/1/postsortid.html";
+    $r{work_dir}=$id;
+    $r{base}=$rule_base;
+	$r{pass_data} = [$rule_base];
+	$r{no_subdir} = 1;
     return %r;
 }
+
+#	vi: set filetype=perl : 
 1;
+#   vim:filetype=perl

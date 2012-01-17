@@ -22,7 +22,7 @@ sub apply_rule {
 }
 =cut
 
-use MyPlace::HTTPGet;
+use MyPlace::LWP;
 #use MyPlace::HTML;
 use strict;
 sub _process {
@@ -84,7 +84,7 @@ sub _process {
 sub apply_rule {
     my $url = shift(@_);
     my $rule = shift(@_);
-    my $http = MyPlace::HTTPGet->new();
+    my $http = MyPlace::LWP->new();
     $url = $url . '/entry/' unless($url =~ m/entry\/$/);
     my (undef,$html) = $http->get($url);
     return &_process($url,$rule,$html,@_);

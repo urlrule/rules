@@ -18,7 +18,7 @@ use strict;
 #================================================================
 
 #use MyPlace::Google;
-#use MyPlace::HTTPGet;
+#use MyPlace::LWP;
 #use MyPlace::HTML;
 
 sub apply_rule {

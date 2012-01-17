@@ -20,7 +20,7 @@ use strict;
 #================================================================
 
 
-use MyPlace::HTTPGet;
+use MyPlace::LWP;
 
 sub _process_view {
     my ($url,$rule,$html) = @_;
@@ -126,7 +126,7 @@ sub _process {
 sub apply_rule {
     my $url = shift(@_);
     my %rule = %{shift(@_)};
-    my $http = MyPlace::HTTPGet->new();
+    my $http = MyPlace::LWP->new();
     my (undef,$html) = $http->get($url);
     use Encode qw/from_to/;
     from_to($html,'gbk','utf8');

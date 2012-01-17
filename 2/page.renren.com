@@ -18,7 +18,7 @@ use strict;
 #================================================================
 
 
-use MyPlace::HTTPGet;
+use MyPlace::LWP;
 use Encode;
 my $utf8 = find_encoding("utf8");
 #use MyPlace::HTML;
@@ -58,7 +58,7 @@ sub _process {
 sub apply_rule {
     my $url = shift(@_);
     my %rule = %{shift(@_)};
-    my $http = MyPlace::HTTPGet->new();
+    my $http = MyPlace::LWP->new();
     my (undef,$html) = $http->get($url);
     return &_process($url,\%rule,$utf8->decode($html));
 }

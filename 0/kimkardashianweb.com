@@ -18,7 +18,7 @@ use strict;
 #================================================================
 
 
-use MyPlace::HTTPGet;
+use MyPlace::LWP;
 #use MyPlace::HTML;
 
 sub _process {
@@ -48,7 +48,7 @@ sub _process {
     if(!$nopaging) {
         foreach(2 .. $page) {
             my $nextpage = "$url&page=$_";
-            my $http = MyPlace::HTTPGet->new();
+            my $http = MyPlace::LWP->new();
             my (undef,$nexthtml) = $http->get($nextpage);
             my %r = &_process($nextpage,$rule,$nexthtml,1);
             push @data,@{$r{data}} if($r{data});
@@ -61,7 +61,7 @@ sub _process {
 sub apply_rule {
     my $url = shift(@_);
     my %rule = %{shift(@_)};
-    my $http = MyPlace::HTTPGet->new();
+    my $http = MyPlace::LWP->new();
     my (undef,$html) = $http->get($url);
     return &_process($url,\%rule,$html);
 }

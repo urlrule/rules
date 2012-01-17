@@ -18,7 +18,7 @@ use strict;
 #================================================================
 
 
-use MyPlace::HTTPGet;
+use MyPlace::LWP;
 #use Encode;
 #my $gb = find_encoding('gb2312');
 
@@ -65,7 +65,7 @@ sub _process
 sub apply_rule {
     my $url = shift(@_);
     my %rule = %{shift(@_)};
-    my $http = MyPlace::HTTPGet->new();
+    my $http = MyPlace::LWP->new();
     my (undef,$html) = $http->get($url,'charset:gbk');
     return &_process($url,\%rule,$html);
 }

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
-#http://www.skins.be/monica-bellucci/
-#Fri May 21 18:33:09 2010
+#Thu Jun 25 15:23:48 2009
+#http://www.moko.cc/post/zhangyinghan/818/1/postclass.html
 use strict;
 
 #================================================================
@@ -16,24 +16,55 @@ use strict;
 # $result{pass_name}     : Names of each $result{pass_data}
 # $result{pass_arg}      : Additional arguments to be passed to next level of urlrule
 #================================================================
+use MyPlace::HTML;
+use MyPlace::Script::Message;
+
+sub _moko_parse_page {
+	my $data = shift;
+	foreach(@_) {
+		if(/(\/post\/[^\/]+\/\d+\/\d+\.html)/i) {
+		    $data->{$1}=1; 
+        }
+        elsif(/(\/post\/[^\/]+\/\d+\/\d+\/\d+\.html)/i) {
+             $data->{$1}=1;
+        }
+	}
+	return $data;
+}
 
 sub apply_rule {
     my $rule_base= shift(@_);
     my %rule = %{shift(@_)};
     my %r;
     $r{base}=$rule_base;
-    use MyPlace::LWP;
-    my $http= MyPlace::LWP->new();
-    $http->cookie_set("key"=>"show_adult",val=>"1",path=>"/",domain=>".skins.be",maxage=>3600*24*30);
-    my (undef,$data) = $http->get($rule_base);
-    if($data =~ m/href\s*=\s*"(http:\/\/forum.skins.be\/\d+[^"]+\/\d+[^"]+)"/i) {
-        push @{$r{pass_data}},$1;
+    my %data;
+	my %urls;
+    open FI,"-|","netcat \"$rule_base\"";
+	my @text =<FI>;
+	close FI;
+    foreach(@text) {
+		while(m/href\s*=\s*"([^"]+\/\d+\/\d+\/postclass\.html)"/g) {
+			$urls{$1} = 1;
+		}
+		if(!$r{work_dir}) {
+			my $title = get_text("h1",$_) unless($r{work_dir});
+            if($title) {
+                $title =~ s/(\s+|\s*\(\s*\d+\s*\)\s*)$//;
+    		    $r{work_dir}=$title;
+            }
+		}
+		_moko_parse_page(\%data,$_);
     }
-    push @{$r{pass_data}},$rule_base . "uploads/";
+	foreach(keys %urls) {
+		my $url = 'http://www.moko.cc' . $_;
+		open FI,"-|","netcat",$url;
+		app_message('Retriving ' . "$url\n"); 
+		_moko_parse_page(\%data,<FI>);
+		close FI;
+	}
     $r{no_subdir}=1;
+	push @{$r{pass_data}},keys %data if(%data);
     return %r;
 }
-
-
-#       vim:filetype=perl
 1;
+#   vim:filetype=perl

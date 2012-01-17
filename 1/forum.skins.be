@@ -24,8 +24,8 @@ sub apply_rule {
     $r{base}=$rule_base;
     my $name = $rule_base;
     $name =~ s/^.+\/([^\/]+)\/[^\/]*$/$1/;
-    use MyPlace::HTTPGet;
-    my $http= MyPlace::HTTPGet->new();
+    use MyPlace::LWP;
+    my $http= MyPlace::LWP->new();
     $http->cookie_set("key"=>"show_adult",val=>"1",path=>"/",domain=>".skins.be",maxage=>3600*24*30);
     my (undef,$data) = $http->get($rule_base);
     my $page=0;
