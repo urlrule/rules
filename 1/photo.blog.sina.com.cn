@@ -17,19 +17,19 @@ use strict;
 # $result{pass_arg}      : Additional arguments to be passed to next level of urlrule
 #================================================================
 
+use MyPlace::URLRule::Utils qw/get_url/;
 sub apply_rule {
     my $rule_base= shift(@_);
     my %rule = %{shift(@_)};
     my %r;
     $r{base}=$rule_base;
-    open FI,"-|","netcat \'$rule_base\'";
-    while(<FI>) {
+	my @html = split '\n',get_url($rule_base,'-v');
+    foreach(@html) {
         my @match = $_ =~ m/["']([^"']+\/(?:blogpiclist\/u\/\d+|category\/u\/\d+\/s\/\d+))["']/g;
         foreach(@match) {
             $r{pass_data}{$_}=1;
         }
     }
-    close FI;
     $r{no_subdir}=1;
     $r{pass_data}=[keys %{$r{pass_data}}] if($r{pass_data});
     return %r;

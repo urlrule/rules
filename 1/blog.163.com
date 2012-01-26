@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-#http://blog.163.com/imjihye_fans/album/
+#http://blog.163.com/imjihye_fans
 #Thu Aug 19 01:44:40 2010
 use strict;
 

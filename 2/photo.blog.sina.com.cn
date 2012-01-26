@@ -16,6 +16,7 @@ use strict;
 # $result{pass_name}     : Names of each $result{pass_data}
 # $result{pass_arg}      : Additional arguments to be passed to next level of urlrule
 #================================================================
+use MyPlace::URLRule::Utils qw/get_url/;
 
 sub apply_rule {
     my $rule_base= shift(@_);
@@ -26,15 +27,14 @@ sub apply_rule {
     if($rule_base =~ /(.+\/categorys\/p\/\d+)/) {
         $prefix = $1;
     }
-    open FI,"-|","netcat \'$rule_base\'";
+	my @html = split "\n",get_url($rule_base,'-v');
     my $count = 1;
-    while(<FI>) {
+    foreach(@html) {
         my @match = $_ =~ m/\/categorys\/p\/\d+\/page(\d+)["']/g;
         foreach(@match) {
             $count = $_ if($_ > $count);
         }
     }
-    close FI;
     push @{$r{pass_data}},$rule_base;
     for my $page (2 .. $count) {
         push @{$r{pass_data}},"$prefix/page$page";

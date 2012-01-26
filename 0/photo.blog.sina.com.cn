@@ -17,23 +17,21 @@ use strict;
 # $result{pass_arg}      : Additional arguments to be passed to next level of urlrule
 #================================================================
 #use utf8;
+use MyPlace::URLRule::Utils qw/get_url/;
 
 sub get_data {
     my $rule_base = shift;
     my %r;
-    open FI,"-|","netcat -v \'$rule_base\'";
-    while(<FI>) {
-        my @match = $_ =~ /["']([^"']+\/small\/[^""\/\\]+)["']/g;
-        foreach(@match) {
-            $_ =~ s/small/orignal/;
-            $_ =~ s/&amp;690$//;
-            my $data_url = $_;#build_url($rule_base,$_);
-            my $data_name = "$_.jpg";
-            $data_name =~ s/.*\///;
-            $r{$data_url . "\t" . $data_name}=1;
-        }
+	my $html = get_url($rule_base,'-v');
+    while($html =~ m/["']([^"']+\/small\/[^""\/\\]+)["']/g) {
+		$_ = $1;
+        $_ =~ s/small/orignal/;
+        $_ =~ s/&amp;690$//;
+        my $data_url = $_;#build_url($rule_base,$_);
+        my $data_name = "$_.jpg";
+        $data_name =~ s/.*\///;
+        $r{$data_url . "\t" . $data_name}=1;
     }
-    close FI;
     return %r ? keys %r: ();
 }
 
@@ -48,8 +46,8 @@ sub apply_rule {
     if($rule_base =~ /(^.+\/(?:blogpiclist\/u\/\d+|category\/u\/\d+\/s\/\d+))/) {
         $prefix = $1;
     }
-    open FI,"-|","netcat -v \'$rule_base\'";
-    while(<FI>) {
+	my @html = split("\n",get_url($rule_base,'-v'));
+    foreach(@html) {
         if(!$r{work_dir} && /\<title\>([^<>]+)\</i) {
             $r{work_dir} = $1;
             $r{work_dir} =~ s/^博客相册[_-]//;
@@ -70,7 +68,6 @@ sub apply_rule {
             $count=$_ if($_ > $count);
         }
     }
-    close FI;
     $r{data} = [keys %{$r{data}}];
     if($count>1) {
         for my $page (2 .. $count) {
