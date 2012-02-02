@@ -1,0 +1,53 @@
+#!/usr/bin/perl -w
+#http://dp.pconline.com.cn/2912135/
+#Fri Feb  3 01:22:15 2012
+use strict;
+no warnings 'redefine';
+
+
+=method1
+sub apply_rule {
+ return (
+       '#use quick parse'=>1,
+       'data_exp'=>undef,
+       'data_map'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
+       'pages_start'=>undef,
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef
+ );
+}
+=cut
+
+#use MyPlace::URLRule::Utils qw/get_url/;
+
+sub apply_rule {
+    my ($url,$rule) = @_;
+	if($url !~ m/\/$/) {
+		$url .= '/';
+	}
+    return (
+        pass_data=>[qw/
+			myphoto.html
+			mymodel.html
+			myfavorite.html
+			myparty.html
+		/],
+		base=>$url
+	);
+}
+
+=cut
+
+1;
+
+__END__
+
+#       vim:filetype=perl
