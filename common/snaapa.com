@@ -14,20 +14,16 @@ sub _process {
     my @html = split(/\n/,$html);
     my ($pre,$pages,$suf) = ("",1,"");
     foreach(@html) {
-        s/fotop\.net/snaapa\.com/g;
+        #s/fotop\.net/snaapa\.com/g;
         if(m/\s+href="([^"]+)"[^>]*?>\s*<img\s+/) {
             push @pass_data,$1;
         }
         if(m/src\s*=\s*"([^"]+)\.thumb(\.[^"\/]+)/) {
             my $fullurl = $1 . $2;
-            if($fullurl =~ m/snaapa\.com\/(.+)$/) {
-                my $baseurl = $1;
-                $baseurl =~ s/\//_/g;
-                push @data,$fullurl . "\t" . $baseurl;
-            }
-            else {
-                push @data,$fullurl;
-            }
+			my $baseurl = $fullurl;
+			$baseurl =~ s/https?:\/\/[^\/]+\/*//;
+            $baseurl =~ s/\//_/g;
+            push @data,$fullurl . "\t" . $baseurl;
         }
         if((!$title) and m/<title>\s*([^<>]+?)\s+--\s+snaapa\.com|\s*(.+?)\s+--\s+snaapa\.com[^<]+<\/title/) {
             $title =$1 if($1);
@@ -50,7 +46,7 @@ sub _process {
         else {
             @data = () if(@pass_data);
         }
-        if($url =~ m/(.+?snaapa\.com\/)\/+(.+)$/) {
+        if($url =~ m/(.+?(?:snaapa\.com|fotop\.net)\/)\/+(.+)$/) {
             $url = "$1$2";
             $title = $2;
             $title =~ s/\//_/g;
@@ -71,7 +67,7 @@ sub _process {
         base=>$url,
         no_subdir=>1,
         work_dir=>$title,
-        same_level=>1,
+        samelevel=>1,
     );
 }
 
