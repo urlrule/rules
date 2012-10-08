@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
-#http://dp.pconline.com.cn/2912135/myphoto_p3_n15.html
-#Fri Feb  3 01:07:31 2012
+#http://www.colorbird.com/meinv/ganlulu/
+#Sat Apr 28 00:36:09 2012
 use strict;
 no warnings 'redefine';
 
@@ -10,17 +10,16 @@ sub apply_rule {
        '#use quick parse'=>1,
        'data_exp'=>undef,
        'data_map'=>undef,
-       'pass_exp'=>'href="([^"]*(?:dphoto|mphoto)\/)(\d+\.html)" target="_blank"',
-       'pass_map'=>'"$1list_$2"',
+       'pass_exp'=>'href="(\/meinv\/[^\/]+\/\d+\/[^\/]+\.shtml)">',
+       'pass_map'=>'$1',
        'pass_name_map'=>undef,
        'pages_exp'=>undef,
        'pages_map'=>undef,
        'pages_pre'=>undef,
        'pages_suf'=>undef,
        'pages_start'=>undef,
-       'title_exp'=>undef,
-       'title_map'=>undef,
-       'charset'=>undef
+       'title_exp'=>'\/meinv\/([^\/]+)\/[^\/"\']+_ZiLiao.shtml',
+       'title_map'=>'$1',
  );
 }
 =cut

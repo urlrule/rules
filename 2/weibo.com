@@ -1,17 +1,18 @@
 #!/usr/bin/perl -w
-#http://dp.pconline.com.cn/2912135/myphoto_p3_n15.html
-#Fri Feb  3 01:07:31 2012
+#http://weibo.com/yanglu923
+#Sat Feb  4 02:19:41 2012
 use strict;
 no warnings 'redefine';
 
 
+=method1
 sub apply_rule {
  return (
        '#use quick parse'=>1,
        'data_exp'=>undef,
        'data_map'=>undef,
-       'pass_exp'=>'href="([^"]*(?:dphoto|mphoto)\/)(\d+\.html)" target="_blank"',
-       'pass_map'=>'"$1list_$2"',
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
        'pass_name_map'=>undef,
        'pages_exp'=>undef,
        'pages_map'=>undef,
@@ -25,23 +26,28 @@ sub apply_rule {
 }
 =cut
 
-=method2
 use MyPlace::URLRule::Utils qw/get_url/;
 
 sub apply_rule {
     my ($url,$rule) = @_;
+
+	sub from_id {
+		return (
+			pass_data=>['http://weitu.sdodo.com/user-' . $_[0] . '-1.html'],
+			pass_count=>1
+		);
+	};
+
+	if($url =~ m/weibo\.com\/(\d+)/) {
+		return from_id($1);
+	}
 	my $html = get_url($url,'-v');
-    my $title = undef;
-    my @data;
-    my @pass_data;
-    #my @html = split(/\n/,$html);
+	if($html =~ m/href="[^"]*\/(\d+)\/follow/) {
+		return from_id($1);
+	}
     return (
-        count=>scalar(@data),
-        data=>\@data,
-        pass_count=>scalar(@pass_data),
-        pass_data=>\@pass_data,
-        base=>$url,
-        title=>$title,
+		count=>0,
+		pass_count=>0
     );
 }
 

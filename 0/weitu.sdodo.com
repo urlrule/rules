@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
-#http://dp.pconline.com.cn/2912135/myphoto_p3_n15.html
-#Fri Feb  3 01:07:31 2012
+#http://weitu.sdodo.com/user-1738916810-1.html
+#Sat Feb  4 02:14:11 2012
 use strict;
 no warnings 'redefine';
 
@@ -8,10 +8,10 @@ no warnings 'redefine';
 sub apply_rule {
  return (
        '#use quick parse'=>1,
-       'data_exp'=>undef,
-       'data_map'=>undef,
-       'pass_exp'=>'href="([^"]*(?:dphoto|mphoto)\/)(\d+\.html)" target="_blank"',
-       'pass_map'=>'"$1list_$2"',
+       'data_exp'=>'src="([^"]+)thumbnail\/([^"]+)',
+       'data_map'=>'"$1large/$2"',
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
        'pass_name_map'=>undef,
        'pages_exp'=>undef,
        'pages_map'=>undef,

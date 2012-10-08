@@ -8,9 +8,9 @@ no warnings 'redefine';
 sub apply_rule {
  return (
        '#use quick parse'=>1,
-#       'data_exp'=>'src="([^"]*(?:upload|images)\/[^"]+)_mthumb(\.jpg)"',
-       'data_exp'=>'class="aView" href="([^"]+)',
-       'data_map'=>'$1',
+       'data_exp'=>'src="([^"]*(?:upload|images)\/[^"]+)_mthumb(\.jpg)"',
+#       'data_exp'=>'class="aView" href="([^"]+)',
+       'data_map'=>'$1 . $2',
        'pass_exp'=>undef,
        'pass_map'=>undef,
        'pass_name_map'=>undef,

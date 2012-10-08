@@ -29,7 +29,8 @@ sub apply_rule {
         foreach($data =~ /src\s*=\s*"(http:\/\/\d+thumb\.skins\.be\/[^"]+)"/gi) {
             $_ =~ s/(\d+)thumb/$1img/;
             my $name = $_;
-            $name =~ s/http:\/\/\d+img\./img./g;
+            $name =~ s/^http:\/\/\d*\.?//;
+			$name =~ s/\//_/g;
             push @{$r{data}},"$_\t$name";
         }
     close FI;

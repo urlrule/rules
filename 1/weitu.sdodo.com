@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
-#http://dp.pconline.com.cn/2912135/myphoto_p3_n15.html
-#Fri Feb  3 01:07:31 2012
+#http://weitu.sdodo.com/user-1738916810-1.html
+#Sat Feb  4 02:15:40 2012
 use strict;
 no warnings 'redefine';
 
@@ -10,16 +10,16 @@ sub apply_rule {
        '#use quick parse'=>1,
        'data_exp'=>undef,
        'data_map'=>undef,
-       'pass_exp'=>'href="([^"]*(?:dphoto|mphoto)\/)(\d+\.html)" target="_blank"',
-       'pass_map'=>'"$1list_$2"',
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
        'pass_name_map'=>undef,
-       'pages_exp'=>undef,
-       'pages_map'=>undef,
-       'pages_pre'=>undef,
-       'pages_suf'=>undef,
+       'pages_exp'=>'href="(user-\d+-)(\d+)(\.[^"\.]+)',
+       'pages_map'=>'$2',
+       'pages_pre'=>'$1',
+       'pages_suf'=>'$3',
        'pages_start'=>undef,
-       'title_exp'=>undef,
-       'title_map'=>undef,
+       'title_exp'=>'\<h1\>([^\<\>]+)的微博图片',
+       'title_map'=>'$1',
        'charset'=>undef
  );
 }

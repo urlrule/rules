@@ -41,7 +41,7 @@ sub _process {
             $status->{$1}=1;
             my $page = "$url&paged=$1";
             my $http = MyPlace::LWP->new();
-            app_message "processing $page...\n";
+            print STDERR "processing $page...\n";
             my (undef,$htmlpage) = $http->get($page);
             my %r = &_process($url,$rule,$htmlpage,$status);
             push @data,@{$r{data}} if($r{data});
