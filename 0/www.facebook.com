@@ -8,7 +8,7 @@ use strict;
 sub apply_rule {
  return (
        '#use quick parse'=>1,
-       'data_exp'=>'data-src="([^"]+)_a\.jpg"',
+       'data_exp'=>'[\("](https?://[^"]+)_a\.jpg["\)]',
        'data_map'=>'"$1_n.jpg"',
        'pass_exp'=>undef,
        'pass_map'=>undef,
