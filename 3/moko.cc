@@ -32,7 +32,8 @@ sub apply_rule {
 	else {
 		return ();
 	}
-	$rule_base = "http://www.moko.cc/post/$id/1/postsortid.html";
+	$rule_base = "http://www.moko.cc/post/$id/new/1.html";
+	#$rule_base = "http://www.moko.cc/post/$id/1/postsortid.html";
     $r{work_dir}=$id;
     $r{base}=$rule_base;
 	$r{pass_data} = [$rule_base];

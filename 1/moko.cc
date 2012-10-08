@@ -11,7 +11,7 @@ sub apply_rule {
        '#use quick parse'=>1,
        'data_exp'=>undef,
        'data_map'=>undef,
-       'pass_exp'=>'href="([^"]*post\/[^\/"]+\/(?:\d+\/\d+\/)?\d+\.html)"\s*title=',
+       'pass_exp'=>'href="(\/post\/\d+\.html)"\s*title=',
        'pass_map'=>'$1',
        'pass_name_map'=>undef,
        'pages_start'=>undef,
