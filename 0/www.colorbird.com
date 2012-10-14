@@ -8,7 +8,7 @@ no warnings 'redefine';
 sub apply_rule {
  return (
        '#use quick parse'=>1,
-       'data_exp'=>'href="javascript:Gpage\(\d+\);"\>\<img src="([^"]+\/)(\d+)_s\.jpg"',
+       'data_exp'=>'onclick="javascript:Gpage\(\d+\);"\>\<div\>\<p\>\<img src="([^"]+\/)(\d+)_s\.jpg"',
        'data_map'=>'"$1$2_big.jpg\t$2_big.jpg"',
        'pass_exp'=>undef,
        'pass_map'=>undef,

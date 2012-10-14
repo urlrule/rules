@@ -10,7 +10,7 @@ sub apply_rule {
        '#use quick parse'=>1,
        'data_exp'=>undef,
        'data_map'=>undef,
-       'pass_exp'=>'href="(\/meinv\/[^\/]+\/\d+\/[^\/]+\.shtml)">',
+       'pass_exp'=>'href="(\/meinvtupian\/[^\/]+\/\d+\/[^\/]+\.shtml)">',
        'pass_map'=>'$1',
        'pass_name_map'=>undef,
        'pages_exp'=>undef,
@@ -18,7 +18,7 @@ sub apply_rule {
        'pages_pre'=>undef,
        'pages_suf'=>undef,
        'pages_start'=>undef,
-       'title_exp'=>'\/meinv\/([^\/]+)\/[^\/"\']+_ZiLiao.shtml',
+       'title_exp'=>'href="\/meinvtupian\/([^\/]+)\/\d+\/[^\/]+\.shtml">',
        'title_map'=>'$1',
  );
 }
