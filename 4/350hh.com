@@ -25,7 +25,7 @@ sub apply_rule {
 =cut
 
 use MyPlace::URLRule::Utils qw/get_url/;
-
+use Encode qw/from_to/;
 sub apply_rule {
     my ($url,$rule) = @_;
 	my $site;
@@ -37,14 +37,32 @@ sub apply_rule {
 	}
 	my $url2 = "$site/js/layout.js";
 	my $html = get_url($url2,'-v');
+	from_to($html,'gbk','utf-8');
+	my @pass_name;
     my @pass_data;
     my @html = split(/\n/,$html);
-	while($html =~ m/<li><a href="(\/(?:html|list)\/[^"]+)/g) {
-		push @pass_data,$1;
+	my $curname;
+	my %links;
+	foreach(@html) {
+		if(m/<li class="active"><a href="\/">([^<]+)</) {
+			$curname = $1;		
+		}
+		elsif(m/<li><a href="(\/(?:html|list)\/[^"]+)/) {
+			$curname = $curname || 'Nameless';
+			$links{$curname} = [] unless($links{$curname});
+			push @{$links{$curname}},$1;
+		}
+	}
+	foreach my $class (keys %links) {
+		foreach my $link (@{$links{$class}}) {
+			push @pass_data,$link;
+			push @pass_name,$class;
+		}
 	}
     return (
         pass_count=>scalar(@pass_data),
         pass_data=>\@pass_data,
+		pass_name=>\@pass_name,
         base=>$url,
     );
 }

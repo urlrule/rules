@@ -10,7 +10,7 @@ sub apply_rule {
        '#use quick parse'=>1,
        'data_exp'=>undef,
        'data_map'=>undef,
-       'pass_exp'=>'<li><a href="([^"]+)"',
+       'pass_exp'=>'<(?:li|h3)><a href="([^"]+)"',
        'pass_map'=>'$1',
        'pass_name_map'=>undef,
 #       'title_exp'=>'当前位置：.+<a [^>]+>([^<]+)</a',

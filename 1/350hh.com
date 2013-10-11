@@ -11,7 +11,7 @@ sub apply_rule1 {
  return (
        '#use quick parse'=>1,
 	   'pass_data'=>[$url],
-       'title_exp'=>'<li><em>类型：<\/em><a [^>]+><strong>([^<]+)<',
+       'title_exp'=>'<li><em>类型：<\/em><a [^>]+><strong>([^<]+)<|<h2>([^<\s]+?)赞助商<',
        'title_map'=>'$1',
        'charset'=>'gbk'
  );

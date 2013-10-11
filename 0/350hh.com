@@ -33,9 +33,13 @@ my $utf8 = find_encoding('utf8');
 
 sub html2txt {
 	my $_ = $_[0];
-	if(m/<br\s*\/>[　\s]+<br\s*\/>/) {;
+	if(m/<br\s*\/>[　\s]+<br\s*\/>/) {
 		s/<br\s*\/>[　\s]+<br\s*\/>/\r\n/g;
 		s/<br\s*\/>//g;
+	}
+	elsif(m/<br\s*>[　\s]+<br\s*>/) {
+		s/<br\s*>[　\s]+<br\s*>/\r\n/g;
+		s/<br\s*>//g;
 	}
 	else {
 		s/<br\s*\/>/\r\n/g;
@@ -57,12 +61,17 @@ sub apply_html_rule {
 		if(m/<title>([^<]+?)\s*-\s*</) {
 			$title = $1;
 		}
-		elsif(m/div class="novelContent">(.*)$/) {
+		elsif(m/div class="(novel|pic)Content">(.*)$/) {
+			$f_text=1;
+			$content=$2;
+		}
+		elsif(m/div class=temp22>(.*)$/) {
 			$f_text=1;
 			$content=$1;
 		}
 		elsif($f_text) {
-			if(m/<\/div>/) {
+			if(m/^(.*)<\/div>/) {
+				$content .= $1;
 				$f_text=0;
 				last;
 			}
@@ -71,7 +80,7 @@ sub apply_html_rule {
 			}
 		}
 	}
-	if($content =~ m/<img|thunder|<div/) {
+	if($content =~ m/<img|thunder|<div|href=/) {
 		$ext=".html";
 		$content = '
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -89,7 +98,7 @@ $content .
 	if(!$title) {
 		return (error=>"Invalid page.");
 	}
-	my $tmpfile=`mktemp --suffix=$ext tmp.XXXXXXXX`;
+	my $tmpfile=`mktemp -t --suffix=$ext tmp.XXXXXXXX`;
 	chomp($tmpfile);
 	open FO,'>',$tmpfile or return (error=>$!);
 	print FO "$content\n";
@@ -100,8 +109,11 @@ $content .
 		$img++;
 		push @data,"$1$2\t$title$img$2";
 	}
+	my $count=scalar(@data);
 	return (
+		data_count=>$count,
 		data=>\@data,
+#		title=>($count>3 ? $title : undef),
 	);
 }
 
@@ -131,7 +143,16 @@ sub apply_rule {
 	if($html =~ m/<img src="([^"]+)" title="/) {
 		$cover = "$site/$1";
 	}
+	elsif($html =~ m/class="cover"><img src="([^"]+)"/) {
+		$cover = "$site/$1";
+	}
 	my $url2 = "$site/player/$id.html";
+	if($html =~ m/<a[^>]*href=['"]([^'"]*\/player\/[^'"]+)/) {
+		$url2 = $1;
+		if($url2 !~ m/^http:\/\//) {
+			$url2 = "$site$url2";
+		}
+	}
 	$html = get_url($url2,'-v');
 	if(!$html) {
 		return (
@@ -148,8 +169,13 @@ sub apply_rule {
 			$url3 = "$site$1";
 			last;
 		}
-		elsif((!$title) and m/<title>正在播放\s*([^<]+?)\s*<\/title/){
-			$title = $1;
+		elsif(!$title) {
+			if(m/<title>正在播放\s*([^<]+?)\s*<\/title/){
+				$title = $1;
+			}
+			elsif(m/<title>([^<]+?)在线观看/) {
+				$title = $1;
+			}
 		}
 	}
 	$html = get_url($url3,'-v');
@@ -158,29 +184,43 @@ sub apply_rule {
 			'error'=>"Failed retriving $url3",
 		)
 	}
-	$html = $utf8->encode($gbk->decode($html));
 	$html =~ s/\\u(....)/\\x{$1}/g;
+	$html = $utf8->encode($gbk->decode($html));
 	$html =~ s/%7C/|/g;
 	my @qvod;
-	while($html =~ m/'([^']+)\$(qvod:\/\/[^']+)\|([^\|]+)\|\$qvod'/g) {
-		my $name = $utf8->encode(eval("\"$1\""));
-		my $qvod = $2;
-		my $filename = $utf8->encode(eval("\"$3\""));
-		if($filename =~ m/\.([^\.]+)$/) {
-			$filename = ".$1";
+	while($html =~ m/'([^']+)\$([^']+)\$qvod'/g) {
+		my $name = $utf8->encode(eval("\"\" . \"$1\""));
+		my $qvod = $utf8->encode(eval("\"\" . \"$2\""));
+		my $ext = '';
+		if($qvod =~ m/(\.[^\.]+?)\|?$/) {
+			$ext = $1;
 		}
-		push @qvod,[$qvod,"_$name",$filename];		
+		push @qvod,[$qvod,"_$name",$ext];		
 	}
 	my $count = @qvod;
 	if($count > 1) {
 		foreach(@qvod) {
-			push @data,"$_->[0]|${title}$_->[1]$_->[2]|";
+			my $url = $_->[0];
+			if($title) {
+				$url =~ s/^(qvod:\/\/.+\|)[^\|]+\|$/$1${title}$_->[1]$_->[2]|/;
+				push @data,"qvod:$url\t${title}$_->[1]$_->[2]";
+			}
+			else {
+				push @data,"qvod:$url";
+			}
 		}
 	}
 	else {
-		@data = ("$qvod[0]->[0]|${title}$qvod[0]->[2]|");
+		my $url = $qvod[0]->[0];
+		if($title) {
+			$url =~ s/^(qvod:\/\/.+\|)[^\|]+\|$/$1${title}$qvod[0]->[2]|/;
+			@data = ("qvod:$url\t${title}$qvod[0]->[2]");
+		}
+		else {
+			@data = ("qvod:$url");
+		}
 	}
-	push @data,"$cover\t${title}.jpg";
+	push @data,"$cover\t${title}.jpg" if($cover);
     return (
         count=>scalar(@data),
         data=>\@data,
