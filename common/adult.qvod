@@ -1,0 +1,458 @@
+#!/usr/bin/perl -w
+#http://www.88dy.tv/view/index359.html
+#Mon Oct  7 07:01:54 2013
+use strict;
+no warnings 'redefine';
+
+
+=method1
+sub apply_rule {
+ return (
+       '#use quick parse'=>1,
+       'data_exp'=>undef,
+       'data_map'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
+       'pages_start'=>undef,
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef
+ );
+}
+=cut
+
+use MyPlace::URLRule::Utils qw/get_url/;
+use MyPlace::URLRule qw/urlrule_quick_parse/;
+use Encode qw/find_encoding from_to/;
+my $gbk = find_encoding('gbk');
+my $utf8 = find_encoding('utf8');
+
+sub html2txt {
+	my $_ = $_[0];
+	if(m/<br\s*\/>[　\s]+<br\s*\/>/) {
+		s/<br\s*\/>[　\s]+<br\s*\/>/\r\n/g;
+		s/<br\s*\/>//g;
+	}
+	elsif(m/<br\s*>[　\s]+<br\s*>/) {
+		s/<br\s*>[　\s]+<br\s*>/\r\n/g;
+		s/<br\s*>//g;
+	}
+	else {
+		s/<br\s*\/>/\r\n/g;
+	}
+	return $_;
+}
+	sub new_file_data {
+		my $content = shift;
+		my $ext = shift(@_) || '.txt';
+		my $tmpfile=`mktemp -t --suffix=$ext tmp.XXXXXXXX`;
+		chomp($tmpfile);
+		open FO,'>',$tmpfile or return (error=>$!);
+		print FO "$content\n";
+		close FO;
+		return $tmpfile;
+	}
+
+sub apply_html_rule {
+	my($url,$rule) = @_;
+	my $html = get_url($url,'-v');
+    my @html = split(/\n/,$utf8->encode($gbk->decode($html)));
+	my $title;
+	my $content="";
+	my $f_text;
+	my $ext='.txt';
+	my @data=();
+	foreach(@html) {
+		chomp;
+		if(m/<title>([^<]+?)\s*-\s*</) {
+			$title = $1;
+		}
+		elsif(m/div class="(novel|pic)Content">(.*)$/) {
+			$f_text=1;
+			$content=$2;
+		}
+		elsif(m/div class=temp22>(.*)$/) {
+			$f_text=1;
+			$content=$1;
+		}
+		elsif($f_text) {
+			if(m/^(.*)<\/div>/) {
+				$content .= $1;
+				$f_text=0;
+				last;
+			}
+			else {
+				$content .= $_;
+			}
+		}
+	}
+	if($content =~ m/<img|thunder|<div|href=/) {
+		$ext=".html";
+		$content = '
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>' . $title . '</title>
+</head><body>' .
+$content . 
+'</body></html>';
+	}
+	else {
+		$content = $title ."\n" . html2txt($content);
+	}
+	if(!$title) {
+		return (error=>"Invalid page.");
+	}
+	my $tmpfile = new_file_data($content,$ext);
+	push @data,"file://$tmpfile\t$title$ext";
+	my $img=0;
+	while($content =~ m/<img[^<]*src="([^"]+)(\.[^"\.]+)"/g) {
+		$img++;
+		push @data,"$1$2\t$title$img$2";
+	}
+	my $count=scalar(@data);
+	return (
+		data_count=>$count,
+		data=>\@data,
+		title=>($count>3 ? $title : undef),
+	);
+}
+sub get_qvod {
+	my $html = shift;
+	$html =~ s/\\u(....)/\\x{$1}/g;
+	$html =~ s/%7C/|/g;
+	my @qvod;
+	while($html =~ m/'([^']+)\$([^']+)\$qvod'/g) {
+		my $name = $utf8->encode(eval("\"\" . \"$1\""));
+		my $qvod = $utf8->encode(eval("\"\" . \"$2\""));
+		my $ext = '';
+		if($qvod =~ m/(\.[^\.]+?)\|?$/) {
+			$ext = $1;
+		}
+		push @qvod,[$qvod,$name,$ext];		
+	}
+	return @qvod;
+}
+
+sub get_detail {
+	my $html = shift;
+	my %r;
+	my @lines = split("\n",$html);
+	my @cover;
+	my @text_strip = (
+		'(<ul class="movieintro">.+?<\/ul>)',
+		'(<div class="intro">.+?</div>)</td>',
+	);
+	my $text_start;
+	foreach(@lines) {
+		while(m/<img src="([^"]+)" title="|class="cover"><img src="([^"]+)"|title=[^<]+><img src="([^"]+)/g) {
+			$r{cover} = [] unless($r{cover});
+			push @{$r{cover}},$1 || $2 || $3;
+		}
+		if(!$r{playurl} && m/<a[^>]*href=['"]([^'"]*\/(?:player\/|video\/|kk\/index)[^'"]+)/) {
+			$r{playurl} = $1;
+		}
+		if(!$r{title} && m/<title>\s*([^<]+?)\s*(?:在线播放|在线观看)|<title>\s*正在播放\s*([^<]+)\s*/) {
+			$r{title} = $1 || $2;
+			$r{title} =~ s/\s*[-_]?\s*剧情介绍.*$//;
+		}
+	}
+	foreach my $exp (@text_strip) {
+		if($html =~ m/$exp/s) {
+			$r{text} = $1;
+			if(length($r{text}) < 400) {
+				$r{text}=undef;
+				next;
+			}
+			else {
+				last;
+			}
+		}
+	}
+	if($r{text}) {
+		while($r{text} =~ m/<img[^<]*src=['"]([^'"]+)/g) {
+			$r{cover} = [] unless($r{cover});
+			push @{$r{cover}},$1;
+		}
+	}
+	return \%r;
+}
+sub apply_rule_level0 {
+    my ($url,$rule) = @_;
+	my $id;
+	if($url =~ m/\/article\//){
+		return apply_html_rule($url,$rule);
+	}
+	elsif($url =~ m/^(.+)\/[^\/]+\/[^\/]*?(\d+)\.html.*$/) {
+		$id = $2;
+	}
+	else {
+		return (
+			'error'=>"Invalid url: $url",
+		)
+	}
+	my ($site,$path) = _parse_url($url);
+	my $html = get_url($url,'-v');
+	if(!$html) {
+		return (
+			'error'=>"Failed restriving $url",
+		);
+	}
+	from_to($html,'gbk','utf-8');
+	my $detail = get_detail($html);
+	#use Data::Dumper;print STDERR Dumper($detail),"\n";
+	my @cover;
+	my $text;
+	my $playurl;
+	if($detail) {
+		@cover = @{$detail->{cover}} if($detail->{cover});
+		$text = $detail->{text};
+		$playurl = $detail->{playurl};
+	}
+	my $url2 = $playurl ? _build_url($site,$path,$playurl) : "$site/player/$id.html";
+
+	$html = get_url($url2,'-v');
+	if(!$html) {
+		return (
+			'error'=>"Failed restriving $url2",
+		);
+	}
+    my $title = $detail->{title};
+    my @data;
+    my @pass_data;
+	my $url3;
+	from_to($html,'gbk','utf-8');
+    my @html = split(/\n/,$html);
+	foreach(@html) {
+		if(m/src=['"]([^'"]*\/playdata\/[^'"]+)/) {
+			$url3 = _build_url($site,$path,$1);
+			last;
+		}
+	}
+	my @qvod;
+	if(!$url3) {
+		@qvod = get_qvod($html);
+	}
+	else {
+		$html = get_url($url3,'-v');
+		if(!$html) {
+			return (
+				'error'=>"Failed retriving $url3",
+			)
+		}
+		from_to($html,'gbk','utf-8');
+		@qvod = get_qvod($html);
+	}
+	my $count = @qvod;
+	if($count > 1) {
+		foreach(@qvod) {
+			my $url = $_->[0];
+			if($title) {
+				$url =~ s/^(qvod:\/\/.+\|)[^\|]+\|$/$1${title}$_->[1]$_->[2]|/;
+				push @data,"qvod:$url\t${title}$_->[1]$_->[2]";
+			}
+			else {
+				push @data,"qvod:$url";
+			}
+		}
+	}
+	elsif($count == 1) {
+		my $url = $qvod[0]->[0];
+		if($title) {
+			$url =~ s/^(qvod:\/\/.+\|)[^\|]+\|$/$1${title}$qvod[0]->[2]|/;
+			@data = ("qvod:$url\t${title}$qvod[0]->[2]");
+		}
+		else {
+			@data = ("qvod:$url");
+		}
+	}
+	else {
+		return apply_html_rule($url,$rule);
+	}
+	if(@cover) {
+		my $idx = '';
+		foreach(@cover) {
+			push @data,_build_url($site,$path,$_) . "\t${title}$idx.jpg";
+			$idx ? $idx=2 : $idx++;
+		}
+	}
+	if($text) {
+		my $tmpfile = new_file_data($text,'.html');
+		push @data,'file://' . "${tmpfile}\t${title}\.html";
+	}
+	if(scalar(@data) <10) {
+		$title = undef;
+	}
+    return (
+        count=>scalar(@data),
+        data=>\@data,
+        pass_count=>0,
+		title=>$title,
+    );
+}
+
+sub normalize_url {
+	my $_ = shift;
+	if(m/^http:\/\/adult\.qvod\//) {
+		s/^http:\/\/adult\.qvod\///;
+	}
+	elsif(m/^adult\.qvod\//) {
+		s/^adult\.qvod\///;
+	}
+	if(!m/^[^:\/]+:\/\//) {
+		$_ = "http:\/\/$_";
+	}
+	return $_;
+}
+
+sub _build_url {
+	my $site = shift;
+	my $path = shift;
+	my $rel = shift;
+	if($rel =~ m/^[^:\/]+:\/\//) {
+		return $rel;
+	}
+	elsif($rel =~ m/^\//) {
+		return "$site$rel";
+	}
+	else {
+		return "$site/$path/$rel";
+	}
+}
+
+sub _parse_url {
+	my $_ = shift;
+	my $site;
+	my $path;
+	my $file;
+	if(m/^([^:\/]+:\/\/[^\/]+)\/(.+?)\/([^\/]+)$/) {
+		$site = $1;
+		$path = $2;
+		$file = $3;
+	}
+	elsif(m/^([^:\/]+:\/\/[^\/]+)\/(.+?)\/$/) {
+		$site = $1;
+		$path = $2;
+		$file = '';
+	}
+	elsif(m/^([^:\/]+:\/\/[^\/]+)\/([^\/]+)$/) {
+		$site = $1;
+		$path = "";
+		$file = $2;
+	}
+	elsif(m/^([^:\/]+:\/\/[^\/]+)/) {
+		$site = $1;
+		$path = "";
+		$file = '';
+	}
+	else {
+		$site = $_;
+		$path = '';
+		$file = '';
+	}
+	return $site,$path,$file;
+}
+
+sub build_url {
+	my $base = shift;
+	my $rel = shift;
+	if($rel =~ m/^[^:\/]+:\/\//) {
+		return $rel;
+	}
+	my ($site,$path,undef) = _parse_url($base);;
+	return _build_url($site,$path,$rel);
+}
+sub normalize_title {
+	my $_ = shift;
+	s/^\s*([^ \s]+).*$/$1/;
+	return $_;
+}
+sub build_my_url {
+	my $base = shift;
+	my $urls = $_[0];
+	if($urls && $urls->[0]) {
+		my($site,$path,undef) = _parse_url($base);
+		foreach(@$urls) {
+			$_ = "http://adult.qvod/" . _build_url($site,$path,$_);
+		}
+	}
+	return $urls;
+}
+
+sub patch_result {
+	my $base = shift;
+	my $r = shift;
+	$r->{title} = normalize_title($r->{title}) if($r->{title});
+	$r->{work_dir} = normalize_title($r->{work_dir}) if($r->{work_dir});
+	build_my_url($base,$r->{pass_data}) if($r->{pass_data});
+	build_my_url($base,$r->{data}) if($r->{data});
+	return $;
+}
+sub apply_rule {
+	my $url = shift;
+	my $rule = shift;
+	my $level = $rule->{level} || 0;
+	my $rurl = normalize_url($url);
+#	print STDERR "Apply_RULE: URL: $url\n";
+#	print STDERR "Apply_RULE: RURL: $rurl\n";
+#	print STDERR "Apply_RULE: LEVEl: $level\n";
+#	print STDERR "Apply_RULE: SOURCE: $rule->{source}\n";
+	if($level <1 ) {
+		return apply_rule_level0($rurl,$rule,@_);
+	}
+	if($level == 1) {
+		my %r = urlrule_quick_parse(
+				'url'=>$rurl,
+				'charset'=>'gbk',
+				'title_exp'=>'<title>([^<]+)',
+				'title_map'=>'$1',
+				'pass_exp'=>'(?:h3|h2)><a[^<]*href=[\'"]((?:\/detail\/\?|\/bibi\/index)\d+[^\'"]*)"',
+			    'pass_map'=>'$1',
+				'base'=>'',
+		);
+#		use Data::Dumper;print Dumper(\%r);
+		patch_result($rurl,\%r);
+		return %r;
+	}
+	elsif($level == 2) {
+		my %r = urlrule_quick_parse(
+			"url"=>$rurl,
+			'pages_exp'=>'<a href=["\']([^\'"]*\/(?:list\/|part\/|list\/index|list\/\?|cha\/index)\d+[-_])(\d+)(\.html)',,
+			'pages_map'=>'$2',
+			'pages_pre'=>'$1',
+			'pages_suf'=>'$3',
+			'base'=>'',
+		);
+		patch_result($rurl,\%r);
+		return %r;
+	}
+	elsif($level == 3) {
+		my %r = urlrule_quick_parse(
+			"url"=>$rurl,
+			'pass_exp'=>'<a href=["\']([^\'"]*\/(?:list\/|list\/index|list\/\?|cha\/index|html\/part\/index)\d+\.html)',
+			'pass_map'=>'$1',
+			'base'=>'',
+		);
+		patch_result($rurl,\%r);
+		return %r;
+	}
+	else {
+		return (
+			"error"=>"no handler defined for [$level] $url \n",
+		);
+	}
+}
+
+=cut
+
+1;
+
+__END__
+
+#       vim:filetype=perl
