@@ -1,0 +1,33 @@
+#!/usr/bin/perl -w
+use MyPlace::URLRule::QvodExtractor qw/process/;
+
+my %SITE_DEF = (
+	'qvod123.net'=>{
+		'listTitle'=>'<\s*[tT][Ii][Tt][Ll][Ee]\s*>\s*([^\s-_<]+)',
+	},
+);
+
+sub apply_rule {
+	my $url = shift;
+	my $rule = shift;
+	my $level = $rule->{level};
+	my $D;
+	foreach(keys %SITE_DEF) {
+		if($url =~ m/$_/) {
+			$D = $SITE_DEF{$_};
+			last;
+		}
+	}
+	my %r;
+	if($D) {
+		%r = process(url=>$url,level=>$level,rule=>$rule,%{$D});
+	}
+	else {
+		%r = process(url=>$url,level=>$level,rule=>$rule);
+	}
+	return %r;
+}
+1;
+
+# vim:filetype=perl
+
