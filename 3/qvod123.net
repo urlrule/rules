@@ -1,0 +1,15 @@
+use MyPlace::URLRule::Utils qw/get_url/;
+
+sub apply_rule {
+	my $url = shift;
+	my $rurl = "http://www.qvod123.net/donghuapian/";
+	return (
+		'#use quick parse'=>1,
+		'pass_exp'=>'href="(http:\/\/www\.qvod123\.net\/[^\/]+\/)"',
+		'pass_map'=>'$1',
+		'url'=>$rurl,
+		'base'=>$rurl,
+	);
+}
+
+#       vim:filetype=perl

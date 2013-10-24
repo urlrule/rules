@@ -26,15 +26,14 @@ sub apply_rule {
 }
 =cut
 
-use MyPlace::URLRule::Utils qw/get_url/;
-use Encode qw/from_to/;
+use MyPlace::URLRule::Utils qw/get_url get_html/;
+use Encode qw/decode/;
 sub apply_rule {
     my ($url,$rule) = @_;
-	my $html = get_url($url,'-v');
+	my $html = get_html($url,'-v');
     my $title = '';
     my @data;
     my @pass_data;
-    from_to($html,'gbk','utf-8');
     my @html = split(/\n/,$html);
 	my @qvod;
 	my $cover='';
@@ -53,7 +52,7 @@ sub apply_rule {
 		}
 		elsif((!$cover) && m/<ul class="pic"><img[^>]*src="([^"]+)/) {
 			$cover = $1;
-			from_to($cover,'utf-8','gbk');
+	#		from_to($cover,'utf-8','gbk');
 		}
 	}
 	my $idx='';

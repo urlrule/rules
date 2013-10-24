@@ -4,7 +4,7 @@
 use strict;
 no warnings 'redefine';
 
-
+=method1
 sub apply_rule {
  return (
        '#use quick parse'=>1,
@@ -13,35 +13,57 @@ sub apply_rule {
        'pass_exp'=>undef,
        'pass_map'=>undef,
        'pass_name_map'=>undef,
-       'pages_exp'=>'<a href="([^"]*\/(?:list|part)\/\d+_)(\d+)(\.html)',,
+       'pages_exp'=>'<a href="([^"]*\/list\/\d+_)(\d+)(\.html)',,
        'pages_map'=>'$2',
        'pages_pre'=>'$1',
        'pages_suf'=>'$3',
        'pages_start'=>undef,
-	   'title_exp'=>'<meta name="description" content="([^"]+)第1页"',
-       'title_map'=>'$1',
-       'charset'=>'gbk'
+#       'title_map'=>'$1',
+#       'charset'=>'gbk'
  );
 }
 =cut
 
-=method2
 use MyPlace::URLRule::Utils qw/get_url/;
-
+use Encode qw/decode/;
 sub apply_rule {
     my ($url,$rule) = @_;
-	my $html = get_url($url,'-v');
-    my $title = undef;
-    my @data;
+	my $site;
+	if($url =~ m/^(http:\/\/.+?)\//){
+		$site = $1;
+	}
+	else {
+		$site = $url;
+	}
+	my $url2 = "$site/js/layout.js";
+	my $html = get_url($url2,'-v');
+	$html = decode("gbk",$html);
+	my @pass_name;
     my @pass_data;
-    #my @html = split(/\n/,$html);
+    my @html = split(/\n/,$html);
+	my $curname;
+	my %links;
+	foreach(@html) {
+		if(m/<li class="active"><a href="\/">([^<]+)</) {
+			$curname = $1;		
+		}
+		elsif(m/<li><a href="(\/(?:html|list)\/[^"]+)/) {
+			$curname = $curname || 'Nameless';
+			$links{$curname} = [] unless($links{$curname});
+			push @{$links{$curname}},$1;
+		}
+	}
+	foreach my $class (keys %links) {
+		foreach my $link (@{$links{$class}}) {
+			push @pass_data,$link;
+			push @pass_name,$class;
+		}
+	}
     return (
-        count=>scalar(@data),
-        data=>\@data,
         pass_count=>scalar(@pass_data),
         pass_data=>\@pass_data,
+		pass_name=>\@pass_name,
         base=>$url,
-        title=>$title,
     );
 }
 

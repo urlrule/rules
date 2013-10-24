@@ -113,7 +113,7 @@ $content .
 	return (
 		data_count=>$count,
 		data=>\@data,
-#		title=>($count>3 ? $title : undef),
+		title=>($count>9 ? $title : undef),
 	);
 }
 
@@ -221,11 +221,12 @@ sub apply_rule {
 		}
 	}
 	push @data,"$cover\t${title}.jpg" if($cover);
+	$title=undef if(scalar(@data)<10);
     return (
         count=>scalar(@data),
         data=>\@data,
         pass_count=>0,
-#		title=>$title,
+		title=>$title,
     );
 }
 

@@ -25,7 +25,6 @@ sub apply_rule {
 =cut
 
 use MyPlace::URLRule::Utils qw/get_url/;
-use Encode qw/from_to/;
 sub apply_rule {
     my ($url,$rule) = @_;
 	my $site;
@@ -36,8 +35,7 @@ sub apply_rule {
 		$site = $url;
 	}
 	my $url2 = "$site/js/layout.js";
-	my $html = get_url($url2,'-v');
-	from_to($html,'gbk','utf-8');
+	my $html = get_url($url2,'-v','charset:gbk');
 	my @pass_name;
     my @pass_data;
     my @html = split(/\n/,$html);
