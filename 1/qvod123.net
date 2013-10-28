@@ -1,0 +1,28 @@
+#!/usr/bin/perl -w
+use strict;
+use utf8;
+use MyPlace::URLRule::QvodExtractor qw/extract_list/;
+
+sub apply_rule {
+	my $url = shift;
+	my $rule = shift;
+	my $level = $rule->{level};
+	my %r = extract_list(url=>$url,level=>$level,rule=>$rule);
+	if($r{title}) {
+		$r{title} =~ s/^\s*([^\s_-]+?)\s*-.*$/$1/;
+		$r{title} =~ s/^(?:最新|经典)//;
+		$r{title} =~ s/^(.+)(?:排行|大全|推荐).*$/$1/;
+		$r{title} =~ s/泰剧/泰国电视剧/;
+		$r{title} =~ s/TVB/香港/;
+		$r{title} =~ s/(战争|爱情|喜剧)电影/电影 - $1/;
+		$r{title} =~ s/(动作|科幻|恐怖|纪录|剧情)片/电影 - $1/;
+		$r{title} =~ s/^(.+)电视剧/电视剧 - $1/;
+		$r{title} =~ s/综艺片/综艺节目/;
+	}
+	return %r;
+}
+
+
+
+# vim:filetype=perl
+
