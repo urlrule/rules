@@ -1,9 +1,10 @@
 #!/usr/bin/perl -w
 use MyPlace::URLRule::QvodExtractor qw/process/;
+use utf8;
 
 my %SITE_DEF = (
 	'qvod123.net'=>{
-		'listTitle'=>'<\s*[tT][Ii][Tt][Ll][Ee]\s*>\s*([^\s-_<]+)',
+		'listTitle'=>'<\s*[tT][Ii][Tt][Ll][Ee]\s*>\s*(?:最新|经典)?([^\s-_<大排推]+)',
 	},
 );
 

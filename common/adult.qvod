@@ -27,6 +27,10 @@ my %SITE_DEF = (
 		itemTitle=>'影片名称：([^<]+)',
 		listTitle=>'<title>([^>-]+)',
 	},
+	'77soso.com'=>{
+		list=>['<a\s*href="([^"]*\/view\/index\d+\.html)"\s*class="title"'],
+		content=>['<div class="pleft">(.+?)<\/div><!-- \/pleft -->'],
+	}
 );
 
 sub apply_rule {
