@@ -16,6 +16,7 @@ $MyPlace::URLRule::Config = {
 		'zzzz35.com'=>'site.qvod.adult',
 		'77soso.com'=>'site.qvod.adult',
 		'tw116.com'=>'site.qvod',
+		'm.weibo.cn'=>'weibo.com',
 	},
 };
 
