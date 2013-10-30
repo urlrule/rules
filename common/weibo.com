@@ -7,12 +7,18 @@ use MyPlace::URLRule::Utils qw/get_url get_html strnum new_html_data/;
 sub build_page_url {
 	my $uid = shift;
 	my $pid = shift;
-	my $ppid = $pid - 1;
+	my $max_id = shift;
+	my $end_id = shift;
+	my $bar = shift(@_) || 0;
+	my $ppid = $pid  || 1;
 	return "http://weibo.com/p/aj/mblog/mbloglist" .
 			"?domain=100505" . 
-			"&pre_page=$ppid" .
+			($ppid ? "&pre_page=$ppid" : "") .
 			"&page=$pid" .
+			($max_id ? "&max_id=$max_id" : "") .
+			($end_id ? "&end_id=$end_id" : "") .
 			"&count=15" .
+			"&pagebar=$bar" . 
 			"&pl_name=Pl_Official_LeftProfileFeed__13" .
 			"&id=100505$uid" .
 			"&script_uri=/p/100505$uid/weibo" .
@@ -22,10 +28,30 @@ sub build_page_url {
 			"&__rnd=" . rand(1)*1000000000000;
 }
 
+sub extract_uid {
+	my $url = shift;
+	my $uid;
+	if($url =~ m/[\?&]id=100505(\d+)/) {
+		$uid = $1;
+	}
+	elsif($url =~ m/weibo\.com\/p\/100505(\d+)/) {
+		$uid = $1;
+	}
+	elsif($url =~ m/weibo\.com\/u\/(\d+)/) {
+		$uid = $1;
+	}
+	return $uid;
+}
+
 sub process_page {
 	my($url,$level,$rule,$page) = @_;
 	print STDERR "Retriving page $page...\n";
-	my $html = get_html($url);
+	my $html = get_html($url);#,"--verbose");
+	if(length($html) < 1000) {
+		print STDERR "Failed. Reloading ...\n";
+		sleep 3;
+		return process_page(@_);
+	}
 	$html =~ s/\\(["\\\/])/$1/g;
 	$html =~ s/\\n/\n/g;
 	$html =~ s/\\t/\t/g;
@@ -36,6 +62,10 @@ sub process_page {
 	#print STDERR $html;
 	while($html =~ m/(<div[^>]*tbinfo=[^>]*>.+?)<div node-type="feed_list_repeat"/sg) {
 		push @blocks,$1;
+	}
+	my $load_more=undef;
+	if($html =~ m/<div[^>]*node-type="lazyload"/) {
+		$load_more=1;
 	}
 	foreach(@blocks) {
 		my $post = {};
@@ -54,6 +84,12 @@ sub process_page {
 		$text =~ s/src="([^"]+)\/(?:thumbnail|square)\/([^"]+)"/src="$1\/large\/$2"/sg;
 		$post->{text}=$text;
 		$post->{images}=[];
+		if(m/mid="([^"]+)"/) {
+			$post->{mid}=$1;
+		}
+		if(m/feedtype="([^"]+)"/) {
+			$post->{feedtype} = $1;
+		}
 		while(m/src="([^"]+)\/(?:thumbnail|square)\/([^"]+)"/sg) {
 			my $src = "$1/large/$2";
 			if($src =~ m/\.([^\.\/]+)$/) {
@@ -90,11 +126,44 @@ sub process_page {
 		}
 		push @data,new_html_data($html,$title,$url);
 	}
-	return (
+
+	my $max_id;
+	my $end_id;
+	my $uid = extract_uid($url);
+	my %r = (
 		count=>scalar(@data),
 		data=>\@data,
 		url=>$url,
 	);
+	if($load_more && $uid) {
+		if($url =~ m/[\?&]end_id=(\d+)/) {
+			$end_id=$1;
+			foreach(@posts) {
+				if(!$max_id) {
+					$max_id = $_->{mid} unless($_->{feedtype} && ($_->{feedtype} eq "top"));
+				}
+				else {
+					last;
+				}
+			}
+			$max_id = $posts[$#posts]->{mid};
+			$r{pass_data} = [build_page_url($uid,$page,$max_id,$end_id,1)];
+		}
+		else {
+			foreach(@posts) {
+				if(!$end_id) {
+					$end_id = $_->{mid} unless($_->{feedtype} && ($_->{feedtype} eq "top"));
+				}
+				else {
+					last;
+				}
+			}
+			$max_id = $posts[$#posts]->{mid};
+			$r{pass_data} = [build_page_url($uid,$page,$max_id,$end_id,0)];
+		}
+		$r{samelevel} = 1;
+	}
+	return %r;
 }
 
 sub process_pages {
@@ -122,7 +191,7 @@ sub process_pages {
 	}
 	my @pass_data;
 	for my $pid(1..$maxp) {
-		push @pass_data,build_page_url($uid,$pid);
+		push @pass_data,"http://weibo.com/p/100505$uid/weibo?is_search=0&visible=0&is_tag=0&profile_ftype=1&page=$pid#feedtop";
 	}
 	return (
 		pass_data=>\@pass_data,
@@ -159,12 +228,11 @@ sub apply_rule {
 	my $rule = shift;
 	my $level = $rule->{level} || 0;
 	if(!$level) {
+		my $page = 1;
 		if($url =~ m/&page=(\d+)/) {
-			return process_page($url,$level,$rule,$1);
+			$page = $1;
 		}
-		else {
-			return process_page($url,$level,$rule,1);
-		}
+		return process_page($url,$level,$rule,$page);
 	}
 	elsif($level == 1) {
 		return process_pages($url,$level,$rule);
