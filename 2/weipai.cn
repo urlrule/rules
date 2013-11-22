@@ -1,0 +1,117 @@
+#!/usr/bin/perl -w
+#weipai.cn
+#Fri Nov 22 02:11:56 2013
+use strict;
+no warnings 'redefine';
+
+
+=method1
+sub apply_rule {
+ return (
+       '#use quick parse'=>1,
+       'data_exp'=>undef,
+       'data_map'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
+       'pages_start'=>undef,
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef
+ );
+}
+=cut
+
+use MyPlace::URLRule::Utils qw/get_url get_html/;
+
+sub check_page {
+	my $base = shift;
+	my $page = shift;
+	my $url = "$base?page=$page";
+	my $html = get_url($url,'-q');
+	print STDERR "Checking page $page ...";
+	if($html and $html =~ m/href="\/video\//) {
+		print STDERR "\t[OK]\n";
+		return 1;
+	}
+	else {
+		print STDERR "\t[FAILED]\n";
+		return;
+	}
+}
+
+sub get_lastpage {
+		my $base = shift;
+		my $min = shift;
+		my $max = shift;
+		if($max == $min) {
+			print STDERR "=> Last page is $max\n";
+			return $max;
+		}
+		if($max - $min == 1) {
+				if(check_page($base,$max)) {
+					return get_lastpage($base,$max,$max);	
+				}
+				elsif(check_page($base,$min)) {
+					return get_lastpage($base,$min,$min);
+				}
+				else {
+					return undef;
+				}
+		}
+		my $mid = int(($min + $max)/2);
+		if(check_page($base,$mid)) {
+			print STDERR "=> Last page is between [ $mid - $max ]\n";
+			return get_lastpage($base,$mid,$max);
+		}
+		else {
+			$max = $mid - 1;
+			print STDERR "=> Last page is between [ $min - ",$max," ]\n";
+			return get_lastpage($base,$min,$max);
+		}
+}
+
+sub apply_rule {
+    my ($url,$rule) = @_;
+	my %info;
+	if($url =~ m/^(.*)\/user\/([^\/]+)$/) {
+		$info{host} = $1;
+		$info{uid}=$2;
+	}
+	else {
+		return ("error"=>"Invalid url");
+	}
+	my $title;
+	my $pagebase = "$info{host}/user/moreOwnVideos/uid/$info{uid}";
+	my $MAXPAGE=256;
+	my $lastpage = get_lastpage($pagebase,2,$MAXPAGE);
+	my @passdata = ($url);
+	if($lastpage and $lastpage > 1) {
+			foreach my $page(2 .. $lastpage) {
+				push @passdata,"$pagebase?page=$page";
+			}
+	}
+	my $html = get_html($url,"-v");
+	if($html =~ m/<span class="name" title="([^"]+)">/) {
+		$title = $1;
+	}
+    return (
+        count=>0,
+        pass_count=>scalar(@passdata),
+        pass_data=>\@passdata,
+        base=>$url,
+        title=>$title,
+    );
+}
+
+=cut
+
+1;
+
+__END__
+
+#       vim:filetype=perl

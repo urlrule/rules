@@ -1,0 +1,100 @@
+#!/usr/bin/perl -w
+#weipai.cn
+#Wed Nov 20 01:02:45 2013
+use strict;
+no warnings 'redefine';
+use utf8;
+
+=method1
+sub apply_rule {
+ return (
+       '#use quick parse'=>1,
+       'data_exp'=>undef,
+       'data_map'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
+       'pages_start'=>undef,
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef
+ );
+}
+=cut
+
+use MyPlace::URLRule::Utils qw/get_url get_html/;
+
+sub apply_rule {
+    my ($url,$rule) = @_;
+	my $html = get_html($url,'-v');
+    my $title = undef;
+    my @data;
+    my @pass_data;
+    my @html = split(/\n/,$html);
+	my %info;
+	foreach(@html) {
+		if(m/<div class="user"><[^>]*title="([^"]+)/) {
+			$info{user}=$1;
+		}
+		elsif((!$info{day}) && m/<span class="day">(\d+)/) {
+			$info{day}=$1;
+		}
+		elsif((!$info{year}) && m/<span class="date">.*>(\d+)-(\d+)/) {
+			$info{year} = $1;
+			$info{month} = $2;
+		}
+		elsif((!$info{length}) && m/<span class="length">(\d+)'(\d+)"/) {
+			$info{length} = $1 eq "0" ? "$2s" : "$1m$2s";
+		}
+		elsif((!$info{title}) && m/<span class="video_title">([^<]+)/) {
+			$info{title} = $1;
+		}
+		elsif((!$info{minute}) && m/<span class="video_detail">(\d+)月(\d+)日\s+(\d+):(\d+)/) {
+			$info{month} ||= $1;
+			$info{day} ||= $2;
+			$info{minute} = $4;
+			$info{hour} = $3;
+		}
+		elsif((!$info{video}) && m/<img src="(http:\/\/v.weipai.cn\/video\/[^"]+)\.mov\.3in1/) {
+			$info{video} = $1;
+		}
+		elsif((!$info{error}) && m/<div class="tab selected">出错啦<span class="end">/) {
+			$info{error} = 1;
+		}
+		elsif((!$info{big_title}) && m/<div class=box_big_title>([^<]+)/) {
+			$info{big_title} = $1;
+		}
+	}
+	if($info{error}) {
+		return (
+			count=>0,
+			message=>$info{big_title},
+		);
+	}
+	else {
+		my $filename = $info{user} . "_" . 
+			$info{year} . $info{month} . $info{day} . $info{hour} . $info{minute} .
+			($info{title} ? "_$info{title}" : "") . "[$info{length}]";
+		$filename =~ s/[:\/\\]+/_/g;
+		$filename =~ s/[*?!]+//g;
+		my $ext = ".flv";
+		return (
+			count=>1,
+			data=>[$info{video} . $ext . "\t" . $filename . $ext],
+			base=>$url,
+			info=>\%info,
+		);
+	}
+}
+
+=cut
+
+1;
+
+__END__
+
+#       vim:filetype=perl
