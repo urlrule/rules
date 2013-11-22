@@ -47,6 +47,15 @@ sub process_page {
 	my($url,$level,$rule,$page) = @_;
 	print STDERR "Retriving page $page...\n";
 	my $html = get_html($url);#,"--verbose");
+#	print STDERR $html,"\n";
+	if($html =~ m/<div class="page_error">(.+?)<\/div/s) {
+		my $err = $1;
+		$err =~ s/<[^>]+>//sg;
+		$err =~ s/[\s\t\r\n]+//sg;
+		return (
+			error=>$err,
+		);
+	}
 	if(length($html) < 1000) {
 		print STDERR "Failed. Reloading ...\n";
 		sleep 3;
@@ -201,13 +210,16 @@ sub process_pages {
 
 sub process_weibo {
 	my $url = shift;
+		my $user;
+		my $nick;
+		my $id;
+	if($url =~ m/weibo\.com\/(\d+)/) {
+		$id = $1;
+	}
+	elsif($url =~ m/weibo\.com\/([^\/\?]+)[^\/]*$/) {
+		$user = $1;
+	}
 	my $html = get_html($url,"-v");
-
-
-	my $user;
-	my $nick;
-	my $id;
-
 	if($url =~ m/weibo\.com\/([^\/\?]+)[^\/]*$/) {
 		$user = $1;
 	}
