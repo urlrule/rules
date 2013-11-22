@@ -18,7 +18,7 @@ use strict;
 #================================================================
 
 
-use MyPlace::LWP;
+use MyPlace::URLRule::Utils qw/get_url get_html/;
 #use Encode;
 #my $gb = find_encoding('gb2312');
 
@@ -30,43 +30,47 @@ sub _process
     my @data;
     my @pass_data;
     my @html = split(/\n/,$html);
-    foreach(@html)
-    {
-        $_ =~ s/^\s*_Callback\s*\(//;
-        $_ =~ s/^\s*\);\s*$/;/;
-        $_ =~ s/"\s+:\s+/"=>/g;
-		s/([\@\%\$])/\\$1/g;
+	my $photos = [];
+	my %info;
+	my $id;
+	my $keys = '(desc|name|lloc|lloc2|origin_url|rawshoottime|url)';
+    foreach(@html) {
+		if(m/\}/) {
+			if($info{origin_url}) {
+				push @$photos,{%info};
+			}
+			%info = ();
+		}
+		elsif(m/"$keys"\s*:\s*(.+?)\s*,?\s*$/) {
+			my $k = $1;
+			my $v = $2;
+			$v =~ s/(?:^"|"$)//g;
+			$v =~ s/\\\//\//g;
+			$info{$k} = $v;
+		}
     }
-    my $photo_list_ref = eval join("\n",@html);
-	print STDERR "Error: (eval) $@\n" if($@);
-    if($photo_list_ref and ref $photo_list_ref)
-    {
-        my $photos = $photo_list_ref->{"pic"};
-        if($photos and ref $photos)
-        {
             foreach my $photo (@{$photos})
             {
                 if($photo->{'origin_url'}) 
                 {
 					use URI::Escape;
-                   my $filename = $photo->{"name"} || "";
+                   my $filename = $photo->{"name"} || $photo->{"desc"} || "";
 				   $filename = uri_unescape($filename);
                    $filename =~ s/^[　\s]+//;
                    $filename =~ s/[\s　]+$//;
-                   $filename .= "_" . $photo->{"lloc2"} . ".jpg";
+				   $filename = ($filename ? "${filename}_" : "") . ($photo->{rawshoottime} || $photo->{lloc} || $photo->{lloc2} || "") . ".jpg";
+				   $filename =~ s/[:\\\/\?\*!]//g;
+				   $filename =~ s/\s+/_/g;
                    push @data,$photo->{'origin_url'} . "\t" . $filename;
                 }
             }
-        }
-    }
     return (data=>\@data,pass_data=>\@pass_data,base=>$url,no_subdir=>1,work_dir=>undef);
 }
 
 sub apply_rule {
     my $url = shift(@_);
     my %rule = %{shift(@_)};
-    my $http = MyPlace::LWP->new();
-    my (undef,$html) = $http->get($url,'charset:gbk');
+    my $html = get_url($url,'-v','charset:gbk');
     return &_process($url,\%rule,$html);
 }
 1;

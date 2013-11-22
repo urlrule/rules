@@ -18,18 +18,14 @@ use strict;
 #================================================================
 
 
-use MyPlace::LWP;
-#use MyPlace::HTML;
 
 sub _process {
     my ($url,$rule,$html) = @_;
     my @data;
     my @pass_data;
-
     my $uin = $url;
     $uin =~ s/^[^\/]*\/\///;
     $uin =~ s/\..*$//;
-
     push @pass_data, 
          (
             "http://alist.photo.qq.com/fcgi-bin/fcg_list_album?uin=$uin&outstyle=2",
@@ -37,15 +33,13 @@ sub _process {
             "http://xalist.photo.qq.com/fcgi-bin/fcg_list_album?uin=$uin&outstyle=2" 
          );
 
-    return (data=>[@data],pass_data=>[@pass_data],base=>$url,no_subdir=>1,work_dir=>$uin);
+    return (data=>\@data,pass_data=>\@pass_data,base=>$url,no_subdir=>1,work_dir=>$uin);
 }
 
 sub apply_rule {
     my $url = shift(@_);
     my %rule = %{shift(@_)};
-    my $http = MyPlace::LWP->new();
-    my (undef,$html) = $http->get($url);
-    return &_process($url,\%rule,$html);
+    return &_process($url,\%rule);
 }
 
 
