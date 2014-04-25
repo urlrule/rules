@@ -1,0 +1,54 @@
+#!/usr/bin/perl -w
+#http://www.vlook.cn/ta/qs/dWlkPTIxMDYwODk=
+#Sat Apr 12 23:05:02 2014
+use strict;
+no warnings 'redefine';
+use utf8;
+
+sub apply_rule {
+ return (
+       '#use quick parse'=>1,
+       'data_exp'=>undef,
+       'data_map'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+       'pages_exp'=>'href="((?:[^"]*)\/ta\/qs\/[^"]+no=)(\d+)([^"]+)',
+       'pages_map'=>'"20"',
+       'pages_pre'=>'$1',
+       'pages_suf'=>'$3',
+       'pages_start'=>undef,
+	   # 'title_exp'=>'<title>([^<]+?)的主页 - 微录客',
+	   #'title_map'=>'$1',
+	   #'charset'=>'utf-8',
+ );
+}
+=cut
+
+=method2
+use MyPlace::URLRule::Utils qw/get_url/;
+
+sub apply_rule {
+    my ($url,$rule) = @_;
+	my $html = get_url($url,'-v');
+    my $title = undef;
+    my @data;
+    my @pass_data;
+    #my @html = split(/\n/,$html);
+    return (
+        count=>scalar(@data),
+        data=>\@data,
+        pass_count=>scalar(@pass_data),
+        pass_data=>\@pass_data,
+        base=>$url,
+        title=>$title,
+    );
+}
+
+=cut
+
+1;
+
+__END__
+
+#       vim:filetype=perl
