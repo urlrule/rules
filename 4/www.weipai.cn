@@ -1,0 +1,34 @@
+
+use MyPlace::URLRule::Utils qw/get_url/;
+
+sub apply_rule {
+    my ($url,$rule) = @_;
+	my $uid;
+	if($url =~ m/\/user\/([^\/]+)$/) {
+		$uid = $1;
+	}
+	elsif($url =~ m/\/uid\/([^\/]+)\?page=/) {
+		$uid = $1;
+	}
+	elsif($url =~ m/\/uid\/([^\/]+)$/) {
+		$uid = $1;
+	}
+	else {
+		return (
+			error=>"Invalid URL resource",
+			count=>0,
+		);
+	}
+	my $MAX_PAGE=30;
+    my @pass_data = map "http://www.weipai.cn/user/moreFollows/uid/$uid\?page=$_",(1 .. $MAX_PAGE);
+	return (
+        count=>0,
+        pass_count=>$MAX_PAGE,
+        pass_data=>\@pass_data,
+        base=>$url,
+    );
+}
+
+__END__
+
+#       vim:filetype=perl

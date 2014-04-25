@@ -52,6 +52,8 @@ sub apply_rule {
 		}
 		elsif((!$info{title}) && m/<span class="video_title">([^<]+)/) {
 			$info{title} = $1;
+			$info{title} = substr($info{title},0,40);
+			$info{title} =~ s/\/\?\*'"//g;
 		}
 		elsif((!$info{minute}) && m/<span class="video_detail">(\d+)月(\d+)日\s+(\d+):(\d+)/) {
 			$info{month} ||= $1;
@@ -77,7 +79,7 @@ sub apply_rule {
 	}
 	else {
 		my $filename = $info{user} . "_" . 
-			$info{year} . $info{month} . $info{day} . $info{hour} . $info{minute} .
+			"$info{year}$info{month}$info{day}$info{hour}$info{minute}" .
 			($info{title} ? "_$info{title}" : "") . "[$info{length}]";
 		$filename =~ s/[:\/\\]+/_/g;
 		$filename =~ s/[*?!]+//g;
