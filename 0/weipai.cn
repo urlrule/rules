@@ -35,7 +35,20 @@ sub apply_rule {
     my @data;
     my @pass_data;
     my @html = split(/\n/,$html);
-	my %info;
+	my %info = (
+		video=>'',
+		user=>'',
+		year=>'',
+		month=>'',
+		day=>'',
+		hour=>'',
+		minute=>'',
+		second=>'',
+		title=>'',
+		length=>'',
+		error=>'',
+		big_title=>'',
+	);
 	foreach(@html) {
 		if(m/<div class="user"><[^>]*title="([^"]+)/) {
 			$info{user}=$1;
@@ -56,8 +69,8 @@ sub apply_rule {
 			$info{title} =~ s/\/\?\*'"//g;
 		}
 		elsif((!$info{minute}) && m/<span class="video_detail">(\d+)月(\d+)日\s+(\d+):(\d+)/) {
-			$info{month} ||= $1;
-			$info{day} ||= $2;
+			$info{month} = $1;
+			$info{day} = $2;
 			$info{minute} = $4;
 			$info{hour} = $3;
 		}
