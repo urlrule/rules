@@ -4,6 +4,9 @@ use utf8;
 
 use MyPlace::URLRule::Utils qw/get_url get_html strnum new_html_data/;
 
+my $CONFIG_PID = '100505';
+
+
 sub build_page_url {
 	my $uid = shift;
 	my $pid = shift;
@@ -12,7 +15,7 @@ sub build_page_url {
 	my $bar = shift(@_) || 0;
 	my $ppid = $pid  || 1;
 	return "http://weibo.com/p/aj/mblog/mbloglist" .
-			"?domain=100505" . 
+			"?domain=${CONFIG_PID}" . 
 			($ppid ? "&pre_page=$ppid" : "") .
 			"&page=$pid" .
 			($max_id ? "&max_id=$max_id" : "") .
@@ -20,10 +23,10 @@ sub build_page_url {
 			"&count=15" .
 			"&pagebar=$bar" . 
 			"&pl_name=Pl_Official_LeftProfileFeed__13" .
-			"&id=100505$uid" .
-			"&script_uri=/p/100505$uid/weibo" .
+			"&id=${CONFIG_PID}$uid" .
+			"&script_uri=/p/${CONFIG_PID}$uid/weibo" .
 			"&feed_type=0" .
-			"&from=page_100505" .
+			"&from=page_${CONFIG_PID}" .
 			"&mod=TAB" .
 			"&__rnd=" . rand(1)*1000000000000;
 }
@@ -31,11 +34,13 @@ sub build_page_url {
 sub extract_uid {
 	my $url = shift;
 	my $uid;
-	if($url =~ m/[\?&]id=100505(\d+)/) {
-		$uid = $1;
+	if($url =~ m/[\?&]id=(100\d\d\d)(\d+)/) {
+		$CONFIG_PID = $1;
+		$uid = $2;
 	}
-	elsif($url =~ m/weibo\.com\/p\/100505(\d+)/) {
-		$uid = $1;
+	elsif($url =~ m/weibo\.com\/p\/(100\d\d\d)(\d+)/) {
+		$CONFIG_PID = $1;
+		$uid = $2;
 	}
 	elsif($url =~ m/weibo\.com\/u\/(\d+)/) {
 		$uid = $1;
@@ -90,7 +95,7 @@ sub process_page {
 #			$text =~ s/^\s*([^，。\.,]+).+$/$1/;
 #			$text = substr($text,0,20);
 #		}
-		$text =~ s/src="([^"]+)\/(?:thumbnail|square)\/([^"]+)"/src="$1\/large\/$2"/sg;
+		$text =~ s/src="([^"]+)\/(?:thumbnail|square|bmiddle|mw690)\/([^"]+)"/src="$1\/large\/$2"/sg;
 		$post->{text}=$text;
 		$post->{images}=[];
 		if(m/mid="([^"]+)"/) {
@@ -99,7 +104,7 @@ sub process_page {
 		if(m/feedtype="([^"]+)"/) {
 			$post->{feedtype} = $1;
 		}
-		while(m/src="([^"]+)\/(?:thumbnail|square)\/([^"]+)"/sg) {
+		while(m/src="([^"]+)\/(?:thumbnail|square|bmiddle|mw690)\/([^"]+)"/sg) {
 			my $src = "$1/large/$2";
 			if($src =~ m/\.([^\.\/]+)$/) {
 				push @{$post->{images}},[$src,".$1"];
@@ -181,8 +186,9 @@ sub process_pages {
 	if($url =~ m/\/u\/(\d+)/) {
 		$uid = $1;
 	}
-	elsif($url =~ m/\/p\/100505(\d+)/) {
-		$uid = $1;
+	elsif($url =~ m/\/p\/(100\d\d\d)(\d+)/) {
+		$CONFIG_PID = $1;
+		$uid = $2;
 	}
 	else {
 		return (
@@ -200,7 +206,7 @@ sub process_pages {
 	}
 	my @pass_data;
 	for my $pid(1..$maxp) {
-		push @pass_data,"http://weibo.com/p/100505$uid/weibo?is_search=0&visible=0&is_tag=0&profile_ftype=1&page=$pid#feedtop";
+		push @pass_data,"http://weibo.com/p/${CONFIG_PID}$uid/weibo?is_search=0&visible=0&is_tag=0&profile_ftype=1&page=$pid#feedtop";
 	}
 	return (
 		pass_data=>\@pass_data,
@@ -229,9 +235,18 @@ sub process_weibo {
 	if($html =~ m/\$CONFIG\['onick'\]='([^']+)'/) {
 		$nick = $1;
 	}
+	if($html =~ m/\$CONFIG\['pid'\]='(\d+)'/) {
+		$CONFIG_PID = $1;
+	}
 	return (
 		pass_data => [ $id ? "http://weibo.com/u/$id" : $url ],
-		title=> $user || $nick || $id || "",
+		title=> $user || $id || $nick || "",
+		info=>{
+			oid=>$id,
+			ouser=>$user,
+			onick=>$nick,
+			pid=>$CONFIG_PID
+		},
 	);
 }
 
