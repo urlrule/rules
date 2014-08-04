@@ -74,8 +74,13 @@ sub apply_rule {
 			$info{minute} = $4;
 			$info{hour} = $3;
 		}
-		elsif((!$info{video}) && m/<img src="(http:\/\/v.weipai.cn\/video\/[^"]+)\.mov\.3in1/) {
-			$info{video} = $1;
+		elsif((!$info{video})) {
+			if(m/<img src="(http:\/\/v\.weipai\.cn\/video\/[^"]+)\.mov\.3in1/) {
+				$info{video} = $1;
+			}
+			elsif(m/<img src="http:\/\/aliv\.weipai\.cn\/([^"]+)\.mov\.3in1/) {
+				$info{video} = "http://v.weipai.cn/video/$1"
+			}
 		}
 		elsif((!$info{error}) && m/<div class="tab selected">出错啦<span class="end">/) {
 			$info{error} = 1;
@@ -90,9 +95,14 @@ sub apply_rule {
 			message=>$info{big_title},
 		);
 	}
+	elsif(!$info{video}) {
+		return (
+			count=>0,
+			message=>'Error no video found',
+		);
+	}
 	else {
-		my $filename = $info{user} . "_" . 
-			"$info{year}$info{month}$info{day}$info{hour}$info{minute}" .
+		my $filename = "$info{year}$info{month}$info{day}$info{hour}$info{minute}" .
 			($info{title} ? "_$info{title}" : "") . "[$info{length}]";
 		$filename =~ s/[:\/\\]+/_/g;
 		$filename =~ s/[*?!]+//g;
