@@ -32,18 +32,18 @@ sub apply_rule {
     my ($url,$rule) = @_;
 	my $html = get_url($url,'-v','charset:utf8');
     my $title = undef;
+	if($url =~ m/qs\/([^#\?\&\/\\]+)/) {
+		$title = $1;
+	}
     my @pass_data;
     my @html = split(/\n/,$html);
 	foreach(@html) {
-		if((!$title) and m/<title>([^<]+?)的主页 - 微录客/) {
-			$title = $1;
-		}
-		elsif(m/action-video="([^"]+)/) {
+		#if((!$title) and m/<title>([^<]+?)的主页 - 微录客/) {
+		#	$title = $1;
+		#}
+		if(m/action-video="([^"]+)/) {
 			push @pass_data,$1;
 		}
-	}
-	if($url =~ m/\/qs\/([^\?\&\/]+)/) {
-		$title = $title ? "$1_$title" : "$1";
 	}
     return (
         count=>0,
@@ -51,7 +51,7 @@ sub apply_rule {
         pass_count=>scalar(@pass_data),
         pass_data=>\@pass_data,
         base=>$url,
-        #title=>$title,
+        title=>$title,
     );
 }
 
