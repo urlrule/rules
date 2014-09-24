@@ -4,7 +4,7 @@
 use strict;
 
 
-
+=method1
 #userId:56408110,
 #userName:'nemon-photo
 sub apply_rule {
@@ -22,37 +22,40 @@ sub apply_rule {
        'pages_start'=>undef,
  );
 }
+
 =cut
 
-=method2
-use MyPlace::Curl;
-#use MyPlace::HTML;
-
-sub _process {
-    my ($url,$rule,$html) = @_;
-    my $title = undef;
-    my @data;
-    my @pass_data;
-    #my @html = split(/\n/,$html);
-    return (
-        count=>scalar(@data),
-        data=>[@data],
-        pass_count=>scalar(@pass_data),
-        pass_data=>[@pass_data],
-        base=>$url,
-        no_subdir=>1,
-        work_dir=>$title,
-    );
-}
+use MyPlace::URLRule::Utils qw/get_url/;
 
 sub apply_rule {
     my $url = shift(@_);
     my $rule = shift(@_);
-    my $http = MyPlace::Curl->new();
-    my (undef,$html) = $http->get($url);
-    return &_process($url,$rule,$html,@_);
+	my @html = split(/\n/,get_url($url));
+	my $uid;
+	my $uname;
+	if($url =~ m/^https?:\/\/([^\.]+)\.poco\.cn\/?$/) {
+		$uname = $1;
+	}
+	foreach(@html) {
+		if((!$uname) && m/copyToClipboard\('http:\/\/([^\.]+)\.poco\.cn/) {
+			$uname = $1;
+		}
+		elsif((!$uid) && m/userId\s*:\s*(\d+)/) {
+			$uid = $1;
+		}
+		elsif((!$uid) && m/user_id=(\d+)/) {
+			$uid = $1;
+		}
+		if($uname && $uid) {
+			last;
+		}
+	}
+	return (
+		count=>0,
+		pass_data=>["http://my.poco.cn/act/act_list.htx&user_id=$uid&act_type_id=0"],
+		title=>$uname || $uid,
+	);
 }
-=cut
 
 1;
 

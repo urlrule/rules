@@ -75,36 +75,92 @@ sub get_lastpage {
 		}
 }
 
+#<div class="user"><span class="name" title="丁可和肥松鼠">丁可和肥松鼠</span><span class="hide"></span></div>
+#		<div class="imgs">
+#					<a href="/user/5142c9f37d3494945d0000c4" class="face face192 female " ><img src="http://image.weipai.cn/avatar/2013/03/15/180/t13633315691835.jpg" onerror="this.parentNode.removeChild(this);"/></a>		</div>
+#							<ul>
+#										<a href="/follows/5142c9f37d3494945d0000c4"><li class="follows"><span>1</span>关注</li></a>
+#													<a href="/fans/5142c9f37d3494945d0000c4"><li class="fans"><span class="active_fans_num_5142c9f37d3494945d0000c4">86853</span>粉丝</li></a>
+#																<a href="/videos/5142c9f37d3494945d0000c4"><li class="videos"><span>52</span>视频</li></a>
+#																		</ul>
+#																							<a href="javascript:;" onclick="$.follow('5142c9f37d3494945d0000c4','1');" class="follow   follow_5142c9f37d3494945d0000c4"><span>已关注</span></a>							<div class="status">淘宝地址：godisabear.taobao.com<br />
+#																							微博：丁可和肥松鼠</div>
+#																												</div>
+sub extract_info {
+	my $text = shift;
+	my $key = shift;
+	my $exp = shift;
+	my $info = shift;
+	if($text =~ m/$exp/) {
+		$info->{$key} = $1;
+	}
+	return $info->{$key};
+}
+sub get_user_info {
+	my $info = shift;
+	my $host = shift;
+	my $uid = shift;
+	my $url = "$host/follows/$uid";
+	my @html = split(/\n/,get_html($url,"-v"));
+	foreach(@html) {
+		extract_info($_,'name','<span[^<]+class="name"[^<]+title="([^"]+)',$info) 
+			unless(defined $info->{name});
+		extract_info($_,'avatar','<img src="([^"]+\/avatar\/[^"]+)',$info)
+			unless(defined $info->{avatar});
+		extract_info($_,'follows','<li[^>]*class="follows"[^>]*><span[^>]*>(\d+)',$info)
+			unless(defined $info->{follows});
+		extract_info($_,'fans','<li[^>]*class="fans"[^>]*><span[^>]*>(\d+)',$info)
+			unless(defined $info->{fans});
+		extract_info($_,'videos','<li[^>]* class="videos"[^>]*><span[^>]*>(\d+)',$info)
+			unless(defined $info->{videos});
+	}
+	return $info;
+}
+
 sub apply_rule {
     my ($url,$rule) = @_;
 	my %info;
-	if($url =~ m/^(.*)\/user\/([^\/]+)$/) {
+	if($url =~ m/^(https?:\/\/[^\/]+)\/(?:user|videos|follows|fans)\/([^\/\?]+)/) {
 		$info{host} = $1;
 		$info{uid}=$2;
 	}
 	else {
 		return ("error"=>"Invalid url");
 	}
-	my $title;
+	get_user_info(\%info,$info{host},$info{uid});
+	
+	my $title = $info{name};
+
 	my $pagebase = "$info{host}/user/moreOwnVideos/uid/$info{uid}";
-	my $MAXPAGE=256;
-	my $lastpage = get_lastpage($pagebase,2,$MAXPAGE);
-	my @passdata = ($url);
-	if($lastpage and $lastpage > 1) {
-			foreach my $page(2 .. $lastpage) {
+
+	my $lastpage = undef;
+	if($info{videos}) {
+		$lastpage = int($info{videos} / 15);
+		$lastpage += 1 if($info{videos} % 15);
+	}
+	else {
+		my $MAXPAGE=256;
+		$lastpage = get_lastpage($pagebase,2,$MAXPAGE);
+	}
+	$lastpage = 1 unless($lastpage);
+	my @passdata;# = ($url);
+	if($lastpage and $lastpage >= 1) {
+			foreach my $page(1 .. $lastpage) {
 				push @passdata,"$pagebase?page=$page";
 			}
 	}
-	my $html = get_html($url,"-v");
-	if($html =~ m/<span class="name" title="([^"]+)">/) {
-		$title = $1;
-	}
+	#my $html = get_html($url,"-v");
+	#if($html =~ m/<span class="name" title="([^"]+)">/) {
+	#	$title = $1;
+	#}
     return (
         count=>0,
         pass_count=>scalar(@passdata),
         pass_data=>\@passdata,
         base=>$url,
 		work_dir=>$info{uid},
+		level=>0,
+		info=>\%info,
 #        title=>$title,
     );
 }

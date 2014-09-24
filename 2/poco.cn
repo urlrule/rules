@@ -17,8 +17,8 @@ sub apply_rule {
        'pages_pre'=>'$1',
        'pages_suf'=>'$3',
        'pages_start'=>undef,
-	   'title_exp'=>'\s*userName:\'([^\']+)\'',
-	   'title_map'=>'$1',
+	   #'title_exp'=>'\s*userName:\'([^\']+)\'',
+	   #'title_map'=>'$1',
  );
 }
 =cut

@@ -51,7 +51,7 @@ sub extract_uid {
 sub process_page {
 	my($url,$level,$rule,$page) = @_;
 	print STDERR "Retriving page $page...\n";
-	my $html = get_html($url);#,"--verbose");
+	my $html = get_url($url);#,"--verbose");
 #	print STDERR $html,"\n";
 	if($html =~ m/<div class="page_error">(.+?)<\/div/s) {
 		my $err = $1;
@@ -83,8 +83,8 @@ sub process_page {
 	}
 	foreach(@blocks) {
 		my $post = {};
+		$_ =~ s/src="([^"]+(?:sina|weibo|sinaimg)\.(?:com|cn)[^"]*)\/(?:thumbnail|square|bmiddle|mw690)\/([^"]+)"/src="$1\/large\/$2"/sg;
 		my $text = $_;
-		#$text =~ s/\s*<[^>]*>\s*//g;
 		$text =~ s/[\n\r]//sg;
 		if($text =~ m/\\u/) {
 			$text =~ s/(["@])/\\$1/sg;
@@ -95,7 +95,6 @@ sub process_page {
 #			$text =~ s/^\s*([^，。\.,]+).+$/$1/;
 #			$text = substr($text,0,20);
 #		}
-		$text =~ s/src="([^"]+)\/(?:thumbnail|square|bmiddle|mw690)\/([^"]+)"/src="$1\/large\/$2"/sg;
 		$post->{text}=$text;
 		$post->{images}=[];
 		if(m/mid="([^"]+)"/) {
@@ -104,8 +103,10 @@ sub process_page {
 		if(m/feedtype="([^"]+)"/) {
 			$post->{feedtype} = $1;
 		}
-		while(m/src="([^"]+)\/(?:thumbnail|square|bmiddle|mw690)\/([^"]+)"/sg) {
-			my $src = "$1/large/$2";
+		while(m/<img[^>]*src\s*=\s*(['"])([^>]+?)\1/sg) {
+			my $src = $2;
+			#next unless($src =~ m/large|original/);
+			next if($src =~ m/\/style\/images\/|sinajs/);
 			if($src =~ m/\.([^\.\/]+)$/) {
 				push @{$post->{images}},[$src,".$1"];
 			}
@@ -235,7 +236,10 @@ sub process_weibo {
 	if($html =~ m/\$CONFIG\['onick'\]='([^']+)'/) {
 		$nick = $1;
 	}
-	if($html =~ m/\$CONFIG\['pid'\]='(\d+)'/) {
+	if($html =~ m/\$CONFIG\['(?:pid|domain)'\]='(\d+)'/) {
+		$CONFIG_PID = $1;
+	}
+	if($html =~ m/\$CONFIG\['page_id'\]='(\d\d\d\d\d\d)/) {
 		$CONFIG_PID = $1;
 	}
 	return (

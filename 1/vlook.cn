@@ -30,18 +30,20 @@ use MyPlace::URLRule::Utils qw/get_url/;
 
 sub apply_rule {
     my ($url,$rule) = @_;
-	my $html = get_url($url,'-v','charset:utf8');
-    my $title = undef;
-	if($url =~ m/qs\/([^#\?\&\/\\]+)/) {
-		$title = $1;
+    my $UID = undef;
+	my $SUFFIX;
+	if($url =~ m/qs\/([^#\?\&\/\\]+)(.+)$/) {
+		$UID = $1;
+		$SUFFIX = $2;
 	}
+	return (error=>"Invalid URL") unless($UID);
+	my $PREFIX = "http://mo.vlook.cn/mobile/mta/home/qs/";
+	my $murl = $PREFIX . $UID . $SUFFIX;	
+	my $html = get_url($murl,'-v');
     my @pass_data;
-    my @html = split(/\n/,$html);
+    my @html = split(/<div class="video_pic2">/,$html);
 	foreach(@html) {
-		#if((!$title) and m/<title>([^<]+?)的主页 - 微录客/) {
-		#	$title = $1;
-		#}
-		if(m/action-video="([^"]+)/) {
+		if(m/<a href="([^"]+)" class="personal_cont">/) {
 			push @pass_data,$1;
 		}
 	}
@@ -51,7 +53,7 @@ sub apply_rule {
         pass_count=>scalar(@pass_data),
         pass_data=>\@pass_data,
         base=>$url,
-        title=>$title,
+        title=>$UID,
     );
 }
 

@@ -20,7 +20,8 @@ sub apply_rule {
        'pages_start'=>undef,
        'title_exp'=>undef,
        'title_map'=>undef,
-       'charset'=>undef
+       'charset'=>undef,
+	   'track_this'=>1,
  );
 }
 =cut

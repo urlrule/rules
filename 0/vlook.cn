@@ -1,0 +1,112 @@
+#!/usr/bin/perl -w
+#http://www.vlook.cn/show/qs/YklkPTE1Njc3OTE=
+#Sat Apr 12 22:41:41 2014
+use strict;
+no warnings 'redefine';
+
+
+=method1
+sub apply_rule {
+ return (
+       '#use quick parse'=>1,
+       'data_exp'=>undef,
+       'data_map'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
+       'pages_start'=>undef,
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef
+ );
+}
+=cut
+
+use MyPlace::URLRule::Utils qw/get_url/;
+
+sub apply_rule {
+    my ($url,$rule) = @_;
+	my $realurl = $url;
+	if($realurl =~ m/\/qs\/([^\?\/]+)/) {
+		$realurl = "http://www.vlook.cn/show/qs/$1";
+	}
+	my $html = get_url($realurl,'-v');#,'charset:utf8');
+    my $title = undef;
+    my @data;
+	#my @pass_data;
+    #my @html = split(/\n/,$html);
+	my %info;
+	while($html =~ m/<meta property="og:([^"]+)"[^>]+content="([^"]+)"/g) {
+		$info{$1} = $2;
+	}
+
+	if((!$info{title}) and $html =~ m/<(?:title|TITLE)>\s*([^<]+)</) {
+		$title = $1;
+		$title =~ s/^[^：]+：\s*//;
+		$title =~ s/\s*- 微录客.*//;
+	}
+	else {
+		$title = $info{title};
+	}
+
+	my $video;
+	if($info{image} and $info{image} =~ m/[^"]+\/([^\/"]+)\.jpg$/) {
+		my $vid = $1;
+		$video = "http://download1.vlook.cn/video/vga/$vid.mp4";
+		$info{vid} = $vid;
+	}
+	elsif($html =~ m/<source[^>]*src="([^"]+)/) {
+		$video = $1;
+	}
+	elsif($html =~ m/&player_src=([^&"]+)/) {
+		$video = $1;
+	}
+	else {
+		return (
+			count=>0,
+			error=>'No video found',
+		);
+	}
+		$video =~ s/%3A/:/g;
+		$video =~ s/%2F/\//g;
+		$video =~ s/%3F/\?/g;
+		$video =~ s/%3D/=/g;
+		$video =~ s/%26/&/g;
+
+	if(!$title) {
+		if($info{vid}) {
+			$title = $info{vid};
+		}
+		elsif($video =~ m/[&\?]vid=([^&]+)/) {
+			$title = $1
+		}
+	}
+	if($html =~ m/<dd title="(\d+)-(\d+)-(\d+)\s*(\d+):(\d+):(\d+)/) {
+		$title = $title ? "$1$2$3$4$5$6_$title" : "$1$2$3$4$5$6";
+	}
+	if($html =~ m/class="icon_video_time"[^>]+alt="([^"]+)/) {
+		$title = $title ? "${title}_$1" : "$1";
+	}
+	
+		
+		
+		$title =~ s/[\/\?:\*"']//g;
+		return (
+			count=>1,
+			data=>["$video\t$title.mp4"],
+			base=>$url,
+			info=>\%info,
+		);
+}
+
+=cut
+
+1;
+
+__END__
+
+#       vim:filetype=perl

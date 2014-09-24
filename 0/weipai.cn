@@ -6,6 +6,7 @@ no warnings 'redefine';
 use utf8;
 
 =method1
+
 sub apply_rule {
  return (
        '#use quick parse'=>1,
@@ -24,7 +25,13 @@ sub apply_rule {
        'charset'=>undef
  );
 }
+
 =cut
+
+#http://www.weipai.cn/user/moreOwnVideos/uid/52648e589f6c00cd1a8fde4e?page=1
+
+
+=method2
 
 use MyPlace::URLRule::Utils qw/get_url get_html/;
 
@@ -75,11 +82,11 @@ sub apply_rule {
 			$info{hour} = $3;
 		}
 		elsif((!$info{video})) {
-			if(m/<img src="(http:\/\/v\.weipai\.cn\/video\/[^"]+)\.mov\.3in1/) {
-				$info{video} = $1;
+			if(m/<img src="http:\/\/v\.weipai\.cn\/video\/([^"]+)\.mov\.3in1/) {
+				$info{video} = "http://v.weipai.cn/video/$1";
 			}
 			elsif(m/<img src="http:\/\/aliv\.weipai\.cn\/([^"]+)\.mov\.3in1/) {
-				$info{video} = "http://v.weipai.cn/video/$1"
+				$info{video} = "http://aliv.weipai.cn/$1";
 			}
 		}
 		elsif((!$info{error}) && m/<div class="tab selected">出错啦<span class="end">/) {
@@ -117,6 +124,116 @@ sub apply_rule {
 }
 
 =cut
+
+#=method3
+
+#http://www.weipai.cn/user/moreOwnVideos/uid/52648e589f6c00cd1a8fde4e?page=1
+
+use MyPlace::URLRule::Utils qw/get_url get_html/;
+
+sub extract_video {
+	my @html = split("\n","@_");
+	my %info = (
+		video=>'',
+		user=>'',
+		year=>'',
+		month=>'',
+		day=>'',
+		hour=>'',
+		minute=>'',
+		second=>'',
+		title=>'',
+		length=>'',
+		error=>'',
+		big_title=>'',
+	);
+	foreach(@html) {
+		#print STDERR "LINE:$_\n\n";
+		if((!$info{user}) && m/<div class="user"><[^>]*title="([^"]+)/) {
+			$info{user}=$1;
+		}
+		if((!$info{day}) && m/<span class="day">(\d+)/) {
+			$info{day}=$1;
+		}
+		if((!$info{year}) && m/<span class="date">.*?>(\d+)-(\d+)/) {
+			$info{year} = $1;
+			$info{month} = $2;
+		}
+		if((!$info{length}) && m/<span class="length">(\d+)'(\d+)"/) {
+			$info{length} = $1 eq "0" ? "$2s" : "$1m$2s";
+		}
+		if((!$info{title}) && m/<span class="(?:video_title|desc)">(.+)<\/span/) {
+			$info{title} = $1;
+			$info{title} =~ s/<[^.>]+>//g;
+			$info{title} = substr($info{title},0,200);
+			$info{title} =~ s/\/\?\*'"//g;
+			$info{title} =~ s/&amp;amp;/&/g;
+			$info{title} =~ s/&amp;/&/g;
+			$info{title} =~ s/&hellip;/…/g;
+		}
+		if((!$info{minute}) && m/<span class="video_detail">(\d+)月(\d+)日\s+(\d+):(\d+)/) {
+			$info{month} = $1;
+			$info{day} = $2;
+			$info{minute} = $4;
+			$info{hour} = $3;
+		}
+		if((!$info{video}) && m/<img[^>]*src="(http:\/\/(?:v|aliv)\.weipai\.cn\/[^"]+)/) {
+			$info{cover} = $1;
+			$info{cover} =~ s/\.([^\/]+)$//g;
+			$info{video} = $info{cover}; 
+		}
+		if((!$info{error}) && m/<div class="tab selected">出错啦<span class="end">/) {
+			$info{error} = 1;
+		}
+		if((!$info{big_title}) && m/<div class=box_big_title>([^<]+)/) {
+			$info{big_title} = $1;
+		}
+		else {
+			#print STDERR "LINE MATCH NOTHING:$_\n";
+		}
+	}
+	if($info{error}) {
+		return ();
+	}
+	elsif(!$info{video}) {
+		return ();
+	}
+	else {
+		if(!$info{title}) {
+			$info{title} = $info{cover};
+			$info{title} =~ s/^.*[\/\\]//;
+		}
+
+		my $filename = "$info{year}$info{month}$info{day}$info{hour}$info{minute}" .
+			($info{title} ? "_$info{title}" : "") . "[$info{length}]";
+		$filename =~ s/[:\/\\]+/_/g;
+		$filename =~ s/[*?!]+//g;
+		my $ext = ".flv";
+		return $info{video} . $ext . "\t" . $filename . $ext,
+			   $info{cover} . ".mov.3in1.jpg" . "\t" . $filename . ".3in1.jpg",
+			   $info{cover} . ".jpg" . "\t" . $filename . ".jpg";
+	}
+}
+
+sub apply_rule {
+    my ($url,$rule) = @_;
+	my $html = get_html($url,'-v');
+    my $title = undef;
+    my @data;
+    my @pass_data;
+    my @html = split(/<\/div><div id="/,$html);
+	foreach my $block (@html) {
+		foreach my $url (extract_video($block)) {
+			push @data,$url if($url);
+		}
+	}
+	return (
+		count=>scalar(@data),
+		data=>\@data,
+		base=>$url
+	);
+}
+
 
 1;
 

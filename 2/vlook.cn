@@ -5,6 +5,8 @@ use strict;
 no warnings 'redefine';
 use utf8;
 
+
+=method1
 sub apply_rule {
  return (
        '#use quick parse'=>1,
@@ -25,23 +27,40 @@ sub apply_rule {
 }
 =cut
 
-=method2
 use MyPlace::URLRule::Utils qw/get_url/;
 
+#http://mo.vlook.cn/mobile/mta/home/qs/dWlkPTIxNDA1MDU=
 sub apply_rule {
     my ($url,$rule) = @_;
-	my $html = get_url($url,'-v');
-    my $title = undef;
-    my @data;
+	my $UID;
+	if($url =~ m/\/qs\/([^\/\?\&]+)/) {
+		$UID = $1;
+	}
+	else {
+		return (
+			count=>0,
+			error=>"Invalid URL",
+		);
+	}
+	my $PREFIX = "http://mo.vlook.cn/mobile/mta/home/qs/";
+	my $SIZE = 10;
+	my $murl = $PREFIX . $UID;
+	my $html = get_url($murl,'-v');
+	my $lastpage = 20;
+	if($html =~ m/<dd>.+?>(\d+)<.+?<\/dd>/) {
+		$lastpage = int($1 / $SIZE);
+		$lastpage += 1 if($1 % $SIZE);
+	}
     my @pass_data;
-    #my @html = split(/\n/,$html);
+	foreach my $idx(1 .. $lastpage) {
+		push @pass_data,$PREFIX . $UID . "?no=$idx&size=$SIZE";
+	}
     return (
-        count=>scalar(@data),
-        data=>\@data,
+        count=>0,
+        data=>undef,
         pass_count=>scalar(@pass_data),
         pass_data=>\@pass_data,
         base=>$url,
-        title=>$title,
     );
 }
 
