@@ -1,0 +1,81 @@
+#!/usr/bin/perl -w
+#http://SaveById/weibo.com/keyword?params
+#Sun May 23 21:36:13 2010
+use strict;
+
+#================================================================
+# apply_rule will be called with ($RuleBase,%Rule),the result returned have these meaning:
+# $result{base}          : Base url to build the full url
+# $result{work_dir}      : Working directory (will be created if not exists)
+# $result{data}          : Data array extracted from url,will be passed to $result{action}(see followed)
+# $result{action}        : Command which the $result{data} will be piped to,can be overrided
+# $result{pipeto}        : Same as action,Command which the $result{data} will be piped to,can be overrided
+# $result{hook}          : Hook action,function process_data will be called
+# $result{no_subdir}     : Do not create sub directories
+# $result{pass_data}     : Data array which will be passed to next level of urlrule
+# $result{pass_name}     : Names of each $result{pass_data}
+# $result{pass_arg}      : Additional arguments to be passed to next level of urlrule
+#================================================================
+
+use MyPlace::URLRule::SaveById;
+
+sub apply_rule {
+    my $url = shift(@_);
+    my %rule = %{shift(@_)};
+    #$url is a fake url: google.search.image/keyword?imgsz=huge&start=
+    my $level = $rule{level};
+   # shift(@_);
+    my $key;
+    my $params = "";
+    my @data;
+	my $Package;
+	my $query;
+	if($url =~ /SaveById\/([^\/]*)\/(.+)$/) {
+		$Package = $1;
+		$query = $2;
+	}
+	if($query =~ m/^([^\/\?]+)\?(.*)$/) {
+        $key = $1;
+        $params=$2;
+    }
+    else {
+        $key = $query;
+        $key =~ s/^.*\///g;
+    }
+	return (
+		'ERROR'=>'Invalid URL',
+	) unless($key);
+
+    my @params = $params ? split('&',$params) : ();
+	my %params;
+	foreach(@params) {
+		if(m/([^=]+)=(.*)/) {
+			$params{$1} = $2 ? $2 : '';
+		}
+		else {
+			$params{$1} = "";
+		}
+	}
+	my $hostname = $Package || "";
+	my $dbname = ($hostname ? uc($hostname) : "DEFAULT" ) . ".DB";
+	my $dbfile = MyPlace::URLRule::locate_file("sites/$dbname");
+	print STDERR "Using database file: $dbfile\n";
+	my $db = new MyPlace::URLRule::SaveById;
+	$db->feed($dbfile);
+	my $target = $db->query($query);
+	return undef,"No target found for $query [$dbname]" unless($target);
+	my @pass_data;
+	foreach my $id(@{$target->{sortedId}}) {
+		my $url = $db->{options}->{URI_TEMPLATE};
+		$url =~ s/###ID###/$id/g;
+		push @pass_data,$url;
+	}
+	return (
+		pass_data=>\@pass_data,
+		level=>$db->{options}->{LEVEL},
+	);
+}
+1;
+
+
+#       vim:filetype=perl
