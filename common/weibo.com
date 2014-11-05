@@ -49,9 +49,10 @@ sub extract_uid {
 }
 
 sub process_page {
-	my($url,$level,$rule,$page) = @_;
+	my($url,$level,$rule,$page,$maxretry) = @_;
 	print STDERR "Retriving page $page...\n";
 	my $html = get_url($url);#,"--verbose");
+	$maxretry ||= 0;
 #	print STDERR $html,"\n";
 	if($html =~ m/<div class="page_error">(.+?)<\/div/s) {
 		my $err = $1;
@@ -61,10 +62,11 @@ sub process_page {
 			error=>$err,
 		);
 	}
-	if(length($html) < 1000) {
+	if(length($html) < 1000 and $maxretry>0) {
 		print STDERR "Failed. Reloading ...\n";
 		sleep 3;
-		return process_page(@_);
+		$maxretry--;
+		return process_page($url,$level,$rule,$page,$maxretry);
 	}
 	$html =~ s/\\(["\\\/])/$1/g;
 	$html =~ s/\\n/\n/g;
@@ -263,7 +265,7 @@ sub apply_rule {
 		if($url =~ m/&page=(\d+)/) {
 			$page = $1;
 		}
-		return process_page($url,$level,$rule,$page);
+		return process_page($url,$level,$rule,$page,4);
 	}
 	elsif($level == 1) {
 		return process_pages($url,$level,$rule);
