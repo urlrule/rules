@@ -60,6 +60,7 @@ sub _process
         my $album_name = $album->{"name"} || $album->{desc};
         $album_name =~ s/^[\s　]+//;
         $album_name =~ s/[\s　]+$//;
+		$album_name =~ s/[\\:\/*?"<>|]//g;
         $album_name = "_noname" unless($album_name);
         push @pass_data,$photo_url  . '&albumid=' . $album->{id};
         push @pass_name,$album_name;
