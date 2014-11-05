@@ -4,7 +4,7 @@
 use strict;
 no warnings 'redefine';
 
-
+=method 1
 sub apply_rule {
  return (
        '#use quick parse'=>1,
@@ -26,23 +26,29 @@ sub apply_rule {
 }
 =cut
 
-=method2
 use MyPlace::URLRule::Utils qw/get_url/;
 
 sub apply_rule {
     my ($url,$rule) = @_;
 	my $html = get_url($url,'-v');
-    my $title = undef;
     my @data;
     my @pass_data;
+	my $title;
+	if($html =~ m/<h1><b>([^<]+)/) {
+		$title = $1;
+	}
+	if($html =~ m/href\s*=\s*'(magnet:\?[^']+)/) {
+		if($title) {
+			push @data,"$1\t$title";
+		}
+		else {
+			push @data,$1;
+		}
+	}
     #my @html = split(/\n/,$html);
     return (
         count=>scalar(@data),
         data=>\@data,
-        pass_count=>scalar(@pass_data),
-        pass_data=>\@pass_data,
-        base=>$url,
-        title=>$title,
     );
 }
 

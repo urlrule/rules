@@ -10,11 +10,17 @@ sub apply_rule {
        '#use quick parse'=>1,
        'data_exp'=>undef,
        'data_map'=>undef,
-       'pass_exp'=>'<a href=\'([^\']*\/[a-zA-z0-9]+\/[^\']*)\'\s+title=\'',
-       'pass_map'=>'$1',
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
        'pass_name_map'=>undef,
+       'pages_exp'=>'href\s*=\s*["\']([^"\']*)(?:&|&amp;)p=(\d+)([^"\']*)',
+       'pages_map'=>'$2',
+       'pages_pre'=>'"$1&p="',
+       'pages_suf'=>'$3',
+       'pages_start'=>1,
        'title_exp'=>undef,
        'title_map'=>undef,
+       'charset'=>'utf-8'
  );
 }
 =cut
