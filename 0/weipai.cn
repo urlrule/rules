@@ -130,6 +130,10 @@ sub apply_rule {
 #http://www.weipai.cn/user/moreOwnVideos/uid/52648e589f6c00cd1a8fde4e?page=1
 
 use MyPlace::URLRule::Utils qw/get_url get_html/;
+use MyPlace::String::Utils qw/no_empty/;
+use JSON qw/decode_json/;
+use Encode qw/find_encoding/;
+my $utf8 = find_encoding('utf8');
 
 sub extract_video {
 	my @html = split("\n","@_");
@@ -165,11 +169,13 @@ sub extract_video {
 		if((!$info{title}) && m/<span class="(?:video_title|desc)">(.+)<\/span/) {
 			$info{title} = $1;
 			$info{title} =~ s/<[^.>]+>//g;
-			$info{title} = substr($info{title},0,200);
 			$info{title} =~ s/\/\?\*'"//g;
 			$info{title} =~ s/&amp;amp;/&/g;
 			$info{title} =~ s/&amp;/&/g;
 			$info{title} =~ s/&hellip;/…/g;
+			if(length($info{title})>200) {
+				$info{title} = undef;
+			}
 		}
 		if((!$info{minute}) && m/<span class="video_detail">(\d+)月(\d+)日\s+(\d+):(\d+)/) {
 			$info{month} = $1;
@@ -177,10 +183,17 @@ sub extract_video {
 			$info{minute} = $4;
 			$info{hour} = $3;
 		}
-		if((!$info{video}) && m/<img[^>]*src="(http:\/\/(?:v|aliv)\.weipai\.cn\/[^"]+)/) {
-			$info{cover} = $1;
-			$info{cover} =~ s/\.([^\/]+)$//g;
-			$info{video} = $info{cover}; 
+		if((!$info{video})) {
+			if(m/<img[^>]*src="(http:\/\/(?:v|aliv)\.weipai\.cn\/[^"]+)/) {
+				$info{cover} = $1;
+				$info{cover} =~ s/\.([^\/]+)$//g;
+				$info{video} = $info{cover}; 
+			}
+			elsif(m/pic:"([^"]+\.jpg)"/) {
+				$info{cover} = $1;
+				$info{cover} =~ s/\.([^\/]+)$//g;
+				$info{video} = $info{cover}; 
+			}
 		}
 		if((!$info{error}) && m/<div class="tab selected">出错啦<span class="end">/) {
 			$info{error} = 1;
@@ -199,25 +212,39 @@ sub extract_video {
 		return ();
 	}
 	else {
+		return build_data(%info);
+	}
+}
+sub build_data {
+	my %info = @_;
+
 		if(!$info{title}) {
 			$info{title} = $info{cover};
 			$info{title} =~ s/^.*[\/\\]//;
 		}
-
+		else {
+			$info{title} =~ s/<[^.>]+>//g;
+			$info{title} =~ s/\/\?\*'"//g;
+			$info{title} =~ s/&amp;amp;/&/g;
+			$info{title} =~ s/&amp;/&/g;
+			$info{title} =~ s/&hellip;/…/g;
+		}
+		#	use Data::Dumper;print STDERR Dumper(\%info);
 		my $filename = "$info{year}$info{month}$info{day}$info{hour}$info{minute}" .
-			($info{title} ? "_$info{title}" : "") . "[$info{length}]";
+			no_empty($info{title},"_") . no_empty($info{length},"[","]");
 		$filename =~ s/[:\/\\]+/_/g;
 		$filename =~ s/[*?!]+//g;
-		my $ext = ".flv";
+		my $ext = ".mov";
 		return $info{video} . $ext . "\t" . $filename . $ext,
 			   $info{cover} . ".mov.3in1.jpg" . "\t" . $filename . ".3in1.jpg",
 			   $info{cover} . ".jpg" . "\t" . $filename . ".jpg";
-	}
 }
 
-sub apply_rule {
+
+sub apply_rule_video {
     my ($url,$rule) = @_;
-	my $html = get_html($url,'-v');
+	my $html = $utf8->encode(get_html($url,'-v'));
+	
     my $title = undef;
     my @data;
     my @pass_data;
@@ -232,6 +259,87 @@ sub apply_rule {
 		data=>\@data,
 		base=>$url
 	);
+}
+
+sub apply_rule_video_json {
+	my ($url,$rule) = @_;
+	my $json = decode_json($utf8->encode(get_url($url,'-v')));
+	my @data;
+	if($json->{video_list}) {
+		foreach my $video (@{$json->{video_list}}) {
+					$video->{cover} = $video->{video_screenshots};
+					$video->{cover} =~ s/\.([^\/]+)$//;
+					$video->{video} = $video->{cover};
+					$video->{title} = $video->{video_desc};
+					$video->{length} = $video->{video_duration} . "s";
+					if($video->{cover} =~ m/\/(\d\d\d\d)(\d\d)\/(\d\d)\/(\d+)\//) {
+						@{$video}{qw/year month day hour minute/} = ($1,$2,$3,$4,'');
+					}
+					#use Data::Dumper;print Data::Dumper->Dump([$video],['$video']);
+					push @data,build_data(%$video);
+			
+		}
+	}
+	return (
+		count=>scalar(@data),
+		data=>\@data,
+		base=>$url
+	);
+}
+
+sub apply_rule {
+	my($url,$rule) = @_;
+	if($url =~ m/weipai\.cn\/video\//) {
+		return apply_rule_video($url,$rule,@_);
+	}
+	elsif($url =~ m/user_video_list\?/) {
+		return apply_rule_video_json($url,$rule,@_);
+	}
+	my $info = decode_json(get_url($url,'-v'));
+	my $uid = $info->{user_id};
+	my %r;
+	if($info->{next_cursor}) {
+		$r{level} = 0;
+		$r{pass_data} = [
+			join("&",(
+				 'http://w1.weipai.cn/home_user?day_count=7&relative=after',
+				 "user_id=$uid",
+				 "cursor=" . $info->{next_cursor}
+				)
+			)
+		];
+		$r{pass_count} = 1;
+	}
+	if($info->{"diary_list"}) {
+		my $count = 0;
+		my @data;
+		foreach(@{$info->{"diary_list"}}) {
+#"day": "2014-08-23",
+#"city": "\u5e7f\u5dde\u5e02",
+#"video_list": [{
+#"blog_id": "53f87baea5640bff6b8b4576",
+#"video_screenshot": "http:\/\/aliv.weipai.cn\/201408\/23\/19\/3C6C58A6-34DE-4D2B-9145-107BF7B70BB5.2.jpg",
+#"video_intro": "\uff0c\u51bb\u6b7b\u4e86\u5728\u8001\u7238\u7684\u5e2e\u52a9\u4e0b\u5b8c\u6210\u4e86\u51b0\u6876\u6311\u6218@\u5fae\u62cd\u5c0f\u79d8\u4e66",
+#"city": "\u5e7f\u5dde\u5e02"
+#}]
+			if($_->{video_list}) {
+				foreach my $video (@{$_->{video_list}}) {
+					$video->{cover} = $video->{video_screenshot};
+					$video->{cover} =~ s/\.([^\/]+)$//;
+					$video->{video} = $video->{cover};
+					$video->{title} = $video->{video_intro};
+					if($video->{cover} =~ m/\/(\d\d\d\d)(\d\d)\/(\d\d)\/(\d+)\//) {
+						@{$video}{qw/year month day hour minute/} = ($1,$2,$3,$4,'');
+					}
+					#use Data::Dumper;print Data::Dumper->Dump([$video],['$video']);
+					push @data,build_data(%$video);
+				}
+			}
+		}
+		$r{count} = scalar(@data);
+		$r{data} = \@data;
+	}
+	return %r;
 }
 
 

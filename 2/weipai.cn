@@ -27,6 +27,7 @@ sub apply_rule {
 =cut
 
 use MyPlace::URLRule::Utils qw/get_url get_html/;
+#use JSON qw/decode_json/;
 
 sub check_page {
 	my $base = shift;
@@ -100,21 +101,30 @@ sub get_user_info {
 	my $info = shift;
 	my $host = shift;
 	my $uid = shift;
-	my $url = "$host/follows/$uid";
+	my $url = "http://w1.weipai.cn/home_user?day_count=7&relative=after&user_id=$uid";
+
+	my $data = get_url($url,"-v");
+	my $html = decode_json($data);
+	@{$info}{qw/name avatar follows fans videos/} = 
+		@{$html}{qw/username avatar idol_num fans_num video_num/};
+	#use Data::Dumper;die Dumper($info);
+=old get_user_info
 	my @html = split(/\n/,get_html($url,"-v"));
 	foreach(@html) {
-		extract_info($_,'name','<span[^<]+class="name"[^<]+title="([^"]+)',$info) 
+		extract_info($_,'name','"username":"([^"]+)"',$info) 
 			unless(defined $info->{name});
-		extract_info($_,'avatar','<img src="([^"]+\/avatar\/[^"]+)',$info)
+		extract_info($_,'avatar','"avatar":"([^"]+)"',$info)
 			unless(defined $info->{avatar});
-		extract_info($_,'follows','<li[^>]*class="follows"[^>]*><span[^>]*>(\d+)',$info)
+		extract_info($_,'follows','"idol_num":"([^"]+)"',$info)
 			unless(defined $info->{follows});
-		extract_info($_,'fans','<li[^>]*class="fans"[^>]*><span[^>]*>(\d+)',$info)
+		extract_info($_,'fans','"fans_num":"([^"]+)"',$info)
 			unless(defined $info->{fans});
-		extract_info($_,'videos','<li[^>]* class="videos"[^>]*><span[^>]*>(\d+)',$info)
+		extract_info($_,'videos','"video_num":"([^"]+)"',$info)
 			unless(defined $info->{videos});
 	}
+=cut
 	return $info;
+	
 }
 
 sub apply_rule {
@@ -127,9 +137,18 @@ sub apply_rule {
 	else {
 		return ("error"=>"Invalid url");
 	}
-	get_user_info(\%info,$info{host},$info{uid});
+#	get_user_info(\%info,$info{host},$info{uid});
 	
-	my $title = $info{name};
+#	my $title = $info{name};
+	
+	return (
+		count=>0,
+		pass_count=>1,
+		pass_data=>["http://w1.weipai.cn/home_user?day_count=7&relative=after&user_id=" . $info{uid}],
+		work_dir=>$info{uid},
+		level=>0,
+		info=>\%info,
+	);
 
 	my $pagebase = "$info{host}/user/moreOwnVideos/uid/$info{uid}";
 
