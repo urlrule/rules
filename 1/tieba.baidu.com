@@ -106,7 +106,7 @@ sub _process {
         my $i=0;
         while($i<=$pn) {
             push @pass_data,$pre . $i . $suf;
-            $i+=30;
+            $i+=1;
         }
     }
     else {

@@ -47,7 +47,11 @@ sub _process {
     my @data;
     my @pass_data;
     while($html =~ /src="([^"]+\.jpg)"/g) {
-        push @data,$1;
+		my $_ = $1;
+		next if(m/bdstatic\.com/);
+		next if(m/tieba\.baidu\.com/);
+		next if(m/imgsrc\.baidu\.com\/forum\/pic\/item\//);
+        push @data,$_;
     }
     return (
         count=>scalar(@data),
