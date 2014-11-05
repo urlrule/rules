@@ -34,7 +34,7 @@ sub apply_rule {
 	if($realurl =~ m/\/qs\/([^\?\/]+)/) {
 		$realurl = "http://www.vlook.cn/show/qs/$1";
 	}
-	my $html = get_url($realurl,'-v');#,'charset:utf8');
+	my $html = get_url($realurl);#,'-v','charset:utf8');
     my $title = undef;
     my @data;
 	#my @pass_data;
@@ -43,8 +43,7 @@ sub apply_rule {
 	while($html =~ m/<meta property="og:([^"]+)"[^>]+content="([^"]+)"/g) {
 		$info{$1} = $2;
 	}
-
-	if((!$info{title}) and $html =~ m/<(?:title|TITLE)>\s*([^<]+)</) {
+	if((!$title) and $html =~ m/<(?:title|TITLE)>\s*([^<]+)</) {
 		$title = $1;
 		$title =~ s/^[^：]+：\s*//;
 		$title =~ s/\s*- 微录客.*//;
@@ -52,11 +51,12 @@ sub apply_rule {
 	else {
 		$title = $info{title};
 	}
-
 	my $video;
+	my %videos;
 	if($info{image} and $info{image} =~ m/[^"]+\/([^\/"]+)\.jpg$/) {
 		my $vid = $1;
-		$video = "http://download1.vlook.cn/video/vga/$vid.mp4";
+		$video = "http://download1.vlook.cn/video/high/$vid.mp4";
+		#$videos{vga} = "http://download1.vlook.cn/video/vga/$vid.mp4";
 		$info{vid} = $vid;
 	}
 	elsif($html =~ m/<source[^>]*src="([^"]+)/) {
@@ -91,13 +91,16 @@ sub apply_rule {
 	if($html =~ m/class="icon_video_time"[^>]+alt="([^"]+)/) {
 		$title = $title ? "${title}_$1" : "$1";
 	}
-	
-		
-		
-		$title =~ s/[\/\?:\*"']//g;
+	$title =~ s/[\/\?:\*"']//g;
+
+
+		foreach(keys %videos) {
+			push @data, $videos{$_} . "\t" . ${title} . "_$_.mp4";
+		}
+		push @data,"$video\t$title.mp4" if($video);
 		return (
-			count=>1,
-			data=>["$video\t$title.mp4"],
+			count=>scalar(@data),
+			data=>\@data,
 			base=>$url,
 			info=>\%info,
 		);
