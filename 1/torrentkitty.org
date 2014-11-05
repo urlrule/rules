@@ -1,0 +1,52 @@
+#!/usr/bin/perl -w
+#http://www.torrentkitty.org/search/%E5%96%82%E5%A5%B6/
+#Tue Nov  4 02:27:59 2014
+use strict;
+no warnings 'redefine';
+
+
+sub apply_rule {
+ return (
+       '#use quick parse'=>1,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+       'pages_exp'=>'<a href="(\d+)">\d+',
+       'pages_map'=>'$1',
+       'pages_pre'=>'',
+       'pages_suf'=>'',
+       'pages_start'=>undef,
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef,
+ );
+}
+=cut
+
+=method2
+use MyPlace::URLRule::Utils qw/get_url/;
+
+sub apply_rule {
+    my ($url,$rule) = @_;
+	my $html = get_url($url,'-v');
+    my $title = undef;
+    my @data;
+    my @pass_data;
+    #my @html = split(/\n/,$html);
+    return (
+        count=>scalar(@data),
+        data=>\@data,
+        pass_count=>scalar(@pass_data),
+        pass_data=>\@pass_data,
+        base=>$url,
+        title=>$title,
+    );
+}
+
+=cut
+
+1;
+
+__END__
+
+#       vim:filetype=perl
