@@ -235,8 +235,8 @@ sub build_data {
 		$filename =~ s/[:\/\\]+/_/g;
 		$filename =~ s/[*?!]+//g;
 		my $ext = ".mov";
+		#$info{cover} . ".mov.3in1.jpg" . "\t" . $filename . ".3in1.jpg",
 		return $info{video} . $ext . "\t" . $filename . $ext,
-			   $info{cover} . ".mov.3in1.jpg" . "\t" . $filename . ".3in1.jpg",
 			   $info{cover} . ".jpg" . "\t" . $filename . ".jpg";
 }
 
