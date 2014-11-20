@@ -1,0 +1,54 @@
+#!/usr/bin/perl -w
+#http://www.xingyun.cn
+#Fri Nov 21 00:47:41 2014
+use strict;
+no warnings 'redefine';
+
+
+sub apply_rule {
+ return (
+       '#use quick parse'=>1,
+       'data_exp'=>'<img\s+[^>]*src="([^"]+\/media\/users\/post\/\d+\/\d+\/\d+_\d+)_1010.jpg"',
+       'data_map'=>'"$1.jpg"',
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
+       'pages_start'=>undef,
+       'title_exp'=>'<h1 title="([^"]+)',
+       'title_map'=>'$1',
+       'charset'=>undef
+ );
+}
+=cut
+
+=method2
+use MyPlace::URLRule::Utils qw/get_url/;
+
+sub apply_rule {
+    my ($url,$rule) = @_;
+	my $html = get_url($url,'-v');
+    my $title = undef;
+    my @data;
+    my @pass_data;
+    #my @html = split(/\n/,$html);
+    return (
+        count=>scalar(@data),
+        data=>\@data,
+        pass_count=>scalar(@pass_data),
+        pass_data=>\@pass_data,
+        base=>$url,
+        title=>$title,
+    );
+}
+
+=cut
+
+1;
+
+__END__
+
+#       vim:filetype=perl
