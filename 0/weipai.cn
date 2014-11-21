@@ -228,6 +228,10 @@ sub build_data {
 			$info{title} =~ s/&amp;amp;/&/g;
 			$info{title} =~ s/&amp;/&/g;
 			$info{title} =~ s/&hellip;/…/g;
+			my $maxlen = 80;
+			if(length($info{title}) > $maxlen) {
+				$info{title} = substr($info{title},0,$maxlen);
+			}	
 		}
 		#	use Data::Dumper;print STDERR Dumper(\%info);
 		my $filename = "$info{year}$info{month}$info{day}$info{hour}$info{minute}" .
