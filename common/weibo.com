@@ -209,7 +209,7 @@ sub process_pages {
 	}
 	my @pass_data;
 	for my $pid(1..$maxp) {
-		push @pass_data,"http://weibo.com/p/${CONFIG_PID}$uid/weibo?is_search=0&visible=0&is_tag=0&profile_ftype=1&page=$pid#feedtop";
+		push @pass_data,"http://weibo.com/p/${CONFIG_PID}$uid/home?is_search=0&visible=0&is_tag=0&profile_ftype=1&page=$pid#feedtop";
 	}
 	return (
 		pass_data=>\@pass_data,
