@@ -16,6 +16,7 @@ sub apply_rule {
        'pages_exp'=>'<a href="(\/Query\/[^\/]+\/page\/)(\d+)"',
        'pages_map'=>'$2',
        'pages_pre'=>'$1',
+	   'pages_limit'=>20,
        'pages_suf'=>undef,
        'pages_start'=>undef,
        'title_exp'=>undef,
