@@ -186,13 +186,13 @@ sub extract_video {
 		if((!$info{video})) {
 			if(m/<img[^>]*src="(http:\/\/(?:v|aliv)\.weipai\.cn\/[^"]+)/) {
 				$info{cover} = $1;
-				$info{cover} =~ s/\.([^\/]+)$//g;
 				$info{video} = $info{cover}; 
+				$info{video} =~ s/\.([^\/]+)$//g;
 			}
 			elsif(m/pic:"([^"]+\.jpg)"/) {
 				$info{cover} = $1;
-				$info{cover} =~ s/\.([^\/]+)$//g;
 				$info{video} = $info{cover}; 
+				$info{video} =~ s/\.([^\/]+)$//g;
 			}
 		}
 		if((!$info{error}) && m/<div class="tab selected">出错啦<span class="end">/) {
@@ -219,7 +219,7 @@ sub build_data {
 	my %info = @_;
 
 		if(!$info{title}) {
-			$info{title} = $info{cover};
+			$info{title} = $info{video};
 			$info{title} =~ s/^.*[\/\\]//;
 		}
 		else {
@@ -241,7 +241,7 @@ sub build_data {
 		my $ext = ".mov";
 		#$info{cover} . ".mov.3in1.jpg" . "\t" . $filename . ".3in1.jpg",
 		return $info{video} . $ext . "\t" . $filename . $ext,
-			   $info{cover} . ".jpg" . "\t" . $filename . ".jpg";
+			   $info{cover} . "\t" . $filename . ".jpg";
 }
 
 
@@ -267,14 +267,14 @@ sub apply_rule_video {
 
 sub apply_rule_video_json {
 	my ($url,$rule) = @_;
-	my $json = decode_json($utf8->encode(get_url($url,'-v')));
+	my $json = decode_json(get_url($url,'-v'));
 	my @data;
 	if($json->{video_list}) {
 		foreach my $video (@{$json->{video_list}}) {
 					$video->{cover} = $video->{video_screenshots};
-					$video->{cover} =~ s/\.([^\/]+)$//;
 					$video->{video} = $video->{cover};
-					$video->{title} = $video->{video_desc};
+					$video->{video} =~ s/\.([^\/]+)$//;
+					$video->{title} = $utf8->encode($video->{video_desc});
 					$video->{length} = $video->{video_duration} . "s";
 					if($video->{cover} =~ m/\/(\d\d\d\d)(\d\d)\/(\d\d)\/(\d+)\//) {
 						@{$video}{qw/year month day hour minute/} = ($1,$2,$3,$4,'');
@@ -287,7 +287,8 @@ sub apply_rule_video_json {
 	return (
 		count=>scalar(@data),
 		data=>\@data,
-		base=>$url
+		base=>$url,
+		info=>$json,
 	);
 }
 
@@ -299,9 +300,32 @@ sub apply_rule {
 	elsif($url =~ m/user_video_list\?/) {
 		return apply_rule_video_json($url,$rule,@_);
 	}
-	my $info = decode_json(get_url($url,'-v'));
-	my $uid = $info->{user_id};
+	elsif($url =~ m/\/review\/video/) {
+		#http://www.weipai.cn/review/video?uid=508775398134943b58000051&os=android
+		my @data;
+		my $html = get_url($url,'-v');
+		while($html =~ m/"id":"([^"]+)"\s*,\s*"poster":"([^"]+)"\s*,\s*"url":"([^"]+)"/g) {
+			my ($id,$poster,$url) = ($1,$2,$3);
+			$poster =~ s/\\\//\//g;
+			$url =~ s/\\\//\//g;
+			my $videoid = $poster;
+			$videoid =~ s/^.*\///;
+			$videoid =~ s/\..*$//;
+			my $videoext = $url;
+			$videoext =~ s/^.*\.([^\.]+)$/.$1/;
+			push @data,"$poster\t$id\_$videoid.jpg","$url\t$id\_$videoid$videoext";
+		}
+		return (
+			count=>scalar(@data),
+			data=>\@data,
+			title=>'#ToReview',
+		);
+	}
 	my %r;
+
+	my $info = decode_json(get_url($url,'-v'));
+
+	my $uid = $info->{user_id};
 	if($info->{next_cursor}) {
 		$r{level} = 0;
 		$r{pass_data} = [
@@ -329,9 +353,9 @@ sub apply_rule {
 			if($_->{video_list}) {
 				foreach my $video (@{$_->{video_list}}) {
 					$video->{cover} = $video->{video_screenshot};
-					$video->{cover} =~ s/\.([^\/]+)$//;
 					$video->{video} = $video->{cover};
-					$video->{title} = $video->{video_intro};
+					$video->{video} =~ s/\.([^\/]+)$//;
+					$video->{title} = $utf8->encode($video->{video_intro});
 					if($video->{cover} =~ m/\/(\d\d\d\d)(\d\d)\/(\d\d)\/(\d+)\//) {
 						@{$video}{qw/year month day hour minute/} = ($1,$2,$3,$4,'');
 					}
@@ -342,6 +366,7 @@ sub apply_rule {
 		}
 		$r{count} = scalar(@data);
 		$r{data} = \@data;
+		$r{info} = $info;
 	}
 	return %r;
 }
