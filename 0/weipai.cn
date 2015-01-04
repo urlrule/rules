@@ -131,9 +131,19 @@ sub apply_rule {
 
 use MyPlace::URLRule::Utils qw/get_url get_html/;
 use MyPlace::String::Utils qw/no_empty/;
-use JSON qw/decode_json/;
+use JSON qw//;
 use Encode qw/find_encoding/;
 my $utf8 = find_encoding('utf8');
+
+my $JS;
+sub decode_json1 {
+	if(!$JS)  {
+		$JS = JSON->new();
+		$JS->relaxed;
+	}
+	return $JS->decode(@_);
+
+}
 
 sub extract_video {
 	my @html = split("\n","@_");
@@ -267,7 +277,7 @@ sub apply_rule_video {
 
 sub apply_rule_video_json {
 	my ($url,$rule) = @_;
-	my $json = decode_json(get_url($url,'-v'));
+	my $json = decode_json1(get_url($url,'-v'));
 	my @data;
 	if($json->{video_list}) {
 		foreach my $video (@{$json->{video_list}}) {
@@ -275,7 +285,7 @@ sub apply_rule_video_json {
 					$video->{video} = $video->{cover};
 					$video->{video} =~ s/\.([^\/]+)$//;
 					$video->{title} = $utf8->encode($video->{video_desc});
-					$video->{length} = $video->{video_duration} . "s";
+					#	$video->{length} = $video->{video_duration} . "s";
 					if($video->{cover} =~ m/\/(\d\d\d\d)(\d\d)\/(\d\d)\/(\d+)\//) {
 						@{$video}{qw/year month day hour minute/} = ($1,$2,$3,$4,'');
 					}
@@ -294,7 +304,10 @@ sub apply_rule_video_json {
 
 sub apply_rule {
 	my($url,$rule) = @_;
-	if($url =~ m/weipai\.cn\/video\//) {
+	if($url =~ m/weipai\.cn\/video\/([^\?\_\&\#\/]+)/) {
+		return apply_rule_video_json('http://w1.weipai.cn/user_video_list?blog_id=' . $1,$rule,@_);
+	}
+	elsif($url =~ m/weipai\.cn\/video/) {
 		return apply_rule_video($url,$rule,@_);
 	}
 	elsif($url =~ m/user_video_list\?/) {
@@ -308,6 +321,7 @@ sub apply_rule {
 			my ($id,$poster,$url) = ($1,$2,$3);
 			$poster =~ s/\\\//\//g;
 			$url =~ s/\\\//\//g;
+			$url =~ s/\.m3u8$/\/500k\.mp4/;
 			my $videoid = $poster;
 			$videoid =~ s/^.*\///;
 			$videoid =~ s/\..*$//;
@@ -323,7 +337,7 @@ sub apply_rule {
 	}
 	my %r;
 
-	my $info = decode_json(get_url($url,'-v'));
+	my $info = decode_json1(get_url($url,'-v'));
 
 	my $uid = $info->{user_id};
 	if($info->{next_cursor}) {

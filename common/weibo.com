@@ -85,7 +85,7 @@ sub process_page {
 	}
 	foreach(@blocks) {
 		my $post = {};
-		$_ =~ s/src="([^"]+(?:sina|weibo|sinaimg)\.(?:com|cn)[^"]*)\/(?:thumbnail|square|bmiddle|mw690)\/([^"]+)"/src="$1\/large\/$2"/sg;
+		$_ =~ s/src="([^"]+(?:sina|weibo|sinaimg)\.(?:com|cn)[^"]*)\/(?:thumb150|thumbnail|square|bmiddle|mw690)\/([^"]+)"/src="$1\/large\/$2"/sg;
 		my $text = $_;
 		$text =~ s/[\n\r]//sg;
 		if($text =~ m/\\u/) {
@@ -202,7 +202,7 @@ sub process_pages {
 	print STDERR "Retriving past-last page...\n";
 	my $lasthtml = get_html($lastpage);
 	my $maxp = 1;
-	while($lasthtml =~ m/&page=(\d+)/g) {
+	while($lasthtml =~ m/(?:&|&amp;)page=(\d+)/g) {
 		if($1 > $maxp) {
 			$maxp = $1;
 		}
