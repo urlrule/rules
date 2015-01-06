@@ -128,8 +128,8 @@ sub apply_rule {
     my %rule = %{shift(@_)};
     my $http = MyPlace::LWP->new();
     my (undef,$html) = $http->get($url);
-    use Encode qw/from_to/;
-    from_to($html,'gbk','utf8');
+	#use Encode qw/from_to/;
+	#from_to($html,'gbk','utf8');
     if($url =~ m/tupian\/list\//) {
         return &_process_tupian($url,\%rule,$html);
     }

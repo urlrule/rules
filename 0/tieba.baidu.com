@@ -50,7 +50,10 @@ sub _process {
 		my $_ = $1;
 		next if(m/bdstatic\.com/);
 		next if(m/tieba\.baidu\.com/);
-		next if(m/imgsrc\.baidu\.com\/forum\/pic\/item\//);
+		next if(m/\/static/);
+		next if(m/tiebaimg.com/);
+		#next if(m/imgsrc\.baidu\.com\/forum\/pic\/item\//);
+		s/\/forum\/w[^\/]+\/sign=[^\/]+\//\/forum\/pic\/item\//;
         push @data,$_;
     }
     return (
@@ -64,12 +67,46 @@ sub _process {
     );
 }
 
+use Encode qw/from_to/;
+
+sub _process_photo_list {
+    my $url = shift(@_);
+    my %rule = %{shift(@_)};
+	my $html = shift;
+	my @data;
+	my @lines = split(/\{/,$html);
+	foreach(@lines) {
+		my ($id,$desc) = ("","");
+		if(m/"pic_id":"([^"]+)/) {
+			$id = $1;
+		}
+		if(m/"descr":"([^"]+)/) {
+			$desc = $1;
+			from_to($desc,'gb2312','utf8');
+		}
+		next unless($id);
+		my $src = 'http://imgsrc.baidu.com/forum/pic/item/' . $id . '.jpg';
+		if($desc) {
+			$desc =~ s/&amp;/&/g;
+			$src .= "\t$id\_$desc\.jpg";
+		}
+		push @data,$src;
+	}
+	return (
+		count=>scalar(@data),
+		data=>\@data,
+	);
+}
+
 sub apply_rule {
     my $url = shift(@_);
     my %rule = %{shift(@_)};
     my $http = MyPlace::LWP->new();
     my (undef,$html) = $http->get($url);
-    if($url =~ m/tupian\/getAlbum\//) {
+	if($url =~ m/\/picture\/list/) {
+		return &_process_photo_list($url,\%rule,$html);
+	}
+    elsif($url =~ m/tupian\/getAlbum\//) {
         return &_process_tupian($url,\%rule,$html);
     }
     else {
