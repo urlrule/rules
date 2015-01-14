@@ -5,128 +5,6 @@ use strict;
 no warnings 'redefine';
 use utf8;
 
-=method1
-
-sub apply_rule {
- return (
-       '#use quick parse'=>1,
-       'data_exp'=>undef,
-       'data_map'=>undef,
-       'pass_exp'=>undef,
-       'pass_map'=>undef,
-       'pass_name_map'=>undef,
-       'pages_exp'=>undef,
-       'pages_map'=>undef,
-       'pages_pre'=>undef,
-       'pages_suf'=>undef,
-       'pages_start'=>undef,
-       'title_exp'=>undef,
-       'title_map'=>undef,
-       'charset'=>undef
- );
-}
-
-=cut
-
-#http://www.weipai.cn/user/moreOwnVideos/uid/52648e589f6c00cd1a8fde4e?page=1
-
-
-=method2
-
-use MyPlace::URLRule::Utils qw/get_url get_html/;
-
-sub apply_rule {
-    my ($url,$rule) = @_;
-	my $html = get_html($url,'-v');
-    my $title = undef;
-    my @data;
-    my @pass_data;
-    my @html = split(/\n/,$html);
-	my %info = (
-		video=>'',
-		user=>'',
-		year=>'',
-		month=>'',
-		day=>'',
-		hour=>'',
-		minute=>'',
-		second=>'',
-		title=>'',
-		length=>'',
-		error=>'',
-		big_title=>'',
-	);
-	foreach(@html) {
-		if(m/<div class="user"><[^>]*title="([^"]+)/) {
-			$info{user}=$1;
-		}
-		elsif((!$info{day}) && m/<span class="day">(\d+)/) {
-			$info{day}=$1;
-		}
-		elsif((!$info{year}) && m/<span class="date">.*>(\d+)-(\d+)/) {
-			$info{year} = $1;
-			$info{month} = $2;
-		}
-		elsif((!$info{length}) && m/<span class="length">(\d+)'(\d+)"/) {
-			$info{length} = $1 eq "0" ? "$2s" : "$1m$2s";
-		}
-		elsif((!$info{title}) && m/<span class="video_title">([^<]+)/) {
-			$info{title} = $1;
-			$info{title} = substr($info{title},0,40);
-			$info{title} =~ s/\/\?\*'"//g;
-		}
-		elsif((!$info{minute}) && m/<span class="video_detail">(\d+)月(\d+)日\s+(\d+):(\d+)/) {
-			$info{month} = $1;
-			$info{day} = $2;
-			$info{minute} = $4;
-			$info{hour} = $3;
-		}
-		elsif((!$info{video})) {
-			if(m/<img src="http:\/\/v\.weipai\.cn\/video\/([^"]+)\.mov\.3in1/) {
-				$info{video} = "http://v.weipai.cn/video/$1";
-			}
-			elsif(m/<img src="http:\/\/aliv\.weipai\.cn\/([^"]+)\.mov\.3in1/) {
-				$info{video} = "http://aliv.weipai.cn/$1";
-			}
-		}
-		elsif((!$info{error}) && m/<div class="tab selected">出错啦<span class="end">/) {
-			$info{error} = 1;
-		}
-		elsif((!$info{big_title}) && m/<div class=box_big_title>([^<]+)/) {
-			$info{big_title} = $1;
-		}
-	}
-	if($info{error}) {
-		return (
-			count=>0,
-			message=>$info{big_title},
-		);
-	}
-	elsif(!$info{video}) {
-		return (
-			count=>0,
-			message=>'Error no video found',
-		);
-	}
-	else {
-		my $filename = "$info{year}$info{month}$info{day}$info{hour}$info{minute}" .
-			($info{title} ? "_$info{title}" : "") . "[$info{length}]";
-		$filename =~ s/[:\/\\]+/_/g;
-		$filename =~ s/[*?!]+//g;
-		my $ext = ".flv";
-		return (
-			count=>1,
-			data=>[$info{video} . $ext . "\t" . $filename . $ext],
-			base=>$url,
-			info=>\%info,
-		);
-	}
-}
-
-=cut
-
-#=method3
-
 #http://www.weipai.cn/user/moreOwnVideos/uid/52648e589f6c00cd1a8fde4e?page=1
 
 use MyPlace::URLRule::Utils qw/get_url get_html/;
@@ -142,7 +20,6 @@ sub decode_json1 {
 		$JS->relaxed;
 	}
 	return $JS->decode(@_);
-
 }
 
 sub extract_video {
@@ -177,15 +54,7 @@ sub extract_video {
 			$info{length} = $1 eq "0" ? "$2s" : "$1m$2s";
 		}
 		if((!$info{title}) && m/<span class="(?:video_title|desc)">(.+)<\/span/) {
-			$info{title} = $1;
-			$info{title} =~ s/<[^.>]+>//g;
-			$info{title} =~ s/\/\?\*'"//g;
-			$info{title} =~ s/&amp;amp;/&/g;
-			$info{title} =~ s/&amp;/&/g;
-			$info{title} =~ s/&hellip;/…/g;
-			if(length($info{title})>200) {
-				$info{title} = undef;
-			}
+			$info{title} = extract_title($1);
 		}
 		if((!$info{minute}) && m/<span class="video_detail">(\d+)月(\d+)日\s+(\d+):(\d+)/) {
 			$info{month} = $1;
@@ -225,23 +94,30 @@ sub extract_video {
 		return build_data(%info);
 	}
 }
+
+sub extract_title {
+	my $title = shift;
+	return "" unless($title);
+	$title =~ s/<[^.>]+>//g;
+	$title =~ s/\/\?\*'"//g;
+	$title =~ s/&amp;amp;/&/g;
+	$title =~ s/&amp;/&/g;
+	$title =~ s/&hellip;/…/g;
+#	$title =~ s/\x{1f60f}|\x{1f614}|\x{1f604}//g;
+#	$title =~ s/[\P{Print}]+//g;
+	$title =~ s/[\p{Emoticons}]//g;
+	my $maxlen = 126;
+	if(length($title) > $maxlen) {
+		$title = substr($title,0,$maxlen);
+	}	
+	return $utf8->encode($title);
+}
+
 sub build_data {
 	my %info = @_;
-
 		if(!$info{title}) {
 			$info{title} = $info{video};
 			$info{title} =~ s/^.*[\/\\]//;
-		}
-		else {
-			$info{title} =~ s/<[^.>]+>//g;
-			$info{title} =~ s/\/\?\*'"//g;
-			$info{title} =~ s/&amp;amp;/&/g;
-			$info{title} =~ s/&amp;/&/g;
-			$info{title} =~ s/&hellip;/…/g;
-			my $maxlen = 80;
-			if(length($info{title}) > $maxlen) {
-				$info{title} = substr($info{title},0,$maxlen);
-			}	
 		}
 		#	use Data::Dumper;print STDERR Dumper(\%info);
 		my $filename = "$info{year}$info{month}$info{day}$info{hour}$info{minute}" .
@@ -275,25 +151,30 @@ sub apply_rule_video {
 	);
 }
 
+sub extract_video_list {
+	my $vlist = shift;
+	return unless($vlist and @$vlist);
+	my @data;
+	foreach my $video (@$vlist) {
+		$video->{cover} = $video->{video_screenshot} || $video->{video_screenshots};
+		$video->{cover} =~ s/\/+ppp\/+video\/+/\/video\//g;
+		$video->{cover} =~ s/\.s\.\d+\.jpg$/.jpg/;
+		$video->{video} = $video->{cover};
+		$video->{video} =~ s/\.([^\/]+)$//;
+		$video->{title} = extract_title($video->{video_intro} || $video->{video_desc});
+		if($video->{cover} =~ m/\/(\d\d\d\d)(\d\d)\/(\d\d)\/(\d+)\//) {
+			@{$video}{qw/year month day hour minute/} = ($1,$2,$3,$4,'');
+		}
+		#use Data::Dumper;print Data::Dumper->Dump([$video],['$video']);
+		push @data,build_data(%$video);
+	}
+	return @data;
+}
+
 sub apply_rule_video_json {
 	my ($url,$rule) = @_;
 	my $json = decode_json1(get_url($url,'-v'));
-	my @data;
-	if($json->{video_list}) {
-		foreach my $video (@{$json->{video_list}}) {
-					$video->{cover} = $video->{video_screenshots};
-					$video->{video} = $video->{cover};
-					$video->{video} =~ s/\.([^\/]+)$//;
-					$video->{title} = $utf8->encode($video->{video_desc});
-					#	$video->{length} = $video->{video_duration} . "s";
-					if($video->{cover} =~ m/\/(\d\d\d\d)(\d\d)\/(\d\d)\/(\d+)\//) {
-						@{$video}{qw/year month day hour minute/} = ($1,$2,$3,$4,'');
-					}
-					#use Data::Dumper;print Data::Dumper->Dump([$video],['$video']);
-					push @data,build_data(%$video);
-			
-		}
-	}
+	my @data = extract_video_list($json->{video_list});
 	return (
 		count=>scalar(@data),
 		data=>\@data,
@@ -356,26 +237,9 @@ sub apply_rule {
 		my $count = 0;
 		my @data;
 		foreach(@{$info->{"diary_list"}}) {
-#"day": "2014-08-23",
-#"city": "\u5e7f\u5dde\u5e02",
-#"video_list": [{
-#"blog_id": "53f87baea5640bff6b8b4576",
-#"video_screenshot": "http:\/\/aliv.weipai.cn\/201408\/23\/19\/3C6C58A6-34DE-4D2B-9145-107BF7B70BB5.2.jpg",
-#"video_intro": "\uff0c\u51bb\u6b7b\u4e86\u5728\u8001\u7238\u7684\u5e2e\u52a9\u4e0b\u5b8c\u6210\u4e86\u51b0\u6876\u6311\u6218@\u5fae\u62cd\u5c0f\u79d8\u4e66",
-#"city": "\u5e7f\u5dde\u5e02"
-#}]
 			if($_->{video_list}) {
-				foreach my $video (@{$_->{video_list}}) {
-					$video->{cover} = $video->{video_screenshot};
-					$video->{video} = $video->{cover};
-					$video->{video} =~ s/\.([^\/]+)$//;
-					$video->{title} = $utf8->encode($video->{video_intro});
-					if($video->{cover} =~ m/\/(\d\d\d\d)(\d\d)\/(\d\d)\/(\d+)\//) {
-						@{$video}{qw/year month day hour minute/} = ($1,$2,$3,$4,'');
-					}
-					#use Data::Dumper;print Data::Dumper->Dump([$video],['$video']);
-					push @data,build_data(%$video);
-				}
+				push @data,extract_video_list($_->{video_list});
+
 			}
 		}
 		$r{count} = scalar(@data);

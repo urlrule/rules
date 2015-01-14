@@ -2,21 +2,21 @@
 use strict;
 
 use Encode qw/find_encoding/;
-use MyPlace::URLRule::SaveById;
+use MyPlace::SimpleQuery;
+
+
+
 my $utf8 = find_encoding("utf-8");
-	
-	
-my $OUTPUT='ID.txt';
+my $OUTPUT='../database.sq';
 
 
-my $handle = MyPlace::URLRule::SaveById->new();
-$handle->feed($OUTPUT,'file');
+my $handle = MyPlace::SimpleQuery->new();
+$handle->feed($OUTPUT);
 my @lines;
 while(<>) {
 	push @lines,$utf8->decode($_);
 }
 my ($count,$msg) = $handle->add(@lines);
-
 if($count) {
 	my $t = localtime;
 	print STDERR "# $count ID added, ",$t,".\n";
