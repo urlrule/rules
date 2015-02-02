@@ -57,22 +57,20 @@ sub apply_rule {
 		}
 	}
 	my $hostname = $Package || "";
-	my $dbname = ($hostname ? uc($hostname) : "DEFAULT" ) . ".DB";
-	my $dbfile = MyPlace::URLRule::locate_file("sites/$dbname");
-	print STDERR "Using database file: $dbfile\n";
-	my $db = new MyPlace::URLRule::SaveById;
-	$db->feed($dbfile);
-	my $target = $db->query($query);
-	return undef,"No target found for $query [$dbname]" unless($target);
+	my $dbname = $hostname || "DEFAULT";
+	use MyPlace::URLRule::SimpleQuery;
+	my $SQ = MyPlace::URLRule::SimpleQuery->new($dbname);
+	my($status,@result) = $SQ->query($key);
+	return undef,"No target found for $query [$dbname]" unless(@result);
 	my @pass_data;
-	foreach my $id(@{$target->{sortedId}}) {
-		my $url = $db->{options}->{URI_TEMPLATE};
-		$url =~ s/###ID###/$id/g;
-		push @pass_data,$url;
+	my $title;
+	foreach my $target(@result){ 
+		push @pass_data,$target->[2];
+		$level = $target->[3];
 	}
 	return (
 		pass_data=>\@pass_data,
-		level=>$db->{options}->{LEVEL},
+		level=>$level,
 	);
 }
 1;
