@@ -46,7 +46,7 @@ sub apply_rule {
 	my $SIZE = 10;
 	my $murl = $PREFIX . $UID;
 	my $html = get_url($murl,'-v');
-	my $lastpage = 20;
+	my $lastpage = 1;
 	if($html =~ m/<dd>.+?>(\d+)<.+?<\/dd>/) {
 		$lastpage = int($1 / $SIZE);
 		$lastpage += 1 if($1 % $SIZE);
