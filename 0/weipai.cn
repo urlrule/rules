@@ -7,11 +7,13 @@ use utf8;
 
 #http://www.weipai.cn/user/moreOwnVideos/uid/52648e589f6c00cd1a8fde4e?page=1
 
-use MyPlace::URLRule::Utils qw/get_url get_html/;
+use MyPlace::Weipai qw/get_url/;
 use MyPlace::String::Utils qw/no_empty/;
 use JSON qw//;
 use Encode qw/find_encoding/;
 my $utf8 = find_encoding('utf8');
+
+
 
 my $JS;
 sub decode_json1 {
@@ -19,7 +21,14 @@ sub decode_json1 {
 		$JS = JSON->new();
 		$JS->relaxed;
 	}
-	return $JS->decode(@_);
+	my $json = eval { $JS->decode(@_); };
+	if($@) {
+		print STDERR "Error deocding JSON text\n";
+		$@ = undef;
+	}
+	else {
+		return $json;
+	}
 }
 
 sub extract_video {
@@ -103,10 +112,14 @@ sub extract_title {
 	$title =~ s/&amp;amp;/&/g;
 	$title =~ s/&amp;/&/g;
 	$title =~ s/&hellip;/…/g;
+	$title =~ s/[\r\n]+/ /g;
 #	$title =~ s/\x{1f60f}|\x{1f614}|\x{1f604}//g;
 #	$title =~ s/[\P{Print}]+//g;
-	$title =~ s/[\p{Emoticons}]//g;
-	my $maxlen = 126;
+#	$title =~ s/[^\p{CJK_Unified_Ideographs}\p{ASCII}]//g;
+	$title =~ s/[^{\p{Punctuation}\p{CJK_Unified_Ideographs}\p{CJK_SYMBOLS_AND_PUNCTUATION}\p{HALFWIDTH_AND_FULLWIDTH_FORMS}\p{CJK_COMPATIBILITY_FORMS}\p{VERTICAL_FORMS}\p{ASCII}\p{LATIN}\p{CJK_Unified_Ideographs_Extension_A}\p{CJK_Unified_Ideographs_Extension_B}\p{CJK_Unified_Ideographs_Extension_C}\p{CJK_Unified_Ideographs_Extension_D}]//g;
+#	$title =~ s/[\p{Block: Emoticons}]//g;
+	#print STDERR "\n\n$title=>\n", length($title),"\n\n";
+	my $maxlen = 70;
 	if(length($title) > $maxlen) {
 		$title = substr($title,0,$maxlen);
 	}	
@@ -133,7 +146,7 @@ sub build_data {
 
 sub apply_rule_video {
     my ($url,$rule) = @_;
-	my $html = $utf8->encode(get_html($url,'-v'));
+	my $html = $utf8->encode(get_url($url,'-v'));
 	
     my $title = undef;
     my @data;
@@ -185,7 +198,7 @@ sub apply_rule_video_json {
 
 sub apply_rule {
 	my($url,$rule) = @_;
-	if($url =~ m/weipai\.cn\/video\/([^\?\_\&\#\/]+)/) {
+	if($url =~ m/weipai\.cn\/video\/([^\?\s%\_\&\#\/]+)/) {
 		return apply_rule_video_json('http://w1.weipai.cn/user_video_list?blog_id=' . $1,$rule,@_);
 	}
 	elsif($url =~ m/weipai\.cn\/video/) {
@@ -219,7 +232,7 @@ sub apply_rule {
 	my %r;
 
 	my $info = decode_json1(get_url($url,'-v'));
-
+	$r{info} = $info;
 	my $uid = $info->{user_id};
 	if($info->{next_cursor}) {
 		$r{level} = 0;
