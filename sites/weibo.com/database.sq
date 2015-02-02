@@ -1,5 +1,6 @@
 #OUTPUT: http://weibo.com/${ID}
 #OUTPUT: 2
+#OUTPUT: weibo.com
 #OPTION:	uri_template		http://weibo.com/###ID###
 #OPTION:	level				2
 u/3641606555	有道云笔记收藏
@@ -2467,3 +2468,4 @@ u/1216098513	ai媚儿
 ##563 ID added, Fri Aug  8 01:43:37 2014, from keyduel(1993888917)
 u/2181500354	张竹伦
 u/3292197763 赵灿Alva
+u/2498026057	郑茜
