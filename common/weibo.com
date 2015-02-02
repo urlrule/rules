@@ -141,7 +141,7 @@ sub process_page {
 #				$html .= "<img src=\"" . $title ."_" . strnum($idx,3) .  $_->[1] . "\"><br/>";
 			}
 		}
-		push @data,new_html_data($html,$title,$url);
+		#push @data,new_html_data($html,$title,$url);
 	}
 
 	my $max_id;
