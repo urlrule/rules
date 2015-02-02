@@ -4,26 +4,30 @@
 use strict;
 no warnings 'redefine';
 
+=method 1
+#magnet:?xt=urn:btih:046705ea896a7f781adb306a453ef5cc0bba89af&dn=%E7%BE%8E%E5%B1%84%E7%BE%8E%E7%99%BD%E7%BE%8E%E4%B9%B3%E9%8A%B7%E9%AD%82%E7%BE%8E%E5%A5%B3%E6%9C%80%E9%AB%98%E5%82%91%E4%BD%9C%EF%BC%81%E6%98%9F%E9%87%8E%E3%81%82%E3%81%8B%E3%82%8A&tr=http%3A%2F%2Ftracker.torrent.to%3A2710%2Fannounce&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Ftracker.publicbt.com%3A80&tr=http%3A%2F%2Ftracker.cpleft.com%3A2710%2Fannounce&tr=http%3A%2F%2Ftracker.bittorrent.am%2Fannounce&tr=http%3A%2F%2Fbt.e-burg.org%3A2710%2Fannounce&tr=http%3A%2F%2Fgenesis.1337x.org%3A1337%2Fannounce&tr=http%3A%2F%2Fnemesis.1337x.org%2Fannounce&tr=http%3A%2F%2Fbigtorrent.org%3A2710%2Fannounce
 
 sub apply_rule {
  return (
        '#use quick parse'=>1,
+       'data_exp'=>'<a href="/information/([^"]+)"[^>]+title="([^"]+)',
+       'data_map'=>'"magnet:?xt=urn:btih:$1&dn=$2"',
        'pass_exp'=>undef,
        'pass_map'=>undef,
        'pass_name_map'=>undef,
-       'pages_exp'=>'<a href="(\d+)">\d+',
-       'pages_map'=>'$1',
-       'pages_pre'=>'',
-       'pages_suf'=>'',
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
        'pages_start'=>undef,
        'title_exp'=>undef,
        'title_map'=>undef,
        'charset'=>undef,
+	   'base'=>'',
  );
 }
 =cut
 
-=method2
 use MyPlace::URLRule::Utils qw/get_url/;
 
 sub apply_rule {
@@ -32,7 +36,26 @@ sub apply_rule {
     my $title = undef;
     my @data;
     my @pass_data;
-    #my @html = split(/\n/,$html);
+
+    my @html = split(/\n/,$html);
+
+	foreach(@html) {
+		my $hash;
+		my $title;
+		my $magnet;
+		if(m/<a href="\/information\/([^"]+)"[^>]+title="([^"]+)/) {
+			$title = $2;
+			$magnet = "magnet:?xt=urn:btih:$1&dn=$title";
+		}
+		if(m/<a href="(magnet:\?[^"]+)/) {
+			if($title) {
+				push @data,"$1\t$title";
+			}
+			else {
+				push @data,$1;
+			}
+		}
+	}
     return (
         count=>scalar(@data),
         data=>\@data,

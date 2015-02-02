@@ -1,27 +1,35 @@
 #!/usr/bin/perl -w
-#http://btkitty.org/search/Ky5JLFIwtjQFAA.html
-#Wed Jan 14 03:15:28 2015
+#http://btkitty.org/torrent/BcEHAQAwCAMwS-UzOTz_FpYQpbWPy8Y5vxiUKOK4TEUXyQh09wc.html
+#Tue Feb  3 01:25:37 2015
 use strict;
 no warnings 'redefine';
 
 
 sub apply_rule {
  return (
+ #Set quick parsing method on
        '#use quick parse'=>1,
-       'data_exp'=>'strong><a[^>]*href="(http:\/\/btkitty.org\/torrent\/)([^\/\.]+).html"[^>]*>\s*(.*?)<\/a>.*?<\/dd>',
-       'data_map'=>'$_ = "https://storebt.com/torrent/$2/$3" . "\t" .  $3;s/<\/?b\/?>//g;$_',
+
+#Specify data mining method
+       'data_exp'=>'<h2>([^<]+)<.+?class=\'infohash\'>([^<]+).+?href=\'http:\/\/storebt.com\/torrent\/([^\/\.]+)',
+       'data_map'=>'"https://storebt.com/down/$3/$1.torrent\t$1_" . uc($2) . ".torrent"',
+
+#Specify data mining method for nextlevel
        'pass_exp'=>undef,
        'pass_map'=>undef,
        'pass_name_map'=>undef,
+
+#Specify pages mining method
        'pages_exp'=>undef,
        'pages_map'=>undef,
        'pages_pre'=>undef,
        'pages_suf'=>undef,
        'pages_start'=>undef,
+	   'pages_limit'=>undef,
+
        'title_exp'=>undef,
        'title_map'=>undef,
-       'charset'=>undef,
-	   'base'=>'',
+       'charset'=>undef
  );
 }
 =cut

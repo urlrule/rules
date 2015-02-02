@@ -1,11 +1,10 @@
 #!/usr/bin/perl -w
-#sobt.org/Query/Natt Chanapa
-#Fri Nov 21 02:33:09 2014
+#http://www.storetorrent.org/s/%E9%BA%BB%E7%94%9F%E5%B8%8C/4
+#Thu Jan 15 01:32:56 2015
 use strict;
 no warnings 'redefine';
 
 
-=method1
 sub apply_rule {
  return (
        '#use quick parse'=>1,
@@ -14,11 +13,12 @@ sub apply_rule {
        'pass_exp'=>undef,
        'pass_map'=>undef,
        'pass_name_map'=>undef,
-       'pages_exp'=>undef,
-       'pages_map'=>undef,
-       'pages_pre'=>undef,
-       'pages_suf'=>undef,
+       'pages_exp'=>'<a[^>]+href="([^"]*\/s\/[^\/]+\/)(\d+)"',
+       'pages_map'=>'$2',
+       'pages_pre'=>'$1',
+       'pages_suf'=>'',
        'pages_start'=>undef,
+	   'pages_limit'=>20,
        'title_exp'=>undef,
        'title_map'=>undef,
        'charset'=>undef
@@ -26,6 +26,7 @@ sub apply_rule {
 }
 =cut
 
+=method2
 use MyPlace::URLRule::Utils qw/get_url/;
 
 sub apply_rule {
@@ -34,13 +35,14 @@ sub apply_rule {
     my $title = undef;
     my @data;
     my @pass_data;
-	while($html =~ /<h4 class="media-heading"><a href="\/magnet\/hash\/([A-Z0-9]+)" title="([^"]+)/g) {
-		push @data,"magnet:?xt=urn:btih:$1&dn=$2\t$2";
-	}
+    #my @html = split(/\n/,$html);
     return (
         count=>scalar(@data),
         data=>\@data,
+        pass_count=>scalar(@pass_data),
+        pass_data=>\@pass_data,
         base=>$url,
+        title=>$title,
     );
 }
 
