@@ -38,8 +38,8 @@ album.kaixin001.com
     http://www.kaixin001.com/photo/albumlist.php?uid=###ID###
         3
 album.mm.taobao.com
-    http://mm.taobao.com/album-###ID###.htm
-        2
+	http://mm.taobao.com/self/album/open_album_list.htm?_charset=utf-8&user_id%20=###ID###
+        3
 album.redflava.com
     http://www.redflava.com/gallery/thumbnails.php?album=###ID###
         1
@@ -63,9 +63,9 @@ bbs.discuz
         0
 blog.163.com
     http://###ID###.blog.163.com
-        1
+        3
 blog.sina.com.cn
-    http://blog.sina.com.cn/###ID###
+    http://photo.blog.sina.com.cn/###ID###
         3
 blog.sohu.com
     http://###ID###.blog.sohu.com/entry/
@@ -91,9 +91,12 @@ celebrity-pictures.ca
 celebscentral.net
     http://###ID###.celebscentral.net
         2
-celebuzz.com
+www.celebuzz.com
     http://www.celebuzz.com/celebrities/###ID###-photos/thumbnail/
         1
+celebuzz.com
+    http://###ID###.celebuzz.com/photos/
+        2
 cgcccp.com
     http://###ID###.cgcccp.com
         3
@@ -116,8 +119,14 @@ digicelebs.com
     http://www.digicelebs.com/cpg/thumbnails-###TEXT1###.html
         1
 facebook.com
-    http://www.facebook.com/###ID###?v=photos
+	https://www.facebook.com/###ID###
+		2	
+photos.facebook.com
+    https://www.facebook.com/###ID###?v=photos
         1
+profile.facebook.com
+	https://www.facebook.com/profile.php?id=###ID###
+		2
 forum.phpBB
     http://forum.phpBB/###ID###
         4
@@ -125,6 +134,9 @@ forum.skins.be
     http://forum.skins.be/###ID###/
         1
 fotop.net
+    http://www.fotop.net/###ID###
+        0
+snaapa.com
     http://www.snaapa.com/###ID###
         0
 freeones.com
@@ -148,6 +160,9 @@ gods-art.de
 google.search.image
     google.search.image/###ID###?type=large###TEXT1###
         3
+google.search.image.gif
+	google.search.image/###ID###+filetype:gif?type=large###TEXT1###
+		3
 google.search.image.all
     google.search.image/###ID###
         3
@@ -207,10 +222,10 @@ minihp.cyworld.com
         2
 mm.taobao.com
     http://mm.taobao.com/###ID###
-        3
+        4
 moko.cc
-    http://www.moko.cc/post/###ID###/new/1.html
-        2
+    http://www.moko.cc/###ID###/
+        3
 moko.mywhere.org
     http://www.m.mywhere.org/mtg/moko/###ID###/
         0
@@ -229,9 +244,12 @@ p.hollywoodtuna.com
 person.mtime.com
     http://www.mtime.com/person/###ID###/photo_gallery/
         1
+photo.163.com
+	http://photo.163.com/###ID###
+		2
 photo.blog.163.com
-    http://photo.blog.163.com/###ID###
-        1
+    http://photo.163.com/###ID###
+        2
 photo.blog.sina.com.cn
     http://photo.blog.sina.com.cn/###ID###
         3
@@ -268,6 +286,9 @@ pp.sohu.com
 qzone.qq.com
     http://###ID###.qzone.qq.com
         2
+t.qq.com
+	http://t.qq.com/###ID###
+		2
 renren.com
     http://page.renren.com/###ID###/album
         3
@@ -319,6 +340,9 @@ tieba.baidu.com
 tupian.baidu.com
     http://tieba.baidu.com/###ID###/tupian/
         2
+post.tieba.baidu.com
+	http://tieba.baidu.com/p/###ID###
+		1
 tuzhan.com
     http://www.tuzhan.com/search.html?sokey=###ID###
         1
@@ -332,6 +356,9 @@ vids.acmegirls.com
     http://www.acmegirls.com/vids/###ID###/
         1
 vlike.com
+	http://www.colorbird.com/meinv/###ID###/
+		1
+vlike.com.bak		
     http://pic.vlike.com/pic/###ID###/
         1
 yahoo.search.image
@@ -343,3 +370,49 @@ yayaxiu.com
 yymax.com
     http://www.yymax.com/class###ID###/
         1
+dp.pconline.com.cn
+	http://dp.pconline.com.cn/###ID###/
+		3
+weibo.com
+	http://weibo.com/###ID###
+		2
+meinv.colorbird.com
+	http://www.colorbird.com/meinvtupian/###ID###/
+		1
+weipai.cn
+	http://www.weipai.cn/user/###ID###
+		2
+photo.xgo.com.cn
+	http://photo.xgo.com.cn/###ID###.html
+		4
+savebyid
+	http://SaveById/###ID###
+		2
+weitu.sdodo.com
+	http://weitu.sdodo.com/user-###ID###-1.html
+		1
+SimpleQuery
+	http://SimpleQuery/###ID###
+		2
+IMAGES
+	http://htmlprops/src#\.jpg$#$####ID###
+		0
+xingyun.cn
+	http://www.xingyun.cn/###ID###
+		2
+thai-pix.com	
+	http://thai-pix.com/tgpx/###ID###.html
+		2
+xiangce.baidu.com
+	http://xiangce.baidu.com/###ID###
+		1
+album.xiangce.baidu.com
+	http://xiangce.baidu.com/picture/album/list/###ID###
+		0
+album.tieba.baidu.com
+	http://album.tieba.baidu.com/p/###ID###
+		1
+photo.hupu.com
+	http://photo.hupu.com/###ID###.html
+		0
+
