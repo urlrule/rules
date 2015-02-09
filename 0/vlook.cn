@@ -27,33 +27,97 @@ sub apply_rule {
 =cut
 
 use MyPlace::URLRule::Utils qw/get_url/;
+use Encode qw/find_encoding/;
+my $utf8 = find_encoding('utf8');
+use JSON qw//;
+my $JS;
+sub decode_json1 {
+	if(!$JS)  {
+		$JS = JSON->new();
+		$JS->relaxed;
+	}
+	my $json = eval { $JS->decode(@_); };
+	if($@) {
+		print STDERR "Error deocding JSON text\n";
+		$@ = undef;
+	}
+	else {
+		return $json;
+	}
+}
+
+sub extract_title {
+	my $title = shift;
+	return "" unless($title);
+	$title = $utf8->decode($title);
+	$title =~ s/<[^.>]+>//g;
+	$title =~ s/\/\?\*'"//g;
+	$title =~ s/&amp;amp;/&/g;
+	$title =~ s/&amp;/&/g;
+	$title =~ s/&hellip;/…/g;
+	$title =~ s/[\r\n]+/ /g;
+#	$title =~ s/\x{1f60f}|\x{1f614}|\x{1f604}//g;
+#	$title =~ s/[\P{Print}]+//g;
+#	$title =~ s/[^\p{CJK_Unified_Ideographs}\p{ASCII}]//g;
+	$title =~ s/[^{\p{Punctuation}\p{CJK_Unified_Ideographs}\p{CJK_SYMBOLS_AND_PUNCTUATION}\p{HALFWIDTH_AND_FULLWIDTH_FORMS}\p{CJK_COMPATIBILITY_FORMS}\p{VERTICAL_FORMS}\p{ASCII}\p{LATIN}\p{CJK_Unified_Ideographs_Extension_A}\p{CJK_Unified_Ideographs_Extension_B}\p{CJK_Unified_Ideographs_Extension_C}\p{CJK_Unified_Ideographs_Extension_D}]//g;
+#	$title =~ s/[\p{Block: Emoticons}]//g;
+	#print STDERR "\n\n$title=>\n", length($title),"\n\n";
+	my $maxlen = 70;
+	if(length($title) > $maxlen) {
+		$title = substr($title,0,$maxlen);
+	}	
+	return $utf8->encode($title);
+}
 
 sub apply_rule {
     my ($url,$rule) = @_;
 	my $realurl = $url;
-	if($realurl =~ m/\/qs\/([^\?\/]+)/) {
-		$realurl = "http://www.vlook.cn/show/qs/$1";
+	$realurl =~ s/^(.*\/[^\/%&\?]+).+?$/$1/;
+	my $html = get_url($realurl,'-v');#,'-v','charset:utf8');
+
+	if($html =~ m/\$Gobal\["\$aboutUrl"\]="(.*\/qs\/)([^\?\/%\&\"]+)/) {
+		#if($realurl =~ m/\/qs\/([^\?\/%\&]+)/) {
+		$realurl = "http://mo.vlook.cn/mobile/index/show/qs/$2";
+
+		#	my $ajxurl = "http://www.vlook.cn$1$2";
+		#my $json = decode_json1(get_url($ajxurl,'-v'));
+		#print STDERR $json->{rst}->[0],"\n";
+		#return (info=>$json);
+
+		$html = get_url($realurl,'-v');
 	}
-	my $html = get_url($realurl);#,'-v','charset:utf8');
+
     my $title = undef;
     my @data;
 	#my @pass_data;
     #my @html = split(/\n/,$html);
+
+#  <meta property="og:type" content="video" />
+#  <meta property="og:url" content="http://www.vlook.cn/show/1955873" />
+#  <meta property="og:title" content="3个乳房的女人牵着三个男人像遛狗一样……画面太诡异了！" />
+#  <meta property="og:description" content="3个乳房的女人牵着三个男人像遛狗一样……画面太诡异了！" />
+#  <meta property="og:image" content="http://image.vlook.cn:80/static/pic/snap_8/75w_.jpg" />
+#  <meta property="og:videosrc" content="http://www.vlook.cn/app/vplayer/flv/qs/YklkPTE5NTU4NzM=/flv.swf" />
+#  <meta property="og:site_name" content="微录客" />  
+#  <meta name ="weibo:video:url" content="http://www.vlook.cn/show/sina/1955873" />
+#  <meta name="weibo:video:duration" content="140" />
+#  <meta name="weibo:video:create_at" content="2014-12-31 13:01:32" />
+
 	my %info;
-	while($html =~ m/<meta property="og:([^"]+)"[^>]+content="([^"]+)"/g) {
+	while($html =~ m/<meta[^>]+(?:name|property)\s*=\s*"([^"]+)"[^>]+content\s*=\s*"([^"]+)"/g) {
 		$info{$1} = $2;
 	}
+	$title = $info{'og:title'};
 	if((!$title) and $html =~ m/<(?:title|TITLE)>\s*([^<]+)</) {
 		$title = $1;
 		$title =~ s/^[^：]+：\s*//;
 		$title =~ s/\s*- 微录客.*//;
 	}
 	else {
-		$title = $info{title};
+		$title = $info{'og:title'};
 	}
 	my $video;
-	my %videos;
-	if($info{image} and $info{image} =~ m/[^"]+\/([^\/"]+)\.jpg$/) {
+	if($info{'og:image'} and $info{'og:image'} =~ m/[^"]+\/([^\/"]+)\.jpg$/) {
 		my $vid = $1;
 		$video = "http://download1.vlook.cn/video/high/$vid.mp4";
 		#$videos{vga} = "http://download1.vlook.cn/video/vga/$vid.mp4";
@@ -67,8 +131,9 @@ sub apply_rule {
 	}
 	else {
 		return (
+			info=>\%info,
 			count=>0,
-			error=>'No video found',
+#			error=>'No video found',
 		);
 	}
 		$video =~ s/%3A/:/g;
@@ -85,19 +150,28 @@ sub apply_rule {
 			$title = $1
 		}
 	}
+	$title = extract_title($title);
 	if($html =~ m/<dd title="(\d+)-(\d+)-(\d+)\s*(\d+):(\d+):(\d+)/) {
+		$title = $title ? "$1$2$3$4$5$6_$title" : "$1$2$3$4$5$6";
+	}
+	elsif($info{'weibo:video:create_at'} and $info{'weibo:video:create_at'} =~ m/(\d+)-(\d+)-(\d+)\s*(\d+):(\d+):(\d+)/) {
 		$title = $title ? "$1$2$3$4$5$6_$title" : "$1$2$3$4$5$6";
 	}
 	if($html =~ m/class="icon_video_time"[^>]+alt="([^"]+)/) {
 		$title = $title ? "${title}_$1" : "$1";
 	}
+	elsif($info{'weibo:video:duration'}) {
+		my $secs = $info{'weibo:video:duration'};
+		my $m = int($secs / 60);
+		my $s = $secs % 60;
+		my $t = ($m ? "$m分钟" : "") . "$s秒";
+		$title = $title ? $title . "_$t" : "$t";
+	}
 	$title =~ s/[\/\?:\*"']//g;
 
 
-		foreach(keys %videos) {
-			push @data, $videos{$_} . "\t" . ${title} . "_$_.mp4";
-		}
 		push @data,"$video\t$title.mp4" if($video);
+		push @data,$info{'og:image'} . "\t$title.jpg" if($info{'og:image'});
 		return (
 			count=>scalar(@data),
 			data=>\@data,

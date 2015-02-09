@@ -9,12 +9,12 @@ use utf8;
 
 use MyPlace::Weipai qw/get_url/;
 use MyPlace::String::Utils qw/no_empty/;
-use JSON qw//;
 use Encode qw/find_encoding/;
 my $utf8 = find_encoding('utf8');
 
 
 
+use JSON qw//;
 my $JS;
 sub decode_json1 {
 	if(!$JS)  {
