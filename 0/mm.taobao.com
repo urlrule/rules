@@ -8,8 +8,8 @@ use strict;
 sub apply_rule {
  return (
        '#use quick parse'=>1,
-       'data_exp'=>'<p><img src="(http://img\d+\.taobaocdn\.com\/sns_album\/[^"]+)"><\/p>',
-       'data_map'=>'$1',
+       'data_exp'=>'"picUrl":"([^"]+)',
+       'data_map'=>'$_ = $1;s/_\d+x\d+\.jpg$//r;',
        'pass_exp'=>undef,
        'pass_map'=>undef,
        'pass_name_map'=>undef,

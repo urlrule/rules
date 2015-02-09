@@ -1,22 +1,20 @@
 #!/usr/bin/perl -w
-#http://mm.taobao.com/fumanni320
-#Wed Jan  4 02:56:41 2012
+#http://mm.taobao.com/album-480073904.htm
+#Wed Jan  4 02:51:43 2012
 use strict;
 
 
-#http://mm.taobao.com/fumanni320
+
 sub apply_rule {
+	my $url = shift;
  return (
        '#use quick parse'=>1,
        'data_exp'=>undef,
        'data_map'=>undef,
-       'pass_exp'=>'href="[^"]+\/weibo\.htm\?user_id=(\d+)',
-	   'pass_map'=>'"http://mm.taobao.com/album-$1.htm"',
-       'pass_name_map'=>undef,
-       'pages_exp'=>undef,
-       'pages_map'=>undef,
-       'pages_pre'=>undef,
-       'pages_suf'=>undef,
+       'pages_exp'=>'<input name="totalPage" id="J_Totalpage" value="(\d+)"',
+       'pages_map'=>'$1',
+       'pages_pre'=> '$url . "&page="',
+       'pages_suf'=>'',
        'pages_start'=>undef,
        'title_exp'=>undef,
        'title_map'=>undef,

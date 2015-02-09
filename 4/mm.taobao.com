@@ -1,22 +1,22 @@
 #!/usr/bin/perl -w
-#http://mm.taobao.com/pic-480073904-180176222.htm
-#Wed Jan  4 02:46:58 2012
+#http://mm.taobao.com/fumanni320
+#Wed Jan  4 02:56:41 2012
 use strict;
 
 
-
+#http://mm.taobao.com/fumanni320
 sub apply_rule {
  return (
        '#use quick parse'=>1,
        'data_exp'=>undef,
        'data_map'=>undef,
-       'pass_exp'=>undef,
-       'pass_map'=>undef,
+       'pass_exp'=>'<a href="[^"]+self/model_album.htm\?user_id=([^&"]+)',
+	   'pass_map'=>'"http://mm.taobao.com/self/album/open_album_list.htm?_charset=utf-8&user_id%20=$1"',
        'pass_name_map'=>undef,
-       'pages_exp'=>'"totalPage":"?(\d+)"?',
-       'pages_map'=>'$1',
-       'pages_pre'=> '$url . "&page="',
-       'pages_suf'=>'',
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
        'pages_start'=>undef,
        'title_exp'=>undef,
        'title_map'=>undef,

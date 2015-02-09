@@ -1,8 +1,7 @@
 #!/usr/bin/perl -w
-#http://mm.taobao.com/album-480073904.htm
-#Wed Jan  4 02:51:43 2012
+#http://mm.taobao.com/pic-480073904-180176222.htm
+#Wed Jan  4 02:46:58 2012
 use strict;
-
 
 
 sub apply_rule {
@@ -10,17 +9,14 @@ sub apply_rule {
        '#use quick parse'=>1,
        'data_exp'=>undef,
        'data_map'=>undef,
-       'pass_exp'=>'href="([^"]+\/)photo(-\d+-(\d+)\.htm)#J_photoAnchor',
-       'pass_map'=>'$1 . "pic" . $2',
-       'pass_name_map'=>'$3',
-       'pages_exp'=>undef,
-       'pages_map'=>undef,
-       'pages_pre'=>undef,
-       'pages_suf'=>undef,
+       'pass_exp'=>'<h4>\s*<a href="[^"]+(\?[^"]+album_id=[^"]+)[^<]*>[\s\n\r\t]*([^<]+)<\/a',
+       'pass_map'=>'"http://mm.taobao.com/album/json/get_album_photo_list.htm" . $1',
+       'pass_name_map'=>'$2',
+       'pages_suf'=>'',
        'pages_start'=>undef,
        'title_exp'=>undef,
        'title_map'=>undef,
-       'charset'=>undef
+       'charset'=>'gb2312',
  );
 }
 =cut
