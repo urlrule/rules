@@ -62,7 +62,7 @@ sub apply_rule {
 	}
 	eval("require $Package");
 	my $search_images = "$Package" . "::" . 'search_images';
-	if($level) {
+	if(0 && $level) {
 	    my $page_count = $level*20 + 1;
 		my $page_begin = 1;
 		my $page_end = $page_count;
@@ -73,7 +73,7 @@ sub apply_rule {
 			my ($status,$images) = &$search_images($key,$cur_page,%params);
 			use strict 'refs';
 			if($status and ref $images) {
-				push @data, map "$_->{url}",@{$images};
+				push @data, map "$_->{source}",@{$images};
 				if(scalar(@{$images}) < 10) {
 					$page_end = $cur_page - 1;
 					print STDERR "$cur_page [bad]\n";
@@ -101,7 +101,7 @@ sub apply_rule {
 	use strict 'refs';
 #	my($status,$images) = MyPlace::Google::Search::search_images($key,undef,%params);
 	if($status) {
-		push @data, map "$_->{url}",@{$images};
+		push @data, map "$_->{source}",@{$images};
 	}
 	return (
 		level=>0,
