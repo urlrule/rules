@@ -112,7 +112,7 @@ sub extract_title {
 	$title =~ s/&amp;amp;/&/g;
 	$title =~ s/&amp;/&/g;
 	$title =~ s/&hellip;/…/g;
-	$title =~ s/[\r\n]+/ /g;
+	$title =~ s/[\r\n\/\?:\*\>\<\|]+/ /g;
 #	$title =~ s/\x{1f60f}|\x{1f614}|\x{1f604}//g;
 #	$title =~ s/[\P{Print}]+//g;
 #	$title =~ s/[^\p{CJK_Unified_Ideographs}\p{ASCII}]//g;
@@ -127,7 +127,19 @@ sub extract_title {
 }
 
 sub build_data {
+	my $FULLNAME = shift;
+	if(!$FULLNAME) {
+		return;
+	}
+	elsif($FULLNAME eq '#FULLNAME') {
+		$FULLNAME = 1;
+	}
+	else {
+		unshift @_,$FULLNAME;
+		$FULLNAME = undef;
+	}
 	my %info = @_;
+	return unless($info{video});
 		if(!$info{title}) {
 			$info{title} = $info{video};
 			$info{title} =~ s/^.*[\/\\]//;
@@ -137,6 +149,18 @@ sub build_data {
 			no_empty($info{title},"_") . no_empty($info{length},"[","]");
 		$filename =~ s/[:\/\\]+/_/g;
 		$filename =~ s/[*?!]+//g;
+		
+		if($FULLNAME) {
+			my $prefix = "";
+			$prefix = $info{video_id} . "-" . $prefix if($info{video_id});
+			$prefix = $info{user_id} . "_" . $prefix if($info{user_id});
+			$prefix = $info{uid} . "_" . $prefix if($info{uid});
+			$prefix = $info{nickname} . "_" . $prefix if($info{nickname});
+			$prefix = $info{username} . "_" . $prefix if($info{username});
+			$prefix = $utf8->encode($prefix);
+			$filename = $prefix . $filename;
+		}
+
 		my $ext = ".mov";
 		#$info{cover} . ".mov.3in1.jpg" . "\t" . $filename . ".3in1.jpg",
 		return $info{video} . $ext . "\t" . $filename . $ext,
@@ -167,11 +191,14 @@ sub apply_rule_video {
 sub extract_video_list {
 	my $vlist = shift;
 	return unless($vlist and @$vlist);
+	my $json = shift;
+	my $FLAGS = shift;
 	my @data;
 	foreach my $video (@$vlist) {
 		$video->{cover} = $video->{video_screenshot} || $video->{video_screenshots};
 		$video->{cover} =~ s/\/+ppp\/+video\/+/\/video\//g;
 		$video->{cover} =~ s/\.s\.\d+\.jpg$/.jpg/;
+		next unless($video->{cover});
 		$video->{video} = $video->{cover};
 		$video->{video} =~ s/\.([^\/]+)$//;
 		$video->{title} = extract_title($video->{video_intro} || $video->{video_desc});
@@ -179,15 +206,31 @@ sub extract_video_list {
 			@{$video}{qw/year month day hour minute/} = ($1,$2,$3,$4,'');
 		}
 		#use Data::Dumper;print Data::Dumper->Dump([$video],['$video']);
-		push @data,build_data(%$video);
+		if($FLAGS) {
+			push @data,build_data($FLAGS,%$video);
+		}
+		else {
+			push @data,build_data(%$video);
+		}
 	}
 	return @data;
 }
 
 sub apply_rule_video_json {
-	my ($url,$rule) = @_;
+	my $url = shift;
+	my $rule = shift;
+	my $FLAGS = shift;
+
+	if(!$FLAGS) {}
+	elsif($FLAGS eq '#FULLNAME') {
+	}
+	else {
+		unshift @_,$FLAGS;
+		$FLAGS = undef;
+	}
+
 	my $json = decode_json1(get_url($url,'-v'));
-	my @data = extract_video_list($json->{video_list});
+	my @data = extract_video_list($json->{video_list},$json,$FLAGS);
 	return (
 		count=>scalar(@data),
 		data=>\@data,
@@ -198,19 +241,34 @@ sub apply_rule_video_json {
 
 sub apply_rule {
 	my($url,$rule) = @_;
-	if($url =~ m/weipai\.cn\/video\/([^\?\s%\_\&\#\/]+)/) {
-		return apply_rule_video_json('http://w1.weipai.cn/user_video_list?blog_id=' . $1,$rule,@_);
+	
+	my @failback_data = @{$rule->{failback_data}} if($rule->{failback_data});
+
+
+	my %r;
+
+	my $FULLNAME = 0;
+	if($url =~ m/#FULLNAME/) {
+		$FULLNAME = 1;
 	}
-	elsif($url =~ m/weipai\.cn\/video/) {
-		return apply_rule_video($url,$rule,@_);
+
+	if($url =~ m/weipai\.cn\/video\/([^\?\s%\_\&\#\/]+)/) {
+		unshift @_,'#FULLNAME' if($FULLNAME);
+		%r = apply_rule_video_json('http://w1.weipai.cn/user_video_list?blog_id=' . $1,$rule,@_);
 	}
 	elsif($url =~ m/user_video_list\?/) {
-		return apply_rule_video_json($url,$rule,@_);
+		unshift @_,'#FULLNAME' if($FULLNAME);
+		%r =  apply_rule_video_json($url,$rule,@_);
+	}
+	elsif($url =~ m/weipai\.cn\/video/) {
+		%r = apply_rule_video($url,$rule,@_);
 	}
 	elsif($url =~ m/\/review\/video/) {
 		#http://www.weipai.cn/review/video?uid=508775398134943b58000051&os=android
 		my @data;
 		my $html = get_url($url,'-v');
+		my @data_failed;
+		#	print STDERR $html,"\n";
 		while($html =~ m/"id":"([^"]+)"\s*,\s*"poster":"([^"]+)"\s*,\s*"url":"([^"]+)"/g) {
 			my ($id,$poster,$url) = ($1,$2,$3);
 			$poster =~ s/\\\//\//g;
@@ -221,15 +279,27 @@ sub apply_rule {
 			$videoid =~ s/\..*$//;
 			my $videoext = $url;
 			$videoext =~ s/^.*\.([^\.]+)$/.$1/;
-			push @data,"$poster\t$id\_$videoid.jpg","$url\t$id\_$videoid$videoext";
+			push @data,"http://www.weipai.cn/video/$id#FULLNAME";
+			push @data_failed,"$poster\t$id\_$videoid.jpg","$url\t$id\_$videoid$videoext";
 		}
 		return (
-			count=>scalar(@data),
-			data=>\@data,
+			pass_count=>scalar(@data),
+			pass_data=>\@data,
+			data_failed=>\@data_failed,
 			title=>'#ToReview',
+			pass_level=>0,
+			level=>0,
 		);
 	}
-	my %r;
+
+	if(%r) {
+		if(@failback_data) {
+			$r{data} = [@failback_data] if(!$r{data});
+		}
+		return %r;
+	}
+
+	
 
 	my $info = decode_json1(get_url($url,'-v'));
 	$r{info} = $info;

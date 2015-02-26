@@ -41,7 +41,7 @@ sub extract_title {
 	$title =~ s/&amp;amp;/&/g;
 	$title =~ s/&amp;/&/g;
 	$title =~ s/&hellip;/…/g;
-	$title =~ s/[\r\n]+/ /g;
+	$title =~ s/[\r\n\/\?:\*\>\<\|]+/ /g;
 #	$title =~ s/\x{1f60f}|\x{1f614}|\x{1f604}//g;
 #	$title =~ s/[\P{Print}]+//g;
 #	$title =~ s/[^\p{CJK_Unified_Ideographs}\p{ASCII}]//g;

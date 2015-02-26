@@ -74,10 +74,10 @@ sub apply_rule {
 	my $indesc;
 	foreach(@html) {
 		if($indesc) {
-			print STDERR "DESC:$_\n";
+			#print STDERR "DESC:$_\n";
 			last if(m/<div class="detail-count no-select"/);
 			$info{desc} .= $_;
-			print STDERR "GETDESC:$info{desc}\n";
+			#print STDERR "GETDESC:$info{desc}\n";
 			last if(m/<\/div/);
 		}
 		elsif(m/<div class="detail-description br"/) {
@@ -93,7 +93,7 @@ sub apply_rule {
 		elsif(m/<div class="detail-time pa">([^<]+)<\/div/) {
 			$info{datestr} = $1;
 			$info{datestr} =~ s/^\s*(.+)\s*$/$1/;
-			print STDERR "DATE:$info{datestr}\n";
+			#print STDERR "DATE:$info{datestr}\n";
 			if($info{datestr} eq '前天') {
 				$info{year} = $now{year};
 				$info{day} = $now{day} - 2;
@@ -125,6 +125,7 @@ sub apply_rule {
 	foreach(qw/year month day/) {
 		$info{$_} = int($info{$_}) if($info{$_});
 	}
+	$info{year} += 2000 if($info{year} and $info{year} < 2000);
 	if(!$info{image}) {
 		return (error=>"Error parsing $url");
 	}
