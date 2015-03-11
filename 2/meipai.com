@@ -75,6 +75,11 @@ sub apply_rule {
 	}
     return (
 		info=>\%info,
+		uid=>$info{uid},
+		uname=>$info{username},
+		profile=>$info{uid},
+		host=>'meipai.com',
+		url=>'http://www.meipai.com/user/' . $info{uid},
         count=>0,
         pass_count=>scalar(@pass_data),
         pass_data=>\@pass_data,

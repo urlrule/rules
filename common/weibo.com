@@ -2,10 +2,29 @@
 use strict;
 use utf8;
 
-use MyPlace::URLRule::Utils qw/get_url get_html strnum new_html_data/;
+use MyPlace::URLRule::Utils qw/get_url get_html strnum new_html_data expand_url/;
 
 my $CONFIG_PID = '100505';
 
+my %OPTS;
+
+sub pack_url {
+	if($OPTS{TYPE}) {
+		return "http://" . $OPTS{TYPE} . ".weibo.com/" . join("",@_);
+	}
+	else {
+		return "http://weibo.com/" . join("",@_);
+	}
+}
+
+sub unpack_url {
+	my $url = shift;
+	return unless($url);
+	if($OPTS{TYPE}) {
+		$url =~ s{http://$OPTS{TYPE}\.}{http://};
+	}
+	return $url;
+}
 
 sub build_page_url {
 	my $uid = shift;
@@ -14,7 +33,7 @@ sub build_page_url {
 	my $end_id = shift;
 	my $bar = shift(@_) || 0;
 	my $ppid = $pid  || 1;
-	return "http://weibo.com/p/aj/mblog/mbloglist" .
+	return &pack_url("p/aj/mblog/mbloglist") .
 			"?domain=${CONFIG_PID}" . 
 			($ppid ? "&pre_page=$ppid" : "") .
 			"&page=$pid" .
@@ -51,7 +70,7 @@ sub extract_uid {
 sub process_page {
 	my($url,$level,$rule,$page,$maxretry) = @_;
 	print STDERR "Retriving page $page...\n";
-	my $html = get_url($url);#,"--verbose");
+	my $html = get_url(&unpack_url($url));#,"--verbose");
 	$maxretry ||= 0;
 #	print STDERR $html,"\n";
 	if($html =~ m/<div class="page_error">(.+?)<\/div/s) {
@@ -130,7 +149,47 @@ sub process_page {
 		my $count = @{$_->{images}};
 		my $title = $_->{info};
 		my $html = $_->{text};
-		if($count == 1) {
+
+		if($OPTS{WEIPAI}) {
+			my @shots;
+			my @links;
+			foreach(@images) {
+				my $url = $_->[0];
+				if($url =~ m/http:\/\/(?:aliv\.|v\.)weipai\.cn|http:\/\/oldvideo\.qiniudn\.com/) {
+					push @shots,$url;
+				}
+				else {
+					push @data,$_->[0] . "\t" . $title ."_" .strnum($idx,3) .   $_->[1];
+				}
+			}
+			if($html =~ m/weipai\.cn/) {
+				while($html =~ m/href="(http:\/\/t\.cn[^"]+)/g) {
+					my $loc = expand_url($1);
+					if($loc =~ m/mob\.com/) {
+						$loc = expand_url($loc);
+					}
+					if($loc =~ m/url\.cn/) {
+						$loc = expand_url($loc);
+					}
+					if($loc =~ m/weipai\.cn\/video\/[^\/]+$/) {
+						push @links,$loc;
+					}
+					else {
+						push @data,$loc;
+					}
+				}
+			}
+			if(@links) {
+				push @data,@links;
+			}
+			elsif(@shots) {
+				push @data,@shots;
+			}
+		}
+		elsif($OPTS{HTML}) {
+			push @data,$_->{text};
+		}
+		elsif($count == 1) {
 			push @data, $images[0]->[0] . "\t" . $title . $images[0]->[1];
 #			$html .= "<img src=\"" . $title . $images[0]->[1] . "\"><br/>";
 		}
@@ -200,7 +259,7 @@ sub process_pages {
 	}
 	my $lastpage = build_page_url($uid,10000);
 	print STDERR "Retriving past-last page...\n";
-	my $lasthtml = get_html($lastpage);
+	my $lasthtml = get_html(&unpack_url($lastpage));
 	my $maxp = 1;
 	while($lasthtml =~ m/(?:&|&amp;)page=(\d+)/g) {
 		if($1 > $maxp) {
@@ -209,7 +268,7 @@ sub process_pages {
 	}
 	my @pass_data;
 	for my $pid(1..$maxp) {
-		push @pass_data,"http://weibo.com/p/${CONFIG_PID}$uid/home?is_search=0&visible=0&is_tag=0&profile_ftype=1&page=$pid#feedtop";
+		push @pass_data,&pack_url("p/${CONFIG_PID}$uid/home?is_search=0&visible=0&is_tag=0&profile_ftype=1&page=$pid#feedtop");
 	}
 	return (
 		pass_data=>\@pass_data,
@@ -228,7 +287,7 @@ sub process_weibo {
 	elsif($url =~ m/weibo\.com\/([^\/\?]+)[^\/]*$/) {
 		$user = $1;
 	}
-	my $html = get_html($url,"-v");
+	my $html = get_html(&unpack_url($url),"-v");
 	if($url =~ m/weibo\.com\/([^\/\?]+)[^\/]*$/) {
 		$user = $1;
 	}
@@ -245,7 +304,7 @@ sub process_weibo {
 		$CONFIG_PID = $1;
 	}
 	return (
-		pass_data => [ $id ? "http://weibo.com/u/$id" : $url ],
+		pass_data => [ $id ? &pack_url("u/$id") : $url ],
 		title=> $user || $id || $nick || "",
 		info=>{
 			oid=>$id,
@@ -260,6 +319,10 @@ sub apply_rule {
 	my $url = shift;
 	my $rule = shift;
 	my $level = $rule->{level} || 0;
+	if($url =~ m/http:\/\/([^\.]+)\.weibo\.com/) {
+		$OPTS{TYPE} = $1;
+		$OPTS{uc($1)} = 1;
+	}
 	if(!$level) {
 		my $page = 1;
 		if($url =~ m/&page=(\d+)/) {

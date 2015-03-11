@@ -4,7 +4,7 @@
 use strict;
 no warnings 'redefine';
 
-
+=method1
 sub apply_rule {
  return (
  #Set quick parsing method on
@@ -34,23 +34,57 @@ sub apply_rule {
 }
 =cut
 
-=method2
 use MyPlace::URLRule::Utils qw/get_url/;
 
+my %LNG = (
+	'种子哈希'=>'Infohash',
+	'下载地址'=>'Download',
+	'种子名称'=>'Name',
+	'种子大小'=>'Size',
+	'文件列表'=>'File List',
+);
 sub apply_rule {
     my ($url,$rule) = @_;
 	my $html = get_url($url,'-v');
     my $title = undef;
     my @data;
     my @pass_data;
-    #my @html = split(/\n/,$html);
+    my @html = split(/<dt/,$html);
+	my %info;
+	foreach(@html) {
+		if(m/^[^>]*>(.+?)<\/dt><dd[^>]*>(.+?)<\/dd>/) {
+			my $k = $1;
+			my $v = $2;
+			$k =~ s/<[^>]*>//g;
+			if($LNG{$k}) {
+				$k = $LNG{$k};
+			}
+			next if($k eq 'Files list');
+			if($v =~ m/<a[^>]+href='([^']+)'/) {
+				$v = $1;
+			}
+			else {
+				$v =~ s/<[^>]*>//g;
+			}
+			$info{$k} = $v;
+		}
+	}
+	if(!$info{Download}) {
+		return (error=>'Error parsing source',info=>\%info);
+	}
+	$info{Download} =~ s/^http/https/;
+	$info{Download} =~ s/\/torrent\//\/down\//;
+	$info{Download} =~ s/\.html$/\.torrent/;
+	$info{Name} =~ s/\.torrent$//; 
+	$title = uc($info{Infohash} || "") . ".torrent"; 
+	$title = $info{Size} . "_" . $title if($info{Size});
+	$title = $info{Name} . "_" . $title if($info{Name});
+	push @data,$info{Download} . "\t" . $title;
+	
     return (
+		info=>\%info,
         count=>scalar(@data),
         data=>\@data,
-        pass_count=>scalar(@pass_data),
-        pass_data=>\@pass_data,
-        base=>$url,
-        title=>$title,
     );
 }
 

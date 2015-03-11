@@ -250,9 +250,23 @@ sub apply_rule {
 	my $FULLNAME = 0;
 	if($url =~ m/#FULLNAME/) {
 		$FULLNAME = 1;
+		$url =~ s/#FULLNAME//;
 	}
-
-	if($url =~ m/weipai\.cn\/video\/([^\?\s%\_\&\#\/]+)/) {
+	elsif($rule->{options} && $rule->{options}->{fullname}) {
+		$FULLNAME = 1;
+	}
+	if($url =~ m/http:\/\/(?:aliv\.|v\.)weipai\.cn|http:\/\/oldvideo\.qiniudn\.com/) {
+		$url =~ s/\.(?:mov|flv|mp4|f4v)$/.mov.3in1.jpg/;
+		return (
+			data => [
+				extract_video_list([{
+					'video_screenshot',$url,
+				}])
+			],
+			count => 1,
+		);
+	}
+	elsif($url =~ m/weipai\.cn\/video\/([^\?\s%\_\&\#\/]+)/) {
 		unshift @_,'#FULLNAME' if($FULLNAME);
 		%r = apply_rule_video_json('http://w1.weipai.cn/user_video_list?blog_id=' . $1,$rule,@_);
 	}

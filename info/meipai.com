@@ -1,39 +1,100 @@
 #!/usr/bin/perl -w
+
+#DOMAIN : meipai.com
+#AUTHOR : eotect <eotect@myplace>
+#CREATED: 2015-02-14 02:47
+#UPDATED: 2015-02-14 02:47
+
 use strict;
-use warnings;
+no warnings 'redefine';
+
+
+=method1
+sub apply_rule {
+ return (
+ #Set quick parsing method on
+       '#use quick parse'=>1,
+
+#Specify data mining method
+       'data_exp'=>undef,
+       'data_map'=>undef,
+
+#Specify data mining method for nextlevel
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+
+#Specify pages mining method
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
+       'pages_start'=>undef,
+	   'pages_limit'=>undef,
+
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef
+ );
+}
+=cut
+
+use MyPlace::URLRule::Utils qw/get_url/;
 
 sub apply_rule {
-	my $url = shift;
-
-	my $uid;
-	my $profile;
-	my $uname;
-
-	my $path = $url;
-	$path =~ s/^https?:\/\/[^\/]+\///;
-	$path =~ s/[\?\&\#].+$//;
-	$_ = $path;
-	if(m/^user\/(\d+)$/) {
-		$uid = $1;
-		$profile = "$uid";
+    my ($url,$rule) = @_;
+	my $html = get_url($url,'-v');
+    my $title = undef;
+    my @data;
+    my @pass_data;
+	my %info;
+    my @html = split(/\n/,$html);
+	foreach(@html) {
+		if(!$info{username} and m/<title>(.+)的美拍/) {
+			$info{username} = $1;
+		}
+		elsif(!$info{uid} and m/href="\/user\/(\d+)"[^>]+class="user-l-t1 dbl current"/) {
+			$info{uid} = $1;
+		}
+		elsif(!$info{videos} and m/<span class="user-txt pa">(\d+)</) {
+			$info{videos} = $1;
+		}
 	}
-	elsif(m/^([^\/\&\?]+)/) {
-		$uname = $1;
-		$profile = $uname;
+	if(!$info{uid}) {
+		return (
+			error=>"Faield to parse page: $url",
+		);
 	}
-	elsif(m/^p\/\d\d\d\d\d(\d+)/) {
-		$uid = $1;
-		$profile = "u/$uid";
+	$info{videos} ||= 0;
+	my $SIZE = 12;
+	my $PAGES = int($info{videos} / 12);
+	$PAGES += 1 if($info{videos} % 12);
+	for my $p (1 .. $PAGES) {
+		push @pass_data,
+			"http://www.meipai.com/users/user_timeline?page=$p&count=$SIZE&tid=$info{uid}&category=0";
 	}
-
-	return (
-		uid=>$uid,
-		uname=>$uname,
-		profile=>$profile,
+    return (
+		info=>\%info,
+		uid=>$info{uid},
+		uname=>$info{username},
+		profile=>$info{uid},
 		host=>'meipai.com',
-		url=>'http://www.meipai.com/user/' . $profile,
-	);
+		url=>'http://www.meipai.com/user/' . $info{uid},
+        count=>0,
+        pass_count=>scalar(@pass_data),
+        pass_data=>\@pass_data,
+        base=>$url,
+        title=>$info{uid},
+    );
 }
 
-# vim:filetype=perl
+=cut
+
+1;
+
+__END__
+
+#       vim:filetype=perl
+
+
 

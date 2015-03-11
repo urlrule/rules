@@ -1,8 +1,11 @@
 #OUTPUT: http://weibo.com/${ID}
 #OUTPUT: 2
 #OUTPUT: weibo.com
-#OPTION:	uri_template		http://weibo.com/###ID###
-#OPTION:	level				2
+#OUTPUT: weibo.com
+#OUTPUT: weibo.com
+#OUTPUT: weibo.com
+#OUTPUT:	weibo.com
+#OPTION:	level	2
 u/3641606555	有道云笔记收藏
 u/3746483867	Vicky小恶魔
 u/1851516477	Monkey_小潘鼠
@@ -785,7 +788,6 @@ u/2461954575	王晓莎莎
 u/2452464363	Nancy小姿
 u/1653195901	金子熙
 u/1946756452	蒋海伦_Helen
-u/1687525853	吴丹模特
 u/1601612617	李彦乐
 u/2120154301	徐若琳Linda
 u/1927046300	李七喜
@@ -1057,7 +1059,7 @@ u/1795509335	張佐佐佐佐佐
 u/2791986274	MikaYangBabe
 u/2002083007	Lady_Lee优安
 u/2410491731	亮出宝贝
-u/1937728414	Alysa_QUEEN
+alysa214	Alysa_QUEEN
 u/2474194411	xxxllfanydyss
 u/2891506860	性感蕾斯
 u/1801802277	童苡萱Elena
@@ -1898,8 +1900,8 @@ u/1993888917	物色D
 u/1705284204	美空MOKO
 u/1863644455	陈晓萌-软绵绵
 u/1679078192	Miko小月儿
-#==================================
-#1896 ID added 20140808 from sesadit(2820910492)  
+#==================================	
+#1896 ID added 20140808 from sesadit(2820910492)	
 u/1630515702	小甜甜淘分享
 u/2693253773	Satly_for_you
 u/1372045834	贪狼星的密语
@@ -2463,8 +2465,8 @@ u/1671801937	美女段子
 u/1301405167	朵朵果果
 u/1646132320	全球时尚街拍
 u/1216098513	ai媚儿
-#===========================================
-##563 ID added, Fri Aug  8 01:43:37 2014, from keyduel(1993888917)
+#===========================================	
+##563 ID added, Fri Aug  8 01:43:37 2014, from keyduel(1993888917)	
 u/2181500354	张竹伦
 u/3292197763	赵灿Alva
 u/2498026057	郑茜
@@ -2479,7 +2481,6 @@ u/3062380333	夢琪VK
 wangchuhcu	草莓Rasa
 u/1669816887	oliviababy
 u/1628077020	小葵葵cdy
-52d7b6fb78d3cc64608b4574	DJ大波波
 iwanttobequeen	娜娜-_
 wujieyu959	吳婕妤AilyNg
 u/1745973111	心宁儿cecilia
@@ -2494,9 +2495,11 @@ u/5017973401	王希希
 u/2356695901	刘星妤
 u/1935257222	湯大师
 u/1951872551	钕青年
-alysa214	Alysa_QUEEN
 u/2975122684	Barbie安琪儿
 u/5285121175	韩金丽
 u/2766409163	a金宝娜
 u/3097001561	____董爷
-www.meipai.com/user/37796996
+u/2277051897	Abby_徐惠雪
+mi1314258	Abby雨熙
+u/5255559068	曾水-Raeka
+u/1687525853	吴丹	吴丹模特

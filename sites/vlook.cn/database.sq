@@ -1,6 +1,8 @@
 #OUTPUT: http://www.vlook.cn/ta/qs/${ID}
 #OUTPUT: 2
 #OUTPUT: vlook.cn
+#OUTPUT: vlook.cn
+#OUTPUT:	vlook.cn
 #OPTION: level	2
 #OPTION: uri_template	http://www.vlook.cn/ta/qs/###ID###
 #OPTION: host	vlook.cn
@@ -65,7 +67,7 @@ dWlkPTQ2Mzg4Ng==	颜若曦子
 dWlkPTEwMjkyODI=	环球小姐
 dWlkPTEwNDk0OTM=	谢舒妮Jessie
 dWlkPTM3MTg0OQ==	小芒果
-#61 ID added by hand, 20140413.
+#61 ID added by hand, 20140413.	
 dWlkPTE4MTcxMzQ=	Carrie思思
 dWlkPTE0MjE3NTI=	久儿Rose
 dWlkPTEyMTQyODE=	NuskinLinna
@@ -153,7 +155,7 @@ dWlkPTIwNzg3MTQ=	筱沫儿
 dWlkPTIyNDcxOTU=	悦悦_520
 dWlkPTIzNTU1NjU=	芮涵Annabelle
 dWlkPTE2MzI5MTA=	Smile_晚安
-# 87 ID added, Sun Apr 13 01:24:21 2014.
+# 87 ID added, Sun Apr 13 01:24:21 2014.	
 dWlkPTIyNDM0MDY=	少女挎大刀
 dWlkPTIzNjQ4MTI=	小白s
 dWlkPTIzOTI1ODU=	kava
@@ -198,7 +200,7 @@ dWlkPTIxNjk1MTg=	冷冰冰7172
 dWlkPTI0MDc5NDI=	素颜的美才是真的美
 dWlkPTIzNDY0MTQ=	Saber酱
 dWlkPTIzNTE4Mjk=	飞常快乐
-# 44 ID added, Sun Apr 13 01:27:41 2014.
+# 44 ID added, Sun Apr 13 01:27:41 2014.	
 dWlkPTIxODk1NDY=	玉彤微信yut0991
 dWlkPTE0MTIyNjY=	Enron
 dWlkPTIwMjE4MTE=	媚琪熙
@@ -330,13 +332,13 @@ dWlkPTE3ODYzOTI=	杨鑫__baby
 dWlkPTEwMDc3NDk=	愛麗絲
 dWlkPTU3NzQxMQ==	雨滴日记
 dWlkPTY1MTQ3MQ==	颖儿MM
-# 131 ID added, Wed Apr 16 02:48:05 2014.
+# 131 ID added, Wed Apr 16 02:48:05 2014.	
 dWlkPTIzODk0ODg=	Elise谭晓彤
 dWlkPTIwNjk4NjA=	pinfan501
 #	==============================
 dWlkPTIyNjU3MDQ=	巴黎恋人噢
 dWlkPTE3MzU1NTM=	w737728157
-#2 ID added, Mon Aug  4 02:30:23 2014
+#2 ID added, Mon Aug  4 02:30:23 2014	
 dWlkPTIyMzIxODA=	乱了浮生mo
 dWlkPTE5NzQ0Nzc=	月小懒
 dWlkPTIwMTgyNjk=	Joanbaby倩
@@ -922,7 +924,7 @@ dWlkPTI5MjgyODY=	李佳洁妞儿
 dWlkPTQ0NzA0Ng==	深沉哥
 dWlkPTIzOTIxMzk=	韩真伊
 dWlkPTE4NDU5MDM=	Demon_饿
-dWlkPTI4NDMxNDc=	absppo
+dWlkPTI4NDMxNDc=	#Reposter/absppo
 dWlkPTI0MDU4OTM=	爱的恶魔天使
 dWlkPTE3Nzc0NDc=	兮儿521
 dWlkPTE3ODYzMTk=	魔莉Variation
@@ -1256,7 +1258,7 @@ dWlkPTg3Njgw	爱若干
 dWlkPTQ5MzA5	金証炫是老豹_wcc
 dWlkPTk5Njk0Mg==	-牛小宝-
 dWlkPTI5MjIyMw==	李颖芝
-#918 ID added, Tue Sep 23 01:37:56 2014
+#918 ID added, Tue Sep 23 01:37:56 2014	
 dWlkPTE3ODY4NzQ=	心蕾Abby
 dWlkPTI3MjM3MTI=	表表表
 dWlkPTIwODA0MDg=	Song修
@@ -1280,3 +1282,5 @@ dWlkPTMxNTkxOTA=	陈语乔baby
 dWlkPTMyMDE4OTU=	Dorothy_安娜
 dWlkPTIzNTYyMTY=	那年未满18岁
 dWlkPTIzMTY5NTU=	沁児
+dWlkPTQ0NzU5MTk=	#Reposter/FH7777
+dWlkPTQ0NjY2Mzc=	#Reposter/Mr.rao
