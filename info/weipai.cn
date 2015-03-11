@@ -1,0 +1,30 @@
+#!/usr/bin/perl -w
+use strict;
+use warnings;
+
+sub apply_rule {
+	my $url = shift;
+
+	my $uid;
+	my $profile;
+	my $uname;
+
+	my $path = $url;
+	$path =~ s/^https?:\/\/[^\/]+\///;
+	$path =~ s/[\?\&\#].+$//;
+	$_ = $path;
+	if(m/^(?:follows|videos|fans|user)\/([^\/\&\?]+)/) {
+		$uid = $1;
+		$profile = "$uid";
+	}
+
+	return (
+		uid=>$uid,
+		profile=>$profile,
+		host=>'weipai.cn',
+		url=>'http://www.weipai.cn/user/' . $profile,
+	);
+}
+
+# vim:filetype=perl
+
