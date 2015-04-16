@@ -37,7 +37,7 @@ sub apply_rule {
 		$SUFFIX = $2;
 	}
 	return (error=>"Invalid URL") unless($UID);
-	my $PREFIX = "http://mo.vlook.cn/mobile/mta/home/qs/";
+	my $PREFIX = "http://www.vlook.cn/mobile/mta/home/qs/";
 	my $murl = $PREFIX . $UID . $SUFFIX;	
 	my $html = get_url($murl,'-v');
     my @pass_data;

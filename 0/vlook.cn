@@ -56,6 +56,8 @@ sub extract_title {
 	$title =~ s/&amp;/&/g;
 	$title =~ s/&hellip;/…/g;
 	$title =~ s/[\r\n]+/ /g;
+	$title =~ s/^\s+|\s+$//g;
+#	$title =~ s/\s+_|_\s+/_/g;
 #	$title =~ s/\x{1f60f}|\x{1f614}|\x{1f604}//g;
 #	$title =~ s/[\P{Print}]+//g;
 #	$title =~ s/[^\p{CJK_Unified_Ideographs}\p{ASCII}]//g;
@@ -72,12 +74,14 @@ sub extract_title {
 sub apply_rule {
     my ($url,$rule) = @_;
 	my $realurl = $url;
-	$realurl =~ s/^(.*\/[^\/%&\?]+).+?$/$1/;
+	if($url =~ m/\/ta\/qs\//) {
+		$realurl =~ s/^(.*\/[^\/%&\?]+).+?$/$1/;
+	}
 	my $html = get_url($realurl,'-v');#,'-v','charset:utf8');
 
 	if($html =~ m/\$Gobal\["\$aboutUrl"\]="(.*\/qs\/)([^\?\/%\&\"]+)/) {
 		#if($realurl =~ m/\/qs\/([^\?\/%\&]+)/) {
-		$realurl = "http://mo.vlook.cn/mobile/index/show/qs/$2";
+		$realurl = "http://www.vlook.cn/mobile/index/show/qs/$2";
 
 		#	my $ajxurl = "http://www.vlook.cn$1$2";
 		#my $json = decode_json1(get_url($ajxurl,'-v'));

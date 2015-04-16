@@ -42,7 +42,7 @@ sub apply_rule {
 			error=>"Invalid URL",
 		);
 	}
-	my $PREFIX = "http://mo.vlook.cn/mobile/mta/home/qs/";
+	my $PREFIX = "http://www.vlook.cn/mobile/mta/home/qs/";
 	my $SIZE = 10;
 	my $murl = $PREFIX . $UID;
 	my $html = get_url($murl,'-v');
