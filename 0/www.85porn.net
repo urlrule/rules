@@ -1,0 +1,87 @@
+#!/usr/bin/perl -w
+
+#DOMAIN : www.85porn.net
+#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#CREATED: 2015-04-11 03:30
+#UPDATED: 2015-04-11 03:30
+#TARGET : http://www.85porn.net/video/1109/%E5%A7%90%E5%A7%90%E5%A6%B9%E5%A6%B9%E4%B8%80%E8%B5%B7%E6%9D%A5
+
+use strict;
+no warnings 'redefine';
+
+
+=method1
+sub apply_rule {
+ return (
+ #Set quick parsing method on
+       '#use quick parse'=>1,
+
+#Specify data mining method
+       'data_exp'=>undef,
+       'data_map'=>undef,
+
+#Specify data mining method for nextlevel
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+
+#Specify pages mining method
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
+       'pages_start'=>undef,
+	   'pages_limit'=>undef,
+
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef
+ );
+}
+=cut
+
+use MyPlace::URLRule::Utils qw/get_url/;
+
+sub apply_rule {
+    my ($url,$rule) = @_;
+	my $html = get_url($url,'-v');
+    my $title = undef;
+    my @data;
+    my @pass_data;
+#	<meta property="og:title" content="姐姐妹妹一起来">
+#	<meta property="og:url" content="http://www.85porn.net/video/1109/姐姐妹妹一起来">
+#	<meta property="og:type" content="video">
+#	<meta property="og:image" content="http://www.85porn.net/tmb/1109/default.jpg">
+#	<meta property="og:description" content="姐姐妹妹一起来">
+    #my @html = split(/\n/,$html);
+	my %info;
+	while($html =~ m/<meta[^>]+property="og:([^"]+)"[^>]+content="([^"]+)/g) {
+		$info{$1} = $2;
+	}
+	if($url =~ m/\/video\/(\d+)/) {
+		$info{id} = $1;
+	}
+	if($info{id}) {
+		$title = $info{id} . ($info{title} ? "_" . $info{title} : ""); 
+		push @data,"http://www.85porn.net/mobile_src.php?id=" . $info{id} . "\t$title.mp4";
+		push @data,"http://www.85porn.net/tmb/$info{id}/default.jpg" . "\t$title.jpg";
+	}
+
+    return (
+		info=>\%info,
+        count=>scalar(@data),
+        data=>\@data,
+        pass_count=>0,
+        base=>$url,
+    );
+}
+
+=cut
+
+1;
+
+__END__
+
+#       vim:filetype=perl
+
+
