@@ -16,6 +16,7 @@ use strict;
 # $result{pass_name}     : Names of each $result{pass_data}
 # $result{pass_arg}      : Additional arguments to be passed to next level of urlrule
 #================================================================
+use MyPlace::URLRule::Utils qw/create_title get_url/;
 use MyPlace::LWP;
 sub apply_rule {
     my $rule_base= shift(@_);
@@ -23,8 +24,7 @@ sub apply_rule {
     my %r;
 	my %data;
     $r{base}=$rule_base;
-    my $http = MyPlace::LWP->new();
-    my (undef,$html) = $http->get($rule_base);#,'charset:utf8');
+	my $html = get_url($rule_base,'-v');
     my $title;
     foreach(split('\n',$html)) {
         unless($title) {
@@ -46,7 +46,6 @@ sub apply_rule {
         #    $data{$url} = 1;
         #}
     }
-    close FI;
 	push @{$r{data}},keys %data;
     return %r;
 }

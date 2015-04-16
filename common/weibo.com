@@ -94,6 +94,7 @@ sub process_page {
 	my @data;
 	my @blocks;
 	my @posts;
+	my @pass_data;
 	#print STDERR $html;
 	while($html =~ m/(<div[^>]*tbinfo=[^>]*>.+?)<div node-type="feed_list_repeat"/sg) {
 		push @blocks,$1;
@@ -104,7 +105,7 @@ sub process_page {
 	}
 	foreach(@blocks) {
 		my $post = {};
-		$_ =~ s/src="([^"]+(?:sina|weibo|sinaimg)\.(?:com|cn)[^"]*)\/(?:thumb150|thumbnail|square|bmiddle|mw690)\/([^"]+)"/src="$1\/large\/$2"/sg;
+		$_ =~ s/src="([^"]+(?:sina|weibo|sinaimg)\.(?:com|cn)[^"]*)\/(?:thumb150|sq480|mw1024|thumbnail|square|bmiddle|mw690)\/([^"]+)"/src="$1\/large\/$2"/sg;
 		my $text = $_;
 		$text =~ s/[\n\r]//sg;
 		if($text =~ m/\\u/) {
@@ -116,30 +117,54 @@ sub process_page {
 #			$text =~ s/^\s*([^，。\.,]+).+$/$1/;
 #			$text = substr($text,0,20);
 #		}
-		$post->{text}=$text;
+		$post->{html}=$text;
+		$post->{content} = $text;
+		$post->{content} =~ s/<[^>]*>//g;
+		$post->{content} =~ s/[\r\n\s]+/ /g;
 		$post->{images}=[];
+		$post->{links} = [];
 		if(m/mid="([^"]+)"/) {
 			$post->{mid}=$1;
 		}
 		if(m/feedtype="([^"]+)"/) {
 			$post->{feedtype} = $1;
 		}
-		while(m/<img[^>]*src\s*=\s*(['"])([^>]+?)\1/sg) {
-			my $src = $2;
-			#next unless($src =~ m/large|original/);
-			next if($src =~ m/\/style\/images\/|sinajs/);
-			if($src =~ m/\.([^\.\/]+)$/) {
-				push @{$post->{images}},[$src,".$1"];
-			}
-			else {
-				push @{$post->{images}},[$src,".jpg"];
-			}
-		}
 		if((!$post->{info}) and m/<a[^>]*href="\/(\d+\/[^\?"]+)[^"]*"[^>]*title="([^"]+)"/) {
 			#$post->{info} = "$2_$1_" . $post->{text};
 			$post->{info} = "$2_$1";#_" . $post->{text};
 			$post->{info} =~ s/[\/\?]/_/g;
 			$post->{info} =~ s/[-\s:]//g;
+		}
+		foreach my $line (split(/[\r\n]/,$_)) {
+			while($line =~ m/<img[^>]*src\s*=\s*(['"])([^>]+?)\1/sg) {
+				my $src = $2;
+				#next unless($src =~ m/large|original/);
+				next if($src =~ m/\/style\/images\/|sinajs/);
+
+				if($src =~ m/\.([^\.\/]+)$/) {
+					push @{$post->{images}},[$src,".$1"];
+				}
+				else {
+					push @{$post->{images}},[$src,".jpg"];
+				}
+			}
+			while($line =~ m/href="(http:\/\/t\.cn[^"]+)/g) {
+				my $loc = expand_url($1);
+				if($loc =~ m/mob\.com/) {
+					$loc = expand_url($loc);
+				}
+				if($loc =~ m/url\.cn/) {
+					$loc = expand_url($loc);
+				}
+				if($loc =~ m/weibo\.com/) {
+					if($loc =~ m/video\.weibo\.com/) {
+						$loc = "$loc&title=" . $post->{info} if($post->{info});
+						push @pass_data,$loc;
+					}
+					next;
+				}
+				push @{$post->{links}},$loc;
+			}
 		}
 		push @posts,$post;
 	}
@@ -148,7 +173,8 @@ sub process_page {
 		my @images = @{$_->{images}};
 		my $count = @{$_->{images}};
 		my $title = $_->{info};
-		my $html = $_->{text};
+		my $html = $_->{html};
+		my $with_images = 1;
 
 		if($OPTS{WEIPAI}) {
 			my @shots;
@@ -185,9 +211,20 @@ sub process_page {
 			elsif(@shots) {
 				push @data,@shots;
 			}
+			$with_images = 0;
 		}
 		elsif($OPTS{HTML}) {
-			push @data,$_->{text};
+			push @data,$_->{html};
+			$with_images = 0;
+		}
+		elsif($OPTS{LINKS}) {
+			if($_->{links}) {
+				push @data,(@{$_->{links}});
+				delete $_->{links};
+			}
+			$with_images = 1;
+		}
+		if(!$with_images) {
 		}
 		elsif($count == 1) {
 			push @data, $images[0]->[0] . "\t" . $title . $images[0]->[1];
@@ -200,16 +237,24 @@ sub process_page {
 #				$html .= "<img src=\"" . $title ."_" . strnum($idx,3) .  $_->[1] . "\"><br/>";
 			}
 		}
+		if($_->{links}) {
+			foreach my $loc(@{$_->{links}}) {
+				push @pass_data,$loc;
+			}
+		}
+		delete $_->{html};
 		#push @data,new_html_data($html,$title,$url);
 	}
-
+	
 	my $max_id;
 	my $end_id;
 	my $uid = extract_uid($url);
 	my %r = (
+		info=>\@posts,
 		count=>scalar(@data),
 		data=>\@data,
 		url=>$url,
+		pass_data=>\@pass_data,
 	);
 	if($load_more && $uid) {
 		if($url =~ m/[\?&]end_id=(\d+)/) {
@@ -223,7 +268,7 @@ sub process_page {
 				}
 			}
 			$max_id = $posts[$#posts]->{mid};
-			$r{pass_data} = [build_page_url($uid,$page,$max_id,$end_id,1)];
+			push @pass_data,build_page_url($uid,$page,$max_id,$end_id,1);
 		}
 		else {
 			foreach(@posts) {
@@ -235,10 +280,12 @@ sub process_page {
 				}
 			}
 			$max_id = $posts[$#posts]->{mid};
-			$r{pass_data} = [build_page_url($uid,$page,$max_id,$end_id,0)];
+			push @pass_data,build_page_url($uid,$page,$max_id,$end_id,0);
 		}
-		$r{samelevel} = 1;
 	}
+	$r{pass_data} = \@pass_data;
+	$r{pass_count} = scalar(@pass_data);
+	$r{samelevel} = 1;
 	return %r;
 }
 

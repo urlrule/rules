@@ -38,18 +38,29 @@ sub apply_rule {
 sub apply_rule {
     my ($url,$rule) = @_;
 	my %info;
+	if($url =~ m/^(.*?)([^\/]+)\.weibo\.com(.+)$/) {
+		$info{host} = $2 . ".weibo.com";
+		$url = $1 . "weibo.com" . $3;
+	}
+	else {
+		$info{host} = 'weibo.com';
+	}
 	if($url =~ m/weibo\.com\/u\/([^\/#?&]+)/) {
 		$info{uid} = $1;
 	}
 	elsif($url =~ m/weibo\.com\/([^\/#?&]+)\/?$/) {
+		$info{uname} = $1;
+	}
+	elsif($url =~ m/weibo\.com\/p\/100505(\d+)/) {
 		$info{uid} = $1;
 	}
 	$info{profile} = $info{uid} ?  "u/" . $info{uid} : $info{uname},
 	return (
 		uid=>$info{uid},
+		uname=>$info{uname},
 		profile=>$info{profile},
-		host=>'weibo.com',
-		url=>'http://weibo.com/' . $info{profile},
+		host=>$info{host} || 'weibo.com',
+		url=>'http://' . ($info{host} || 'weibo.com') .'/'. $info{profile},
 	);
 }
 

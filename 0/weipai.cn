@@ -198,6 +198,7 @@ sub extract_video_list {
 		$video->{cover} = $video->{video_screenshot} || $video->{video_screenshots};
 		$video->{cover} =~ s/\/+ppp\/+video\/+/\/video\//g;
 		$video->{cover} =~ s/\.s\.\d+\.jpg$/.jpg/;
+		$video->{cover} =~ s/\.mov\.3in1\.jpg$/.jpg/;
 		next unless($video->{cover});
 		$video->{video} = $video->{cover};
 		$video->{video} =~ s/\.([^\/]+)$//;
@@ -266,7 +267,7 @@ sub apply_rule {
 			count => 1,
 		);
 	}
-	elsif($url =~ m/weipai\.cn\/video\/([^\?\s%\_\&\#\/]+)/) {
+	elsif($url =~ m/weipai\.cn\/(?:share\/flash\/|video\/)([^\?\s%\_\&\#\/]+)/) {
 		unshift @_,'#FULLNAME' if($FULLNAME);
 		%r = apply_rule_video_json('http://w1.weipai.cn/user_video_list?blog_id=' . $1,$rule,@_);
 	}

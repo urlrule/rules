@@ -61,6 +61,7 @@ sub apply_rule {
 	if(!($info{pages} and $info{url} and $info{suids} and $info{fen_type})) {
 		return (error=>"parsing page failed");
 	}
+	$info{url} = '/gu/u';
 	@pass_data = map "$info{host}$info{url}?page=$_&suid=$info{suids}&fen_type=$info{fen_type}",(1 .. $info{pages});
     return (
 		info=>\%info,
