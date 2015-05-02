@@ -18,7 +18,7 @@ use strict;
 #================================================================
 
 
-use MyPlace::LWP;
+use MyPlace::URLRule::Utils qw/get_url/;
 #use MyPlace::HTML;
 
 sub _process_tupian {
@@ -75,7 +75,19 @@ sub _process_photo_list {
 	my $html = shift;
 	my @data;
 	my @lines = split(/\{/,$html);
+	my %info;
 	foreach(@lines) {
+		foreach my $k ((qw/total_num page_size total_page/)) {
+			next if(defined $info{$k});
+			$info{$k} = int($1) if(m/"$k":(\d+)/);
+		}
+		foreach my $k ((qw/title descr/)) {
+			next if(defined $info{$k});
+			if(m/"$k":"([^"]*)/) {
+				$info{$k} = $1;
+				from_to($info{$k},'gb2312','utf8');
+			}
+		}
 		my ($id,$desc) = ("","");
 		if(m/"pic_id":"([^"]+)/) {
 			$id = $1;
@@ -93,16 +105,60 @@ sub _process_photo_list {
 		push @data,$src;
 	}
 	return (
+		info=>\%info,
 		count=>scalar(@data),
 		data=>\@data,
 	);
 }
 
+sub new_picture_list {
+	my $PAGE_SIZE = 200;
+	my $kw = shift;
+	my $id = shift;
+	my $pn = shift(@_) || 1;
+	my $ps = shift(@_) || 1;
+	my $pe = shift(@_) || $PAGE_SIZE;
+	my $r = scalar(time);
+	return "http://tieba.baidu.com/photo/g/bw/picture/list?kw=$kw&alt=jview&rn=200&tid=$id&pn=$pn&ps=$ps&pe=$pe&info=1&_=$r";
+
+}
+
+sub _process_post {
+	my $url = shift;
+	my $rule = shift;
+	my $html = shift;
+	my $kw = shift;
+	my $id = shift;
+	my $page1 = new_picture_list($kw,$id);
+    my $pagehtml = get_url($page1,'-v');
+	my %r = _process_photo_list($page1,$rule,$pagehtml);
+	my @pass_data;
+	
+	return %r if(!$r{info});
+	my $lastpage = $r{info}->{'total_page'};
+	return %r if(!$lastpage);
+	return %r if($lastpage < 2);
+	$r{pass_count} = 0;
+	for my $pn(2 .. $lastpage) {
+		$r{pass_count}++;
+		push @pass_data,new_picture_list($kw,$id,$pn);
+	}
+	$r{pass_data} = [@pass_data];
+	$r{level} = 0;
+	$r{title} = $r{info}->{title} if(!$r{title});
+	return %r;
+}
+
 sub apply_rule {
     my $url = shift(@_);
     my %rule = %{shift(@_)};
-    my $http = MyPlace::LWP->new();
-    my (undef,$html) = $http->get($url);
+	my $html = get_url($url,'-v');
+	#if($url =~ m/\/p\/(\d+)/) {
+	#	my $id = $1;
+	#	if($html =~ m/<meta[^>]+furl="[^"]+?kw=([^&">]+)/) {
+	#		return &_process_post($url,\%rule,$html,$1,$id);
+	#	}
+	#}
 	if($url =~ m/\/picture\/list/) {
 		return &_process_photo_list($url,\%rule,$html);
 	}

@@ -18,8 +18,7 @@ use strict;
 #================================================================
 
 
-use MyPlace::LWP;
-#use MyPlace::HTML;
+use MyPlace::URLRule::Utils qw/get_url/;
 
 sub _process {
     my ($url,$rule,$html) = @_;
@@ -66,12 +65,30 @@ sub _process {
     );
 }
 
+sub _process_photo {
+	my ($url,$rule,$html) = @_;
+	my @pass_data;
+	while($html =~ m{<a[^>]+class="grbm_ele_a grbm_ele_big"[^>]+href="(/p/[^"]+)}g){
+		push @pass_data,$1;
+	}
+	return (
+		count=>0,
+		pass_data=>\@pass_data,
+		pass_count=>scalar(@pass_data),
+		base=>$url,
+		url=>$url,
+	);
+}
+
 sub apply_rule {
     my $url = shift(@_);
-    my %rule = %{shift(@_)};
-    my $http = MyPlace::LWP->new();
-    my (undef,$html) = $http->get($url);
-    return &_process($url,\%rule,$html);
+    my $rule = shift;
+	my $html = get_url($url,'-v');
+	if($url =~ m{tieba.baidu.com/photo/g\?kw}) {
+		return &_process_photo($url,$rule,$html);
+	}
+
+    return &_process($url,$rule,$html);
 }
 
 

@@ -20,7 +20,8 @@ use strict;
 #================================================================
 
 
-use MyPlace::LWP;
+use MyPlace::URLRule::Utils qw/get_url/;
+use Encode qw/from_to/;
 
 sub _process_view {
     my ($url,$rule,$html) = @_;
@@ -123,14 +124,69 @@ sub _process {
     );
 }
 
+sub new_picture_list {
+	my $PAGE_SIZE = 200;
+	my $kw = shift;
+	my $id = shift;
+	my $pn = shift(@_) || 1;
+	my $ps = shift(@_) || 1;
+	my $pe = shift(@_) || $PAGE_SIZE;
+	my $r = scalar(time);
+	return "http://tieba.baidu.com/photo/g/bw/picture/list?kw=$kw&alt=jview&rn=200&tid=$id&pn=$pn&ps=$ps&pe=$pe&info=1&_=$r";
+
+}
+
+sub _process_post {
+	my $url = shift;
+	my $rule = shift;
+	my $html = shift;
+	my $kw = shift;
+	my $id = shift;
+	my $pl_url = new_picture_list($kw,$id);
+	my $pl_json = get_url($pl_url,'-v');
+	my %info;
+	foreach (split(/\{/,$pl_json)) {
+		foreach my $k ((qw/total_num page_size total_page/)) {
+			next if(defined $info{$k});
+			$info{$k} = int($1) if(m/"$k":(\d+)/);
+		}
+		foreach my $k ((qw/title descr/)) {
+			next if(defined $info{$k});
+			if(m/"$k":"([^"]*)/) {
+				$info{$k} = $1;
+				from_to($info{$k},'gb2312','utf8');
+			}
+		}
+	}
+	if($info{total_page}) {
+		$info{count} = 0;
+		$info{pass_data} = [];
+		$info{pass_count} = 0;
+		foreach my $pn(1 .. $info{total_page}) {
+			$info{pass_count}++;
+			push @{$info{pass_data}},new_picture_list($kw,$id,$pn);
+		}
+		$info{title} = $info{title} || $id;
+		return %info;
+	}
+	else {
+        return &_process($url,$rule,$html);
+	}
+}
+
 sub apply_rule {
     my $url = shift(@_);
     my %rule = %{shift(@_)};
-    my $http = MyPlace::LWP->new();
-    my (undef,$html) = $http->get($url);
+    my $html = get_url($url,'-v');
 	#use Encode qw/from_to/;
 	#from_to($html,'gbk','utf8');
-    if($url =~ m/tupian\/list\//) {
+	if($url =~ m/\/p\/(\d+)/) {
+		my $id = $1;
+		if($html =~ m/<meta[^>]+furl="[^"]+?kw=([^&">]+)/) {
+			return &_process_post($url,\%rule,$html,$1,$id);
+		}
+	}
+    elsif($url =~ m/tupian\/list\//) {
         return &_process_tupian($url,\%rule,$html);
     }
     elsif($url =~ m/tupian\/view\//) {

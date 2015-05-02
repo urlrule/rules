@@ -107,11 +107,14 @@ sub extract_video {
 sub extract_title {
 	my $title = shift;
 	return "" unless($title);
+	$title =~ s/\@微拍小秘书//g;
+	$title =~ s/”//g;
 	$title =~ s/<[^.>]+>//g;
 	$title =~ s/\/\?\*'"//g;
 	$title =~ s/&amp;amp;/&/g;
 	$title =~ s/&amp;/&/g;
 	$title =~ s/&hellip;/…/g;
+	$title =~ s/&[^&]+;//g;
 	$title =~ s/[\r\n\/\?:\*\>\<\|]+/ /g;
 #	$title =~ s/\x{1f60f}|\x{1f614}|\x{1f604}//g;
 #	$title =~ s/[\P{Print}]+//g;
@@ -119,11 +122,14 @@ sub extract_title {
 	$title =~ s/[^{\p{Punctuation}\p{CJK_Unified_Ideographs}\p{CJK_SYMBOLS_AND_PUNCTUATION}\p{HALFWIDTH_AND_FULLWIDTH_FORMS}\p{CJK_COMPATIBILITY_FORMS}\p{VERTICAL_FORMS}\p{ASCII}\p{LATIN}\p{CJK_Unified_Ideographs_Extension_A}\p{CJK_Unified_Ideographs_Extension_B}\p{CJK_Unified_Ideographs_Extension_C}\p{CJK_Unified_Ideographs_Extension_D}]//g;
 #	$title =~ s/[\p{Block: Emoticons}]//g;
 	#print STDERR "\n\n$title=>\n", length($title),"\n\n";
+	$title =~ s/^\s+//g;
+	$title =~ s/\s+$//g;
 	my $maxlen = 70;
 	if(length($title) > $maxlen) {
 		$title = substr($title,0,$maxlen);
 	}	
-	return $utf8->encode($title);
+	$title = $utf8->encode($title);
+	return $title;
 }
 
 sub build_data {
@@ -202,7 +208,9 @@ sub extract_video_list {
 		next unless($video->{cover});
 		$video->{video} = $video->{cover};
 		$video->{video} =~ s/\.([^\/]+)$//;
-		$video->{title} = extract_title($video->{video_intro} || $video->{video_desc});
+		$video->{video_intro} ||= $video->{video_desc};
+		$video->{title} = $video->{video_intro} = extract_title($video->{video_intro});
+#		$video->{title} = $video->{video_intro};# extract_title($video->{video_intro} || $video->{video_desc});
 		if($video->{cover} =~ m/\/(\d\d\d\d)(\d\d)\/(\d\d)\/(\d+)\//) {
 			@{$video}{qw/year month day hour minute/} = ($1,$2,$3,$4,'');
 		}
