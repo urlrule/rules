@@ -20,8 +20,8 @@ sub apply_rule {
        'data_map'=>undef,
 
 #Specify data mining method for nextlevel
-       'pass_exp'=>'<td class="lstimg"><a[^>]+href="(\/xiaoshuo\/txt/book\d+\.html)',
-       'pass_map'=>'$1',
+       'pass_exp'=>'<td class="lstimg"><a[^>]+href="(\/xiaoshuo\/txt/book\d+\.html)|<a[^>]+href="(\/xiaoshuo\/txt\/book\d+\.html)"[^>]+>[^<]+<\/a><\/dt>',
+       'pass_map'=>'$1 || $2',
        'pass_name_map'=>undef,
 
 #Specify pages mining method
