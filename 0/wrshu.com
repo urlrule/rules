@@ -74,7 +74,7 @@ sub apply_rule {
 		@html,
 	);
 	my $basename = $info{title} . ($info{author} ? "_" . $info{author} : "");
-	$basename = create_title($basename);
+	$basename = create_title($basename,1);
 	if($info{download}) {
 		$info{download} = join("",@{$info{download}});
 		while($info{download} =~ m/<dd><a[^>]+href="([^"]+\/([^"]+)\.txt)"/g) {

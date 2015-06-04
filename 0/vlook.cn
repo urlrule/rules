@@ -38,7 +38,7 @@ sub decode_json1 {
 	}
 	my $json = eval { $JS->decode(@_); };
 	if($@) {
-		print STDERR "Error deocding JSON text\n";
+		print STDERR "Error deocding JSON text:$@\n";
 		$@ = undef;
 	}
 	else {
@@ -80,13 +80,16 @@ sub apply_rule {
 	my $html = get_url($realurl,'-v');#,'-v','charset:utf8');
 
 	if($html =~ m/\$Gobal\["\$aboutUrl"\]="(.*\/qs\/)([^\?\/%\&\"]+)/) {
+		#	my $ajxurl = "http://www.vlook.cn$1$2";
+		#my $ajxtext = get_url($ajxurl,'-v');
+		#my $json = decode_json1($ajxtext);
+		#print STDERR $json->{rst}->[0],"\n";
+		#return (info=>$json);
+#	}
+#	else {
 		#if($realurl =~ m/\/qs\/([^\?\/%\&]+)/) {
 		$realurl = "http://www.vlook.cn/mobile/index/show/qs/$2";
 
-		#	my $ajxurl = "http://www.vlook.cn$1$2";
-		#my $json = decode_json1(get_url($ajxurl,'-v'));
-		#print STDERR $json->{rst}->[0],"\n";
-		#return (info=>$json);
 
 		$html = get_url($realurl,'-v');
 	}

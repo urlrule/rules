@@ -115,15 +115,14 @@ sub extract_title {
 	$title =~ s/&amp;/&/g;
 	$title =~ s/&hellip;/…/g;
 	$title =~ s/&[^&]+;//g;
-	$title =~ s/[\r\n\/\?:\*\>\<\|]+/ /g;
 #	$title =~ s/\x{1f60f}|\x{1f614}|\x{1f604}//g;
 #	$title =~ s/[\P{Print}]+//g;
 #	$title =~ s/[^\p{CJK_Unified_Ideographs}\p{ASCII}]//g;
 	$title =~ s/[^{\p{Punctuation}\p{CJK_Unified_Ideographs}\p{CJK_SYMBOLS_AND_PUNCTUATION}\p{HALFWIDTH_AND_FULLWIDTH_FORMS}\p{CJK_COMPATIBILITY_FORMS}\p{VERTICAL_FORMS}\p{ASCII}\p{LATIN}\p{CJK_Unified_Ideographs_Extension_A}\p{CJK_Unified_Ideographs_Extension_B}\p{CJK_Unified_Ideographs_Extension_C}\p{CJK_Unified_Ideographs_Extension_D}]//g;
 #	$title =~ s/[\p{Block: Emoticons}]//g;
 	#print STDERR "\n\n$title=>\n", length($title),"\n\n";
-	$title =~ s/^\s+//g;
-	$title =~ s/\s+$//g;
+	$title =~ s/\s{2,}/ /g;
+	$title =~ s/[\r\n\/\?:\*\>\<\|]+/ /g;
 	my $maxlen = 70;
 	if(length($title) > $maxlen) {
 		$title = substr($title,0,$maxlen);
@@ -157,14 +156,18 @@ sub build_data {
 		$filename =~ s/[*?!]+//g;
 		
 		if($FULLNAME) {
-			my $prefix = "";
-			$prefix = $info{video_id} . "-" . $prefix if($info{video_id});
-			$prefix = $info{user_id} . "_" . $prefix if($info{user_id});
-			$prefix = $info{uid} . "_" . $prefix if($info{uid});
-			$prefix = $info{nickname} . "_" . $prefix if($info{nickname});
-			$prefix = $info{username} . "_" . $prefix if($info{username});
-			$prefix = $utf8->encode($prefix);
-			$filename = $prefix . $filename;
+			foreach(qw/nickname username user_name/) {
+				$info{$_} = $utf8->encode($info{$_}) if($info{$_});
+			}
+			$filename = join("_",(
+					($info{nickname} || $info{username} || $info{user_name} || ''),
+					($filename || ''),
+					($info{video_id} || $info{blog_id} || ''),
+					($info{user_id} || $info{uid} || '')
+				)
+			);
+			$filename =~ s/^_+//;
+			$filename =~ s/_+$//;
 		}
 
 		my $ext = ".mov";
@@ -197,7 +200,6 @@ sub apply_rule_video {
 sub extract_video_list {
 	my $vlist = shift;
 	return unless($vlist and @$vlist);
-	my $json = shift;
 	my $FLAGS = shift;
 	my @data;
 	foreach my $video (@$vlist) {
@@ -232,6 +234,7 @@ sub apply_rule_video_json {
 
 	if(!$FLAGS) {}
 	elsif($FLAGS eq '#FULLNAME') {
+		die($FLAGS);
 	}
 	else {
 		unshift @_,$FLAGS;
@@ -239,7 +242,7 @@ sub apply_rule_video_json {
 	}
 
 	my $json = decode_json1(get_url($url,'-v'));
-	my @data = extract_video_list($json->{video_list},$json,$FLAGS);
+	my @data = extract_video_list($json->{video_list},$FLAGS);
 	return (
 		count=>scalar(@data),
 		data=>\@data,
@@ -249,8 +252,10 @@ sub apply_rule_video_json {
 }
 
 sub apply_rule {
-	my($url,$rule) = @_;
+	my $url = shift;
+	my $rule = shift;
 	
+	use Data::Dumper;
 	my @failback_data = @{$rule->{failback_data}} if($rule->{failback_data});
 
 
@@ -270,7 +275,7 @@ sub apply_rule {
 			data => [
 				extract_video_list([{
 					'video_screenshot',$url,
-				}])
+				}],($FULLNAME ? ('#FULLANME'):()))
 			],
 			count => 1,
 		);
@@ -281,6 +286,7 @@ sub apply_rule {
 	}
 	elsif($url =~ m/user_video_list\?/) {
 		unshift @_,'#FULLNAME' if($FULLNAME);
+
 		%r =  apply_rule_video_json($url,$rule,@_);
 	}
 	elsif($url =~ m/weipai\.cn\/video/) {
@@ -344,7 +350,11 @@ sub apply_rule {
 		my @data;
 		foreach(@{$info->{"diary_list"}}) {
 			if($_->{video_list}) {
-				push @data,extract_video_list($_->{video_list});
+				my $vl = $_->{video_list};
+				foreach my $k (qw/user_name username nickname userid user_id uid video_id blog_id/) {
+					$vl->[0]->{$k} = $info->{$k} if($info->{$k});
+				}
+				push @data,extract_video_list($vl,($FULLNAME ? ('#FULLNAME'):()));
 
 			}
 		}
