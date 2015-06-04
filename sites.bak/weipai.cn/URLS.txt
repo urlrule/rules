@@ -1,0 +1,6 @@
+http://w1.weipai.cn/get_profile?&weipai_userid=52d80f5079d3cce31b8b4585
+http://w1.weipai.cn/top_video?count=120&relative=after&type=top_day
+http://w1.weipai.cn/my_follow_user_video_list?count=20&relative=after&user_id=508775398134943b58000051
+http://w1.weipai.cn/home_user?day_count=7&relative=after&user_id=51ad9c4f5e8e875a62000000
+http://w1.weipai.cn/home_user?day_count=7&relative=after&user_id=51ad9c4f5e8e875a62000000&next_cursor=1411494795
+http://w1.weipai.cn/user_video_list?blog_id=54396e6ba5640b8c748b4584
