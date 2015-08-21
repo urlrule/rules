@@ -304,13 +304,15 @@ sub process_pages {
 			"error"=>"Invalid url.",
 		);
 	}
-	my $lastpage = build_page_url($uid,10000);
+	my $lastpage = build_page_url($uid,400);
 	print STDERR "Retriving past-last page...\n";
 	my $lasthtml = get_html(&unpack_url($lastpage));
 	my $maxp = 1;
-	while($lasthtml =~ m/(?:&|&amp;)page=(\d+)/g) {
-		if($1 > $maxp) {
-			$maxp = $1;
+	if($lasthtml !~ m/<title>Sina Visitor System<\/title>/) {
+		while($lasthtml =~ m/(?:&|&amp;)page=(\d+)/g) {
+			if($1 > $maxp) {
+				$maxp = $1;
+			}
 		}
 	}
 	my @pass_data;

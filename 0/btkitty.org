@@ -49,10 +49,11 @@ sub apply_rule {
     my $title = undef;
     my @data;
     my @pass_data;
+	$html =~ s/[\n\r]+//g;
     my @html = split(/<dt/,$html);
 	my %info;
 	foreach(@html) {
-		if(m/^[^>]*>(.+?)<\/dt><dd[^>]*>(.+?)<\/dd>/) {
+		if(m/^[^>]*>(.+?)<\/dt>[^<]*<dd[^>]*>(.+?)<\/dd>/) {
 			my $k = $1;
 			my $v = $2;
 			$k =~ s/<[^>]*>//g;
@@ -68,6 +69,9 @@ sub apply_rule {
 			}
 			$info{$k} = $v;
 		}
+		elsif(m/\<h2\>404 Not Found.*<h2[^>]+>([^<]+)/) {
+			return (error=>$1,info=>\%info);
+		}
 	}
 	if(!$info{Download}) {
 		return (error=>'Error parsing source',info=>\%info);
@@ -75,7 +79,14 @@ sub apply_rule {
 	$info{Download} =~ s/^http/https/;
 	$info{Download} =~ s/\/torrent\//\/down\//;
 	$info{Download} =~ s/\.html$/\.torrent/;
-	$info{Name} =~ s/\.torrent$//; 
+	$info{Name} =~ s/\.torrent$// if($info{Name}); 
+	foreach my $key('Infohash','Magnet Link') {
+		next unless($info{$key});
+		if($info{$key} =~ m/^document\.write\((.+)\);?$/) {
+			$info{$key} = $1;
+			$info{$key} =~ s/['+]//g;
+		}
+	}
 	$title = uc($info{Infohash} || "") . ".torrent"; 
 	$title = $info{Size} . "_" . $title if($info{Size});
 	$title = $info{Name} . "_" . $title if($info{Name});

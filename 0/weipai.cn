@@ -123,6 +123,7 @@ sub extract_title {
 	#print STDERR "\n\n$title=>\n", length($title),"\n\n";
 	$title =~ s/\s{2,}/ /g;
 	$title =~ s/[\r\n\/\?:\*\>\<\|]+/ /g;
+	$title =~ s/_+$//;
 	my $maxlen = 70;
 	if(length($title) > $maxlen) {
 		$title = substr($title,0,$maxlen);
@@ -203,7 +204,7 @@ sub extract_video_list {
 	my $FLAGS = shift;
 	my @data;
 	foreach my $video (@$vlist) {
-		$video->{cover} = $video->{video_screenshot} || $video->{video_screenshots};
+		$video->{cover} = $video->{video_screenshot} || $video->{video_screenshots} || $video->{video_screenshots_v};
 		$video->{cover} =~ s/\/+ppp\/+video\/+/\/video\//g;
 		$video->{cover} =~ s/\.s\.\d+\.jpg$/.jpg/;
 		$video->{cover} =~ s/\.mov\.3in1\.jpg$/.jpg/;
@@ -225,6 +226,22 @@ sub extract_video_list {
 		}
 	}
 	return @data;
+}
+
+sub apply_rule_video_uuid {
+	my $url = shift;
+	my $html = get_url($url,'-v');
+	if($html =~ m/url\s*:\s*"(http:\/\/www\.weipai\.cn\/video\/([^\/]+)")/) {
+		return apply_rule_video_json('http://w1.weipai.cn/user_video_list?blog_id=' . $1,@_);
+	}
+	elsif($html =~ m[video/download/id/([^/]+)/]) {
+		return apply_rule_video_json('http://w1.weipai.cn/user_video_list?blog_id=' . $1,@_);
+	}
+	else {
+		return (
+			error=>"Failed parsing page: $url",
+		);
+	}
 }
 
 sub apply_rule_video_json {
@@ -270,7 +287,8 @@ sub apply_rule {
 		$FULLNAME = 1;
 	}
 	if($url =~ m/http:\/\/(?:aliv\.|v\.)weipai\.cn|http:\/\/oldvideo\.qiniudn\.com/) {
-		$url =~ s/\.(?:mov|flv|mp4|f4v)$/.mov.3in1.jpg/;
+		$url =~ s/\.(?:p\.jpg|p\d+\.jpg|p\.\d+\.jpg|\d+\.jpg|mov|flv|mp4|f4v)$/.mov.3in1.jpg/;
+		$url =~ s/\/thumbnail\/.*\/video\//\/video\//;
 		return (
 			data => [
 				extract_video_list([{
@@ -279,6 +297,10 @@ sub apply_rule {
 			],
 			count => 1,
 		);
+	}
+	elsif($url =~ m/weipai\.cn\/(?:share\/flash\/|video\/)uuid\/([^\?\s%\_\&\#\/]+)/) {
+		unshift @_,'#FULLNAME' if($FULLNAME);
+		%r = apply_rule_video_uuid($url,$rule,@_);
 	}
 	elsif($url =~ m/weipai\.cn\/(?:share\/flash\/|video\/)([^\?\s%\_\&\#\/]+)/) {
 		unshift @_,'#FULLNAME' if($FULLNAME);
@@ -351,10 +373,11 @@ sub apply_rule {
 		foreach(@{$info->{"diary_list"}}) {
 			if($_->{video_list}) {
 				my $vl = $_->{video_list};
-				foreach my $k (qw/user_name username nickname userid user_id uid video_id blog_id/) {
-					$vl->[0]->{$k} = $info->{$k} if($info->{$k});
-				}
-				push @data,extract_video_list($vl,($FULLNAME ? ('#FULLNAME'):()));
+				next unless($vl and @$vl);
+				foreach my $v(@$vl) {
+					my %vd  = apply_rule_video_json('http://w1.weipai.cn/user_video_list?blog_id=' . $v->{blog_id} || $v->{video_id});
+					push @data,@{$vd{data}} if($vd{data});
+				}	
 
 			}
 		}

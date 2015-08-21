@@ -109,6 +109,11 @@ sub apply_rule {
 	my $html = get_url($rurl,'-v','--referer',"http://www.weishi.com/u/$id");
 	$html =~ s/^[^\(]+\(//;
 	$html =~ s/\);?$//;
+	if(!$html) {
+		return (
+			error=>'Failed retriving url',
+		);
+	}
 	#print STDERR $html,"\n";
 	my $json = decode_json($html);
 	print STDERR $json->{msg},"\n";

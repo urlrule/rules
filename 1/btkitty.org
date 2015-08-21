@@ -6,11 +6,15 @@ no warnings 'redefine';
 
 
 sub apply_rule {
+#use MyPlace::URLRule::Utils qw/get_url/;
+#	my ($url,$rule) = @_;
+#my $html = get_url($url,'-v');
+#die($html);
  return (
        '#use quick parse'=>1,
 #       'data_exp'=>'strong><a[^>]*href="(http:\/\/btkitty.org\/torrent\/)([^\/\.]+).html"[^>]*>\s*(.*?)<\/a>.*?<\/dd>',
 #      'data_map'=>'$_ = "https://storebt.com/torrent/$2/$3" . "\t" .  $3;s/<\/?b\/?>//g;$_',
-       'pass_exp'=>'strong><a[^>]*href="(http:\/\/btkitty.org\/torrent\/[^\/\.]+\.html)"[^>]*>',
+       'pass_exp'=>'strong><a[^>]*href="(http:\/\/[^\/]+\/(?:hehe|torrent)\/[^\/\.]+\.html)"[^>]*>',
        'pass_map'=>'$1',
        'pass_name_map'=>undef,
        'pages_exp'=>undef,

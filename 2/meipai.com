@@ -50,19 +50,25 @@ sub apply_rule {
 	my %info;
     my @html = split(/\n/,$html);
 	foreach(@html) {
-		if(!$info{username} and m/<title>(.+)的美拍/) {
-			$info{username} = $1;
+		if(!$info{username}) {
+			$info{username} = $1 if(m/<title>(.+)的美拍/);
 		}
-		elsif(!$info{uid} and m/href="\/user\/(\d+)"[^>]+class="user-l-t1 dbl current"/) {
-			$info{uid} = $1;
+		if(!$info{uid}) {
+			if(m/href="\/user\/(\d+)"[^>]+class="user-l-t1 dbl current"/) {
+				$info{uid} = $1;
+			}
+			elsif(m/data-type="user"[^>]+data-shareId="(\d+)"/) {
+				$info{uid} = $1;
+			}
 		}
-		elsif(!$info{videos} and m/<span class="user-txt pa">(\d+)</) {
-			$info{videos} = $1;
+		if(!$info{videos}) {
+			$info{videos} = $1 if(m/<span class="user-txt pa">(\d+)</);
 		}
 	}
 	if(!$info{uid}) {
 		return (
 			error=>"Faield to parse page: $url",
+			info=>\%info,
 		);
 	}
 	$info{videos} ||= 0;

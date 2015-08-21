@@ -18,6 +18,9 @@ $MyPlace::URLRule::Config = {
 		'tw116.com'=>'site.qvod',
 		'm.weibo.cn'=>'weibo.com',
 		'88dy.tv'=>"site.qvod.adult",
+		'yixia.com'=>'miaopai.com',
+		'miaopai.yixia.com'=>'miaopai.com',
+		'btkitty.la'=>'btkitty.org',
 	},
 };
 

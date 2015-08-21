@@ -49,11 +49,17 @@ sub apply_rule {
     my @pass_data;
 	my %info;
     my @html = split(/\n/,$html);
+	if($url =~ m/\/user\/(\d+)/) {
+		$info{uid} = $1;
+	}
+	if($html =~ m/data-name\s*=\s*"([^"]+)"/) {
+		$info{username} = $1;
+	}
 	foreach(@html) {
 		if(!$info{username} and m/<title>(.+)的美拍/) {
 			$info{username} = $1;
 		}
-		elsif(!$info{uid} and m/href="\/user\/(\d+)"[^>]+class="user-l-t1 dbl current"/) {
+		elsif(!$info{uid} and m/data-user-id\s*=\s*"(\d+)"/) {
 			$info{uid} = $1;
 		}
 		elsif(!$info{videos} and m/<span class="user-txt pa">(\d+)</) {
@@ -62,6 +68,7 @@ sub apply_rule {
 	}
 	if(!$info{uid}) {
 		return (
+			info=>\%info,
 			error=>"Faield to parse page: $url",
 		);
 	}

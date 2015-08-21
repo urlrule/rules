@@ -17,7 +17,6 @@ use strict;
 # $result{pass_arg}      : Additional arguments to be passed to next level of urlrule
 #================================================================
 use MyPlace::URLRule::Utils qw/create_title get_url/;
-use MyPlace::LWP;
 sub apply_rule {
     my $rule_base= shift(@_);
     my %rule = %{shift(@_)};

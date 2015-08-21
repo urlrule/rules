@@ -1,0 +1,84 @@
+#!/usr/bin/perl -w
+
+#DOMAIN : us.sinaimg.cn
+#AUTHOR : eotect <eotect@myplace>
+#CREATED: 2015-07-16 01:22
+#UPDATED: 2015-07-16 01:22
+#TARGET : ___TARGET___
+
+use strict;
+no warnings 'redefine';
+
+
+=method1
+sub apply_rule {
+ return (
+ #Set quick parsing method on
+       '#use quick parse'=>1,
+
+#Specify data mining method
+       'data_exp'=>undef,
+       'data_map'=>undef,
+
+#Specify data mining method for nextlevel
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+
+#Specify pages mining method
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
+       'pages_start'=>undef,
+	   'pages_limit'=>undef,
+
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef
+ );
+}
+=cut
+
+use MyPlace::URLRule::Utils qw/get_url/;
+use URI::Escape;
+
+sub apply_rule {
+    my ($url,$rule) = @_;
+	my %info;
+
+	$info{count} = 0;
+	if($url =~ m/([^\/]+)\.m3u8\?/) {
+		$info{id} = $1;
+		$info{playlist_url} = uri_unescape($url);
+		my $vhtml = get_url($info{playlist_url},'-v');
+		$info{playlist} = $vhtml;
+		$info{data} = [];
+		foreach(split(/[\r\n]/,$vhtml)) {
+			if(m/^\/?([^\/]+\.(mp4|ts))$/) {
+				$info{count}++;
+				$info{video} = 
+					'http://us.sinaimg.cn/' . $1 . "\t$info{id}_$info{count}.$2";
+				push @{$info{data}},$info{video};
+			}
+		}
+		if(!$info{count}) {
+			$info{error} = "No video found on page: $url\n";
+		}
+	}
+	else {
+		$info{error} = "Failed parse page: $url\n";
+	}
+    return %info;
+}
+
+=cut
+
+1;
+
+__END__
+
+#       vim:filetype=perl
+
+
+
