@@ -63,11 +63,13 @@ sub apply_rule {
 			if($ns[0]) {
 				$ns[0] =~ s/^\s*\/?\s*//;
 				$ns[0] =~ s/\s*\/?\s*$//;
+				$ns[0] =~ s/\s*迅雷下载\s*//g;
 				$title = $ns[0];
 			}
 			if($ns[1]) {
 				$ns[1] =~ s/^\s*\/?\s*//;
 				$ns[1] =~ s/\s*\/?\s*$//;
+				$ns[1] =~ s/\s*迅雷下载\s*//g;
 				if($ns[0] and ($ns[1] eq $ns[0])) {
 					$ns[1] = "";
 				}
@@ -79,7 +81,7 @@ sub apply_rule {
 		$name .= "_" . uc($info{uhash}) if($info{uhash});
 		$info{name} = $name;
 		push @torrent,\%info;
-		push @data,$info{post} . "\t" . $info{name} . ".torrent";
+		push @data,$info{post} . "\t" . $info{name} . ".torrent" . "\t" . $title;
 	}
     return (
 		info=>\@torrent,
@@ -87,7 +89,7 @@ sub apply_rule {
         data=>\@data,
         pass_count=>0,
         base=>$url,
-        title=>$title,
+        title=>undef,
     );
 }
 

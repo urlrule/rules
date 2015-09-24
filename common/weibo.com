@@ -267,7 +267,7 @@ sub process_page {
 					last;
 				}
 			}
-			$max_id = $posts[$#posts]->{mid};
+			$max_id = $posts[$#posts]->{mid} if(@posts);
 			push @pass_data,build_page_url($uid,$page,$max_id,$end_id,1);
 		}
 		else {
@@ -279,7 +279,7 @@ sub process_page {
 					last;
 				}
 			}
-			$max_id = $posts[$#posts]->{mid};
+			$max_id = $posts[$#posts]->{mid} if(@posts);
 			push @pass_data,build_page_url($uid,$page,$max_id,$end_id,0);
 		}
 	}

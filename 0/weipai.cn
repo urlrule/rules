@@ -128,6 +128,8 @@ sub extract_title {
 	if(length($title) > $maxlen) {
 		$title = substr($title,0,$maxlen);
 	}	
+	$title =~ s/^\s+//;
+	$title =~ s/\s+$//;
 	$title = $utf8->encode($title);
 	return $title;
 }

@@ -32,6 +32,9 @@ sub apply_rule {
                 $title =~ s/^[^\|]+\|\s*//;
                 $title =~ s/^\s*展示\s*//;
                 $title =~ s/(?:\s+|\s*\(\s*\d+\s*\)\s*)$//;
+				$title =~ s/_[^_]+ - [^-_]+$//;
+				$title =~ s/^《//;
+				$title =~ s/》$//;
                 $r{work_dir}=$title if($title);
             }
         }
