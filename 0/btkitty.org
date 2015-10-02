@@ -34,7 +34,7 @@ sub apply_rule {
 }
 =cut
 
-use MyPlace::URLRule::Utils qw/get_url/;
+use MyPlace::URLRule::Utils qw/get_url js_unescape/;
 
 my %LNG = (
 	'种子哈希'=>'Infohash',
@@ -61,12 +61,16 @@ sub apply_rule {
 				$k = $LNG{$k};
 			}
 			next if($k eq 'Files list');
+			if($v =~ m/.*decodeURIComponent\(([^\)]+)\)/) {
+				$v = join("",split(/["+]/,$1));
+			}
 			if($v =~ m/<a[^>]+href='([^']+)'/) {
 				$v = $1;
 			}
 			else {
 				$v =~ s/<[^>]*>//g;
 			}
+			$v = js_unescape($v);	
 			$info{$k} = $v;
 		}
 		elsif(m/\<h2\>404 Not Found.*<h2[^>]+>([^<]+)/) {

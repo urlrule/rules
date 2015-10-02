@@ -21,6 +21,7 @@ $MyPlace::URLRule::Config = {
 		'yixia.com'=>'miaopai.com',
 		'miaopai.yixia.com'=>'miaopai.com',
 		'btkitty.la'=>'btkitty.org',
+		'btkitty.so'=>'btkitty.org',
 		'bttiantang.cc'=>'bttiantang.com',
 		'torrentkitty.net'=>'torrentkitty.org',
 	},

@@ -95,6 +95,7 @@ sub process_page {
 	my @blocks;
 	my @posts;
 	my @pass_data;
+	my @outer_links;
 	#print STDERR $html;
 	while($html =~ m/(<div[^>]*tbinfo=[^>]*>.+?)<div node-type="feed_list_repeat"/sg) {
 		push @blocks,$1;
@@ -239,7 +240,7 @@ sub process_page {
 		}
 		if($_->{links}) {
 			foreach my $loc(@{$_->{links}}) {
-				push @pass_data,$loc;
+				push @outer_links,$loc;
 			}
 		}
 		delete $_->{html};
@@ -286,6 +287,10 @@ sub process_page {
 	$r{pass_data} = \@pass_data;
 	$r{pass_count} = scalar(@pass_data);
 	$r{samelevel} = 1;
+	$r{outer_links} = \@outer_links if(@outer_links);
+	if(@outer_links) {
+		push @{$r{data}},grep(/(?:miaopai.com|meipai.com|weipai.cn|p\.weibo.com|video\.weibo\.com)/,@outer_links);
+	}
 	return %r;
 }
 

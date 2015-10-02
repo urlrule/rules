@@ -175,8 +175,14 @@ sub build_data {
 
 		my $ext = ".mov";
 		#$info{cover} . ".mov.3in1.jpg" . "\t" . $filename . ".3in1.jpg",
-		return $info{video} . $ext . "\t" . $filename . $ext,
-			   $info{cover} . "\t" . $filename . ".jpg";
+		my @data;
+		push @data, $info{cover} . "\t" . $filename . ".jpg";
+		push @data,$info{video} . $ext . "\t" . $filename . $ext;
+		push @data,'http://www.weipai.cn/video/' . ($info{video_id} || $info{blog_id}) . "\t" . $filename . ".ts";
+		#if($info{video_play_url}) {
+		#	push @data,$info{video_play_url} . "\t" . $filename . ".ts";
+		#}
+		return @data;
 }
 
 
