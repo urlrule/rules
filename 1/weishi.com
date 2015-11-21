@@ -40,9 +40,20 @@ sub apply_rule {
 =cut
 
 use MyPlace::URLRule::Utils qw/get_url/;
-use JSON qw/decode_json/;
+use JSON;
 use Encode qw/find_encoding/;
 my $utf8 = find_encoding('utf8');
+sub decode_json {
+	my $json = eval { &JSON::decode_json($_[0]); };
+	if($@) {
+		print STDERR "Error deocding JSON text:$@\n";
+		$@ = undef;
+		return {};
+	}
+	else {
+		return $json;
+	}
+}
 
 sub extract_title {
 	my $title = shift;
