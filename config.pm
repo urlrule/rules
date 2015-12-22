@@ -20,10 +20,15 @@ $MyPlace::URLRule::Config = {
 		'88dy.tv'=>"site.qvod.adult",
 		'yixia.com'=>'miaopai.com',
 		'miaopai.yixia.com'=>'miaopai.com',
+		'ent.v.sina.cn'=>'miaopai.com',
 		'btkitty.la'=>'btkitty.org',
 		'btkitty.so'=>'btkitty.org',
 		'bttiantang.cc'=>'bttiantang.com',
 		'torrentkitty.net'=>'torrentkitty.org',
+		'67.220.90.4' =>'sexinsex.net',
+		'segirlsong.com' => 'sex8.cc',
+		'sxclub8.com'=>'sex8.cc',
+		'btdigg.ws'=>'btdigg.me',
 	},
 };
 
