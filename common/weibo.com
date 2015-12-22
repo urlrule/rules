@@ -312,6 +312,14 @@ sub process_pages {
 	my $lastpage = build_page_url($uid,400);
 	print STDERR "Retriving past-last page...\n";
 	my $lasthtml = get_html(&unpack_url($lastpage));
+	if($lasthtml =~ m/<div class="page_error">(.+?)<\/div/s) {
+		my $err = $1;
+		$err =~ s/<[^>]+>//sg;
+		$err =~ s/[\s\t\r\n]+//sg;
+		return (
+			error=>$err,
+		);
+	}
 	my $maxp = 1;
 	if($lasthtml !~ m/<title>Sina Visitor System<\/title>/) {
 		while($lasthtml =~ m/(?:&|&amp;)page=(\d+)/g) {
@@ -342,6 +350,14 @@ sub process_weibo {
 		$user = $1;
 	}
 	my $html = get_html(&unpack_url($url),"-v");
+	if($html =~ m/<div class="page_error">(.+?)<\/div/s) {
+		my $err = $1;
+		$err =~ s/<[^>]+>//sg;
+		$err =~ s/[\s\t\r\n]+//sg;
+		return (
+			error=>$err,
+		);
+	}
 	if($url =~ m/weibo\.com\/([^\/\?]+)[^\/]*$/) {
 		$user = $1;
 	}
