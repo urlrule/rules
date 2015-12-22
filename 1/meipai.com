@@ -61,6 +61,7 @@ sub apply_rule {
 		if($one) {
 			$info->{uid} = $one->{user}->{id};
 			$info->{username} = $utf8->encode($one->{user}->{screen_name});
+			$info->{username} =~ s/\s*<[^>]+>\s*//g;
 			$info->{user} = $one->{user}->{url};
 		}
 	}

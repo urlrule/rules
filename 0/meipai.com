@@ -90,10 +90,11 @@ sub apply_rule {
 			$info{image} = $1;
 			$info{id} = $2;
 		}
-		elsif(m/<div class="detail-time pa">([^<]+)<\/div/) {
+		elsif(m/<div class="detail-time pa">(.+?)<\/div/) {
 			$info{datestr} = $1;
+			$info{datestr} =~ s/\s*<[^>]+>\s*//g;
 			$info{datestr} =~ s/^\s*(.+)\s*$/$1/;
-			#print STDERR "DATE:$info{datestr}\n";
+			print STDERR "DATE:$info{datestr}\n";
 			if($info{datestr} eq '前天') {
 				$info{year} = $now{year};
 				$info{day} = $now{day} - 2;
