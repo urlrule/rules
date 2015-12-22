@@ -26,7 +26,7 @@ sub apply_rule {
 }
 =cut
 
-use MyPlace::URLRule::Utils qw/get_url/;
+use MyPlace::URLRule::Utils qw/get_url get_url_redirect/;
 
 sub apply_rule {
     my ($url,$rule) = @_;
@@ -35,16 +35,7 @@ sub apply_rule {
 		my $b = $1;
 		my $q = $2;
 		$q =~ s/ /\+/g;
-		my $loc;
-		open FI,'-|','curl','--silent','-D','-','-d',"keyword=$q",$b;
-		foreach(<FI>) {
-			chomp;
-			if(m/^[\s\r\n]*Location:\s*(http:\/\/[^\r\n]+)/) {
-				$loc = $1;
-				last;
-			}
-		}
-		close FI;
+		my $loc = get_url_redirect($b,"keyword=$q",'--verbose');
 		if($loc) {
 			$realurl = $loc;
 		}
