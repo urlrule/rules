@@ -1,0 +1,104 @@
+#!/usr/bin/perl -w
+
+#DOMAIN : xiaoying.tv
+#AUTHOR : Eotect Nahn <eotect@myplace>
+#CREATED: 2015-12-26 02:32
+#UPDATED: 2015-12-26 02:32
+#TARGET : ___TARGET___
+
+use strict;
+no warnings 'redefine';
+
+
+=method1
+sub apply_rule {
+ return (
+ #Set quick parsing method on
+       '#use quick parse'=>1,
+
+#Specify data mining method
+       'data_exp'=>undef,
+       'data_map'=>undef,
+
+#Specify data mining method for nextlevel
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+
+#Specify pages mining method
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
+       'pages_start'=>undef,
+	   'pages_limit'=>undef,
+
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef
+ );
+}
+=cut
+
+use MyPlace::URLRule::Utils qw/get_url create_title extract_title/;
+
+sub apply_rule {
+    my ($url,$rule) = @_;
+	my $puid = '';
+	if($url =~ m/\/v\/([^\/]+)/) {
+		$puid = $1;
+	}
+	return (error=>'Invalid url input') unless($puid);
+
+
+	my %info;
+	my $jurl;
+	my $json;
+	$jurl = 'http://w.api.xiaoying.co/webapi2/rest/video/publishinfo.get?callback=videocallbackinfo&appkey=30000000&puid=' . $puid . '&ver=1&format=MP4&_=' . time();
+
+	$json = get_url($jurl,'-v');
+	while($json =~ m/"([^"]+)":"([^"]+)"/g) {
+		$info{$1} = $2;
+	}
+
+	$jurl = 'http://w.api.xiaoying.co/webapi2/rest/video/videourl?callback=videocallbackvideosrc&appkey=30000000&puid=' . $puid . '&ver=1&sign=0&useragent=%E5%A1%AB%E5%85%A5%E8%8E%B7%E5%8F%96%E7%9A%84%E4%BF%A1%E6%81%AF&usercurrentdevice=%E5%A1%AB%E5%85%A5%E8%8E%B7%E5%8F%96%E7%9A%84%E4%BF%A1%E6%81%AF&devicesign=%E5%A1%AB%E5%85%A5%E8%8E%B7%E5%8F%96%E7%9A%84%E4%BF%A1%E6%81%AF&format=MP4&_=' . time();
+	$json = get_url($jurl,'-v');
+	if($json =~ m/"url":"([^"]+)/) {
+		$info{video} = $1;
+	}
+	else {
+		return (%info,error=>'Error parsing url');
+	}
+
+	my $basename = "";
+	foreach(qw/publishtime auid puid title desc/) {
+		$basename = $basename . ( $info{$_} ? $info{$_} . "_" : "");
+	}
+	$basename = extract_title($basename);
+
+    my @data;
+	foreach my $p (qw/coverurl video/) {
+		local $_ = $info{$p};
+		if(m/.*\.([^\.]+)$/) {
+			push @data,$_ . "\t" . $basename . ".$1";
+		}
+	}
+
+    return (
+		info=>\%info,
+        count=>scalar(@data),
+        data=>\@data,
+        base=>$url,
+    );
+}
+
+=cut
+
+1;
+
+__END__
+
+#       vim:filetype=perl
+
+
+
