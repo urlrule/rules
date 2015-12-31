@@ -43,7 +43,7 @@ sub apply_rule {
 			uname=>'',
 		);
 	foreach(@html) {
-		if(m/<h1><a[^>]+title="([^"]+)"[^>]+href="([^"]+)\/u\/([^"\?\&\/]+)/) {
+		if((!$info{uid}) and m/<h1><a[^>]+title="([^"]+)"[^>]+href="([^"]+)\/u\/([^"\?\&\/]+)/) {
 			$info{uname} = $1;
 			$info{host} = $2;
 			$info{uid} = $3;

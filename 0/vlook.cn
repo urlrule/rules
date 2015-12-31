@@ -26,7 +26,7 @@ sub apply_rule {
 }
 =cut
 
-use MyPlace::URLRule::Utils qw/get_url/;
+use MyPlace::URLRule::Utils qw/get_url extract_title/;
 use Encode qw/find_encoding/;
 my $utf8 = find_encoding('utf8');
 use JSON qw//;
@@ -46,30 +46,6 @@ sub decode_json1 {
 	}
 }
 
-sub extract_title {
-	my $title = shift;
-	return "" unless($title);
-	$title = $utf8->decode($title);
-	$title =~ s/<[^.>]+>//g;
-	$title =~ s/\/\?\*'"//g;
-	$title =~ s/&amp;amp;/&/g;
-	$title =~ s/&amp;/&/g;
-	$title =~ s/&hellip;/…/g;
-	$title =~ s/[\r\n]+/ /g;
-	$title =~ s/^\s+|\s+$//g;
-#	$title =~ s/\s+_|_\s+/_/g;
-#	$title =~ s/\x{1f60f}|\x{1f614}|\x{1f604}//g;
-#	$title =~ s/[\P{Print}]+//g;
-#	$title =~ s/[^\p{CJK_Unified_Ideographs}\p{ASCII}]//g;
-	$title =~ s/[^{\p{Punctuation}\p{CJK_Unified_Ideographs}\p{CJK_SYMBOLS_AND_PUNCTUATION}\p{HALFWIDTH_AND_FULLWIDTH_FORMS}\p{CJK_COMPATIBILITY_FORMS}\p{VERTICAL_FORMS}\p{ASCII}\p{LATIN}\p{CJK_Unified_Ideographs_Extension_A}\p{CJK_Unified_Ideographs_Extension_B}\p{CJK_Unified_Ideographs_Extension_C}\p{CJK_Unified_Ideographs_Extension_D}]//g;
-#	$title =~ s/[\p{Block: Emoticons}]//g;
-	#print STDERR "\n\n$title=>\n", length($title),"\n\n";
-	my $maxlen = 70;
-	if(length($title) > $maxlen) {
-		$title = substr($title,0,$maxlen);
-	}	
-	return $utf8->encode($title);
-}
 
 sub apply_rule {
     my ($url,$rule) = @_;
@@ -124,14 +100,14 @@ sub apply_rule {
 		$title = $info{'og:title'};
 	}
 	my $video;
-	if($info{'og:image'} and $info{'og:image'} =~ m/[^"]+\/([^\/"]+)\.jpg$/) {
+	if($html =~ m/<source[^>]*src="([^"]+)/) {
+		$video = $1;
+	}
+	elsif($info{'og:image'} and $info{'og:image'} =~ m/[^"]+\/([^\/"]+)\.jpg$/) {
 		my $vid = $1;
 		$video = "http://download1.vlook.cn/video/high/$vid.mp4";
 		#$videos{vga} = "http://download1.vlook.cn/video/vga/$vid.mp4";
 		$info{vid} = $vid;
-	}
-	elsif($html =~ m/<source[^>]*src="([^"]+)/) {
-		$video = $1;
 	}
 	elsif($html =~ m/&player_src=([^&"]+)/) {
 		$video = $1;
@@ -177,13 +153,18 @@ sub apply_rule {
 	$title =~ s/[\/\?:\*"']//g;
 
 
-		push @data,"$video\t$title.mp4" if($video);
+		push @data,"$realurl\t$title.mp4" if($video and $realurl);
 		push @data,$info{'og:image'} . "\t$title.jpg" if($info{'og:image'});
 		return (
 			count=>scalar(@data),
 			data=>\@data,
 			base=>$url,
 			info=>\%info,
+			url=>$url,
+			realurl=>$realurl,
+			video=>$video,
+			image=>$info{'og:image'},
+			name=>$title,
 		);
 }
 

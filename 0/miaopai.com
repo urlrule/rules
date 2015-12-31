@@ -116,12 +116,23 @@ sub apply_rule {
 	if(!$info{image}) {
 		return (error=>"Error parsing $url");
 	}
+	$info{imageext} = 'jpg';
+	$info{videoext} = 'mp4';
 	if($info{image} =~ m/^(.+)\/stream\/([^_\/]+)___[^\.\/]+\.([^\.]+)$/) {
 		$info{host} = $1;
 		$info{id} = $2;
 		$info{imageext} = $3;
+		$info{videosrc} = $info{host} ."/stream/" . $info{id} . "__." . $info{videoext};
 	}
-	else {
+	elsif($url =~ m/\/show\/([^\.]+)\.html?$/) {
+		$info{videosrc} = "http://dlcdn.yixia.com/stream/$1.mp4";
+	}
+	elsif($info{videosrc}) {
+		if($info{videosrc} =~ m/\.([^\.]+)$/) {
+			$info{videoext} = $1;
+		}
+	}
+	else{ 
 		return (error=>"Error parsing $url");
 	}
 	$info{month} ||= $now{month}; 
@@ -146,14 +157,13 @@ sub apply_rule {
 
 	$info{month} = "0" . $info{month} if(length($info{month}) < 2);
 	$info{day} = "0" . $info{day} if(length($info{day}) < 2);
-	$info{videoext} = "mp4";
 	if($info{desc}) {
 		$info{desc} = extract_title($utf8->decode($info{desc}));
 	}
 
 	my $basename = $info{year} . $info{month} . $info{day} . "_" . $info{id};
 	$basename .= "_" . $info{desc} if($info{desc});
-	push @data,$info{host} ."/stream/" . $info{id} . "__." . $info{videoext} . "\t" . $basename ."." . $info{videoext}; 
+	push @data,$info{videosrc} . "\t" . $basename ."." . $info{videoext}; 
 	push @data,$info{image} . "\t" . $basename . "." . $info{imageext}; 
     return (
 		info=>\%info,
