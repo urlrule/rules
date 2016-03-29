@@ -1,0 +1,5 @@
+#OUTPUT: http://sinacn.weibodangan.com/user/${ID:u/=>}
+#OUTPUT: 1
+#OUTPUT: weibo.com
+#INCLUDE: ../weibo.com/database.sq
+
