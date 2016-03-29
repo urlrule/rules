@@ -1,1 +1,39 @@
 2015-03-14 22:17:35: urlrule weibo.com
+2016-01-09 23:44:39: urlrule list 王丽仃
+2016-01-09 23:44:58: urlrule list 王俪丁
+2016-01-09 23:46:03: urlrule list 王俪丁
+2016-01-10 02:04:30: urlrule list guoervictoria
+2016-01-10 02:10:04: urlrule list u/5562778533
+2016-01-10 02:10:12: urlrule list 5562778533
+2016-01-11 20:24:26: urlrule list 5562778533
+2016-01-11 20:24:33: urlrule list 5562778533 --hosts weibo.com
+2016-01-11 20:24:41: urlrule list 5562778533 --hosts *
+2016-01-11 20:24:51: urlrule list 唐馨baby
+2016-01-11 20:26:46: urlrule list 唐馨baby
+2016-01-11 20:26:57: urlrule list 唐馨baby
+2016-01-11 20:27:57: urlrule list 唐馨baby
+2016-01-11 20:41:07: urlrule list 唐馨baby
+2016-01-11 20:41:13: urlrule grep 唐馨baby
+2016-01-11 20:41:48: urlrule grep 唐馨baby
+2016-01-11 20:42:16: urlrule grep 唐馨baby
+2016-01-11 20:42:34: urlrule grep 唐馨baby
+2016-01-11 20:42:55: urlrule grep 唐馨baby
+2016-01-11 20:43:47: urlrule grep 唐馨baby
+2016-01-11 20:44:42: urlrule grep 唐馨baby
+2016-01-11 20:45:18: urlrule grep 唐馨baby
+2016-01-11 20:45:57: urlrule grep 唐馨baby
+2016-01-11 20:46:17: urlrule grep 唐馨baby
+2016-01-11 20:46:27: urlrule grep 唐馨baby
+2016-01-11 20:56:07: urlrule grep 唐馨baby
+2016-01-11 20:57:45: urlrule grep 唐馨baby
+2016-01-11 20:58:03: urlrule grep 唐馨baby
+2016-01-11 20:58:22: urlrule grep 唐馨baby
+2016-01-11 20:58:54: urlrule grep 唐馨baby
+2016-01-11 20:59:01: urlrule grep 唐馨baby --hosts weibo.com
+2016-01-11 20:59:05: urlrule grep 唐馨baby --hosts weibo.com --follow
+2016-01-11 20:59:15: urlrule grep 唐馨baby --hosts weibo.com --follows
+2016-01-11 20:59:17: urlrule grep 唐馨baby --hosts weibo.com --follow
+2016-01-11 21:00:22: urlrule grep 唐馨baby --hosts weibo.com --follow
+2016-01-11 21:00:31: urlrule grep 唐馨baby --hosts weibo.com --follow
+2016-01-11 21:08:51: urlrule grep 唐馨baby --hosts weibo.com --follow
+2016-01-11 21:09:24: urlrule grep 唐馨baby --hosts weibo.com --follow

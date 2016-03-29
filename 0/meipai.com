@@ -162,7 +162,7 @@ sub apply_rule {
 
 	my $basename = $info{year} . $info{month} . $info{day} . "_" . $info{id};
 	$basename .= "_" . $info{desc} if($info{desc});
-	push @data,$info{video}  . "\t" . $basename ."." . $info{videoext}; 
+	push @data,$info{video}  . "\t" . $basename ."." . $info{videoext} if($info{video}); 
 	push @data,$info{image} . "\t" . $basename . "." . $info{imageext}; 
     return (
 		info=>\%info,

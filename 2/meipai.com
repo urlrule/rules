@@ -51,7 +51,7 @@ sub apply_rule {
     my @html = split(/\n/,$html);
 	foreach(@html) {
 		if(!$info{username}) {
-			$info{username} = $1 if(m/<title>(.+)的美拍/);
+			$info{username} = $1 if(m/<title>(.+?)的美拍/);
 		}
 		if(!$info{uid}) {
 			if(m/href="\/user\/(\d+)"[^>]+class="user-l-t1 dbl current"/) {
@@ -60,9 +60,14 @@ sub apply_rule {
 			elsif(m/data-type="user"[^>]+data-shareId="(\d+)"/) {
 				$info{uid} = $1;
 			}
+			elsif(m/user_id: '(\d+)'/) {
+				$info{uid} = $1;
+			}
 		}
 		if(!$info{videos}) {
-			$info{videos} = $1 if(m/<span class="user-txt pa">(\d+)</);
+			if(m/<span class="user-txt pa">(\d+)</) {
+				$info{videos} = $1;
+			}
 		}
 	}
 	if(!$info{uid}) {
@@ -77,7 +82,8 @@ sub apply_rule {
 	$PAGES += 1 if($info{videos} % 12);
 	for my $p (1 .. $PAGES) {
 		push @pass_data,
-			"http://www.meipai.com/users/user_timeline?page=$p&count=$SIZE&tid=$info{uid}&category=0";
+			"http://www.meipai.com/users/user_timeline?page=$p&count=$SIZE&single_column=1&uid=$info{uid}";
+#			"http://www.meipai.com/users/user_timeline?page=$p&count=$SIZE&tid=$info{uid}&category=0";
 	}
     return (
 		info=>\%info,

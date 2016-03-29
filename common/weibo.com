@@ -106,7 +106,7 @@ sub process_page {
 	}
 	foreach(@blocks) {
 		my $post = {};
-		$_ =~ s/src="([^"]+(?:sina|weibo|sinaimg)\.(?:com|cn)[^"]*)\/(?:thumb150|sq480|mw1024|thumbnail|square|bmiddle|mw690)\/([^"]+)"/src="$1\/large\/$2"/sg;
+		$_ =~ s/src="([^"]+(?:sina|weibo|sinaimg)\.(?:com|cn)[^"]*)\/(?:orj480|thumb150|sq480|mw1024|thumbnail|square|bmiddle|mw690)\/([^"]+)"/src="$1\/large\/$2"/sg;
 		my $text = $_;
 		$text =~ s/[\n\r]//sg;
 		if($text =~ m/\\u/) {
@@ -289,7 +289,8 @@ sub process_page {
 	$r{samelevel} = 1;
 	$r{outer_links} = \@outer_links if(@outer_links);
 	if(@outer_links) {
-		push @{$r{data}},grep(/(?:miaopai.com|meipai.com|weipai.cn|p\.weibo.com|video\.weibo\.com)/,@outer_links);
+		#push @{$r{data}},grep(/(?:miaopai.com|meipai.com|weipai.cn|p\.weibo.com|video\.weibo\.com)/,@outer_links);
+		push @{$r{data}},grep(/(?:weipai.cn|p\.weibo.com|video\.weibo\.com)/,@outer_links);
 	}
 	return %r;
 }
@@ -346,6 +347,9 @@ sub process_weibo {
 	if($url =~ m/weibo\.com\/(\d+)/) {
 		$id = $1;
 	}
+	elsif($url =~ m/weibo\.com\/u\/(\d+)/) {
+		$id = $1;
+	}
 	elsif($url =~ m/weibo\.com\/([^\/\?]+)[^\/]*$/) {
 		$user = $1;
 	}
@@ -382,6 +386,10 @@ sub process_weibo {
 			onick=>$nick,
 			pid=>$CONFIG_PID
 		},
+		uid=>$id,
+		profile=> ($id ? 'u/' . $id : $user),
+		host=>'weibo.com',
+		uname=>$nick,
 	);
 }
 
@@ -393,7 +401,23 @@ sub apply_rule {
 		$OPTS{TYPE} = $1;
 		$OPTS{uc($1)} = 1;
 	}
+	if($rule->{level_desc} and 'info' eq "$rule->{level_desc}") {
+		return process_weibo($url,$level,$rule);
+	}
 	if(!$level) {
+		
+		if($url =~ m/http:\/\/weibo\.com\/p\/([^\/]+)$/) {
+			my $pid = $1;
+			my $html = get_url($url,'-v');
+			if($html =~ m/file=([^"&]+\.m3u8[^"&]*)/) {
+				return (
+					pass_data=>['http://video.weibo.com/p/' . $pid],
+					level=>0,
+				);
+			}
+		}
+
+
 		my $page = 1;
 		if($url =~ m/&page=(\d+)/) {
 			$page = $1;

@@ -133,6 +133,7 @@ sub apply_rule {
 			$title = $1
 		}
 	}
+	$title =~ s/[\/\\]+//g;
 	$title = extract_title($title);
 	if($html =~ m/<dd title="(\d+)-(\d+)-(\d+)\s*(\d+):(\d+):(\d+)/) {
 		$title = $title ? "$1$2$3$4$5$6_$title" : "$1$2$3$4$5$6";

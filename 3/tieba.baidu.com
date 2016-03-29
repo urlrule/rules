@@ -39,9 +39,15 @@ sub _process {
             push @pass_data,$pre . $i;
         }
     }
-    else {
-        push @pass_data,$url;
+    elsif($html =~ m/<a[^>]+href="([^"]+\/p)(\d+)"[^>]+class="last"/) {
+		push @pass_data,$url;
+		for(my $i=2;$i<=$2;$i++) {
+		    push @pass_data,$1 . $i;
+		}
     }
+	else {
+		die($html);
+	}
     return (
         count=>scalar(@data),
         data=>[@data],

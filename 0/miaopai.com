@@ -126,6 +126,7 @@ sub apply_rule {
 	}
 	elsif($url =~ m/\/show\/([^\.]+)\.html?$/) {
 		$info{videosrc} = "http://dlcdn.yixia.com/stream/$1.mp4";
+		$info{id} = $1;
 	}
 	elsif($info{videosrc}) {
 		if($info{videosrc} =~ m/\.([^\.]+)$/) {
@@ -161,6 +162,7 @@ sub apply_rule {
 		$info{desc} = extract_title($utf8->decode($info{desc}));
 	}
 
+	$info{id} =~ s/_+// if($info{id});
 	my $basename = $info{year} . $info{month} . $info{day} . "_" . $info{id};
 	$basename .= "_" . $info{desc} if($info{desc});
 	push @data,$info{videosrc} . "\t" . $basename ."." . $info{videoext}; 

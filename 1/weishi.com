@@ -1,10 +1,6 @@
 #!/usr/bin/perl -w
-
-#DOMAIN : weishi.com
-#AUTHOR : eotect <eotect@myplace>
-#CREATED: 2015-03-08 01:40
-#UPDATED: 2015-03-08 01:40
-
+#http://www.weishi.com/t/2003061038631146?pgv_ref=weishi.sync.weibo&pgv_uid=6020984
+#Sun Mar  8 00:27:33 2015
 use strict;
 no warnings 'redefine';
 
@@ -20,7 +16,7 @@ sub apply_rule {
        'data_map'=>undef,
 
 #Specify data mining method for nextlevel
-       'pass_exp'=>undef,
+       何旋君君'pass_exp'=>undef,
        'pass_map'=>undef,
        'pass_name_map'=>undef,
 
@@ -40,20 +36,8 @@ sub apply_rule {
 =cut
 
 use MyPlace::URLRule::Utils qw/get_url/;
-use JSON;
 use Encode qw/find_encoding/;
 my $utf8 = find_encoding('utf8');
-sub decode_json {
-	my $json = eval { &JSON::decode_json($_[0]); };
-	if($@) {
-		print STDERR "Error deocding JSON text:$@\n";
-		$@ = undef;
-		return {};
-	}
-	else {
-		return $json;
-	}
-}
 
 sub extract_title {
 	my $title = shift;
@@ -77,107 +61,175 @@ sub extract_title {
 	}	
 	return $utf8->encode($title);
 }
-#http://wsi.weishi.com/weishi/t/other.php?v=p&g_tk=&r=1425749924564&callback=jQuery110205775372174111502_1425749924539&pageflag=0&reqnum=5&uid=6020984&_=1425749924540
 
-#http://wsi.weishi.com/weishi/t/other.php?v=p&g_tk&r=1425749850414&callback=jQuery1102032652092672786626_1425749451844&pageflag=2&reqnum=5&uid=6020984&lastid=2000048101735623&pagetime=1412780474&_=1425749451914
 
+#http://www.weishi.com/t/2003061038631146?pgv_ref=weishi.sync.weibo&pgv_uid=6020984
 sub apply_rule {
     my ($url,$rule) = @_;
-	
-	my $id;
-	my $page;
-	if($url =~ m{weishi\.com/t/}) {
-		return (
-			count=>0,
-			pass_count=>1,
-			pass_data=>[$url],
-		);
-	}
-	elsif($url =~ m/\/u\/([^\/#&?]+)/) {
-		$id = $1;
-		$page = 0;
-	}
-	elsif($url =~ m/uid=([^&=?]+)/) {
-		$id = $1;
-		if($url =~ m/pageflag=(\d+)/) {
-			$page = $1;
-		}
-	}
-	
-	
-	my $rurl;
-	my $r1 = time()* 1000 + 512;
-	my $r2 = $r1 + 1;
-	my $r3 = $r2 + 2;
-	my $r4 = $r3 + 3;
-	if($page) {
-		$rurl = $url;
-	}
-	else {
-		$rurl = "http://wsi.weishi.com/weishi/t/other.php?v=p&g_tk=&r=$r1&callback=jQuery110205775372174111502_$r2&pageflag=0&reqnum=5&uid=$id&_=$r3";
-	}
+	my $html = get_url($url,'-v');
+    my $title = undef;
+    my @data;
+    my @pass_data;
+	my %info;
+	my %now;
+	(undef,undef,undef,$now{day},$now{month},$now{year}) = localtime(time);
+	$now{year} += 1900;
+#	$info{year} = "";
+	$now{month} += 1;
+#	$now{month} = "0" . $info{month} if($info{month} < 10);
+#	$now{day} = "0" . $info{day} if($info{day} < 10);
 
-	my $html = get_url($rurl,'-v','--referer',"http://www.weishi.com/u/$id");
-	$html =~ s/^[^\(]+\(//;
-	$html =~ s/\);?$//;
-	if(!$html) {
-		return (
-			error=>'Failed retriving url',
-		);
-	}
-	#print STDERR $html,"\n";
-	my $json = decode_json($html);
-	print STDERR $json->{msg},"\n";
-    my $title;
-	my $lastid;
-	my $pagetime;
-	my @pass_data;
-	my $uname;
-	my $info = $json->{data};
+	$info{minute} = '';
+	$info{hour} = '';
 	
-	if($info && $info->{info}) {
-		my @videos = @{$info->{info}};
-		if($info->{user}) {
-			foreach (keys %{$info->{user}}) {
-				$title = $info->{user}->{$_};
-				$uname = $_;
+    my @html = split(/\n/,$html);
+
+	my $flag = '';
+
+	foreach(@html) {
+		if((!$info{uid}) and m/id="username" href="\/u\/([^\/?#&]+)[^>]+>([^<]+)<\/a/) {
+			$info{uid} = $1;
+			$info{uname} = $2;
+		}
+
+		elsif((!$info{datestr}) and m/class="[^"]*time[^"]*"[^>]*>([^\s]+)\s+(\d\d):(\d\d)<\/span/) {
+			$info{datestr} = $1;
+			$info{hour} = $2;
+			$info{minute} = $3;
+			$info{datestr} =~ s/^\s*(.+)\s*$/$1/;
+			#print STDERR "DATE:$info{datestr}\n";
+			if($info{datestr} eq '前天') {
+				$info{year} = $now{year};
+				$info{day} = $now{day} - 2;
+				$info{month} = $now{month};
+			}
+			elsif($info{datestr} eq '昨天') {
+				$info{year} = $now{year};
+				$info{day} = $now{day} -1;
+				$info{month} = $now{month};
+			}
+			elsif($info{datestr}  =~ m/(\d+)-(\d+)-(\d+)/) {
+				$info{year} = $1;
+				$info{month} = $2;#($1 < 10 ? "0$1" : $1);
+				$info{day} = $3;#($2 < 10 ? "0$2" : $2);
+			}
+			elsif($info{datestr} =~ m/(\d+)-(\d+)/) {
+				$info{month} = $1;#($1 < 10 ? "0$1" : $1);
+				$info{day} = $2;#($2 < 10 ? "0$2" : $2);
+			}
+			elsif($info{datestr} =~ m/(\d+)月(\d+)日/) {
+				$info{month} = $1;
+				$info{day} = $2;
+			}
+			elsif($info{datestr} =~ m/(\d+)年(\d+)月(\d+)日/) {
+				$info{year} = $1 > 2000 ? $1 : (2000+$1);
+				$info{month} = $2;
+				$info{day} = $3;
 			}
 		}
-		foreach my $v (@videos) {
-			push @pass_data,"http://www.weishi.com/t/$v->{id}";
-			$lastid = $v->{id};;
-			$pagetime = $v->{timestamp};
+		elsif((!$info{message}) and m/<div id="message" class="msgCnt">/) {
+			$flag = 'message';
+			$info{message} = 1;
+			next;
 		}
-		if($info->{hasNext}) {
-			push @pass_data,"http://wsi.weishi.com/weishi/t/other.php?v=p&g_tk&r=$r1&callback=jQuery1102032652092672786626_$r2" .
-			"&pageflag=2" . # ($page+1) . 
-			"&reqnum=5&uid=$id" .
-			"&lastid=$lastid" . 
-			"&pagetime=$pagetime" . # . $r3 .
-			"&_=$r4";
+		elsif(m/<div class="pubInfo/) {
+			$flag = '';
+			next;
+		}
+		elsif($flag eq 'message') {
+			if($info{desc}) {
+				$info{desc} = $info{desc} . $_;
+			}
+			else {
+				$info{desc} = $_;
+			}
+		}
+		elsif(m/(\w+)\s*:\s*'([^\']+)'/) {
+			$info{$1} = $2;
 		}
 	}
-    return (
-		info=>$info,
-        count=>0,
-        pass_count=>scalar(@pass_data),
-        pass_data=>\@pass_data,
-        base=>$url,
-        title=>($page ? '' :  $title),
-		level=>1,
-		id=>$title,
-		uname=>$uname,
-    );
+	if(!$info{vid}) {
+		return (
+			info=>\%info,
+			error=>'No video found on page',
+		);
+	}
 
+	my $vurl = "http://wsi.weishi.com/weishi/video/downloadVideo.php?v=p" . 
+		"&vid=$info{vid}&play=2&device=2" . 
+		"&id=$info{msgid}";
+	push @{$info{video}},$vurl;
+
+	#my $vhtml = get_url($vurl,'-v');
+	#while($vhtml =~ m/"(http:[^"]+)"/g) {
+	#	my $video = $1;
+	#	$video =~ s/\\//g;
+	#	$info{video} = [] unless($info{video});
+	#	push @{$info{video}},$video;
+	#}
+	if(!$info{video}) {
+		return (
+			info=>\%info,
+			error=>'Error parse video info',
+		);
+	}
+	foreach(qw/year month day/) {
+		$info{$_} = int($info{$_}) if($info{$_});
+	}
+	$info{year} += 2000 if($info{year} and $info{year} < 2000);
+	$info{month} ||= $now{month}; 
+	$info{day} ||= $now{day};
+	if($info{day} < 1) {
+		$info{month} -=1;
+		$info{day} = 30;
+	}
+	if(!$info{year}) {
+		$info{year} = $now{year};
+		if($info{month} > $now{month}) {
+			$info{year} -= 1;
+		}
+		elsif($info{month} == $now{month}) {
+			$info{year} -= 1 if($info{day} > $now{day});
+		}
+	}
+	if($info{month} < 1) {
+		$info{month} = 12;
+		$info{year} -= 1;
+	}
+
+	$info{month} = "0" . $info{month} if(length($info{month}) < 2);
+	$info{day} = "0" . $info{day} if(length($info{day}) < 2);
+	$info{videoext} = "mp4";
+	$info{imageext} = "jpg";
+	if($info{desc}) {
+		$info{desc} =~ s/<[^>]+>//g;
+		$info{desc} =~ s/\s+$//;
+		$info{desc} =~ s/\s{2,}/ /g;
+		$info{desc} = extract_title($utf8->decode($info{desc}));
+	}
+	else {
+		$info{desc} = $info{msgid};
+	}
+
+	my $basename = $info{year} . $info{month} . $info{day} . $info{hour} . $info{minute};# . "_" . $info{msgid};
+	$basename .= "_" . $info{desc} if($info{desc});
+	foreach(@{$info{video}}) {
+		push @data,$_  . "\t" . $basename ."." . $info{videoext}; 
+	}
+	push @data,"http://ugc.qpic.cn/weishi_pic/0/$info{vid}_1/480" .
+					"\t" . $basename . "." . $info{imageext}; 
+    return (
+		info=>\%info,
+        count=>scalar(@data),
+        data=>\@data,
+		#download=>\@pass_data,
+        base=>$url,
+    );
 }
 
-=cut
 
 1;
 
 __END__
 
 #       vim:filetype=perl
-
-
-

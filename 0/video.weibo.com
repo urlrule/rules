@@ -45,6 +45,10 @@ use URI::Escape;
 
 sub apply_rule {
     my ($url,$rule) = @_;
+
+	if($url =~ m/http:\/\/video\.weibo\.com\/p\/(.+)$/) {
+		$url = 'http://weibo.com/p/' . $1;
+	}
 	my $html = get_url($url,'-v');
 	my $saveas;
 	if($url =~ m/title=([^&\/]+)/) {
@@ -53,7 +57,8 @@ sub apply_rule {
 	my %info;
 
 	$info{count} = 0;
-	if($html =~ m/flashvars="list=([^"&]+)/) {
+#	print STDERR $html,"\n";
+	if($html =~ m/file=([^"&]+\.m3u8[^"&]*)/) {
 		$info{playlist_url} = uri_unescape($1);
 		my $vhtml = get_url($info{playlist_url},'-v');
 		$info{playlist} = $vhtml;
@@ -61,11 +66,19 @@ sub apply_rule {
 		foreach(split(/[\r\n]/,$vhtml)) {
 			if(m/^\/?([^\/]+\.mp4)$/) {
 				$info{video} = 'http://us.sinaimg.cn/' . $1;
+				$info{filename} = $1;
+			}
+			elsif(m/^(http:\/\/us\.sinaimg\.cn\/.*?([^\/]+\.mp4))$/) {
+				$info{video} = $1;	
+				$info{filename} = $2;
+			}
+			if($info{video}) {
 				if($saveas) {
-					$info{video} .= "\t${saveas}_$1";
+					$info{video} .= "\t${saveas}_$info{filename}";
 				}
 				push @{$info{data}},$info{video};
 				$info{count}++;
+				delete $info{video};
 			}
 		}
 		if(!$info{count}) {
