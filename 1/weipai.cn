@@ -130,6 +130,10 @@ sub get_user_info {
 sub apply_rule {
     my ($url,$rule) = @_;
 	my %info;
+
+	return (
+		error=>'Code needs update, sign checking failed',
+	);
 	if($url =~ m/^(https?:\/\/[^\/]+)\/(?:user|videos|follows|fans)\/([^\/\?]+)/) {
 		$info{host} = $1;
 		$info{uid}=$2;
@@ -172,6 +176,7 @@ sub apply_rule {
 	#if($html =~ m/<span class="name" title="([^"]+)">/) {
 	#	$title = $1;
 	#}
+	
     return (
         count=>0,
         pass_count=>scalar(@passdata),

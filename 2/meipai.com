@@ -85,6 +85,9 @@ sub apply_rule {
 			"http://www.meipai.com/users/user_timeline?page=$p&count=$SIZE&single_column=1&uid=$info{uid}";
 #			"http://www.meipai.com/users/user_timeline?page=$p&count=$SIZE&tid=$info{uid}&category=0";
 	}
+#	return (
+#		error=>"Code needs updating for level 0",
+#	);
     return (
 		info=>\%info,
 		uid=>$info{uid},

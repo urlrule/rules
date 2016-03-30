@@ -7,6 +7,7 @@ no warnings 'redefine';
 #http://www.weipai.cn/user/moreOwnVideos/uid/52648e589f6c00cd1a8fde4e?page=1
 
 use MyPlace::Weipai qw/get_url safe_decode_json/;
+use MyPlace::URLRule::Utils qw//;
 use MyPlace::String::Utils qw/no_empty/;
 use Encode qw/find_encoding/;
 my $utf8 = find_encoding('utf8');
@@ -19,7 +20,6 @@ sub extract_video {
 	my @html = split("\n","@_");
 	my %info = (
 		video=>'',
-		user=>'',
 		year=>'',
 		month=>'',
 		day=>'',
@@ -33,30 +33,24 @@ sub extract_video {
 	);
 	foreach(@html) {
 		#print STDERR "LINE:$_\n\n";
-		if((!$info{user}) && m/<div class="user"><[^>]*title="([^"]+)/) {
-			$info{user}=$1;
+		if((!$info{user_name}) and m/<span class="name" title="([^"]+)"/) {
+			$info{user_name}=$1;
 		}
-		if((!$info{day}) && m/<span class="day">(\d+)/) {
-			$info{day}=$1;
+		if((!$info{user_id}) && m/class="face[^>]+><img src="[^"]*weipai\.cn\/avatar\/[^"]+\/([^\/\-]+)-?\d{10}\.jpg"/) {
+			$info{user_id} = $1;
 		}
-		if((!$info{year}) && m/<span class="date">.*?>(\d+)-(\d+)/) {
-			$info{year} = $1;
-			$info{month} = $2;
-		}
-		if((!$info{length}) && m/<span class="length">(\d+)'(\d+)"/) {
-			$info{length} = $1 eq "0" ? "$2s" : "$1m$2s";
+		if((!$info{video_id}) && m/onclick="\$\.playVideo\('([^']+)'/) {
+			$info{video_id} = $1;
 		}
 		if((!$info{title}) && m/<span class="(?:video_title|desc)">(.+)<\/span/) {
 			$info{title} = extract_title($1);
 		}
-		if((!$info{minute}) && m/<span class="video_detail">(\d+)月(\d+)日\s+(\d+):(\d+)/) {
-			$info{month} = $1;
-			$info{day} = $2;
-			$info{minute} = $4;
-			$info{hour} = $3;
-		}
+		#if((!$info{minute}) && m/<span class="video_detail">\s*\d+月\d+日\s+(\d+):(\d+)/) {
+		#	$info{minute} = $2;
+		#	$info{hour} = $1;
+		#}
 		if((!$info{video})) {
-			if(m/<img[^>]*src="(http:\/\/(?:v|aliv)\.weipai\.cn\/[^"]+)/) {
+			if(m/<img[^>]*src="(http:\/\/(?:v|aliv)\.weipai\.cn\/(?:video|\d+)\/[^"]+)/) {
 				$info{cover} = $1;
 				$info{video} = $info{cover}; 
 				$info{video} =~ s/\.([^\/]+)$//g;
@@ -67,6 +61,10 @@ sub extract_video {
 				$info{video} =~ s/\.([^\/]+)$//g;
 			}
 		}
+		if($info{video} =~ m/\/(\d\d\d\d)(\d+)\/(\d+)\/(\d+)\//) {
+			($info{year},$info{month},$info{day},$info{hour}) = ($1,$2,$3,$4);
+		}
+
 		if((!$info{error}) && m/<div class="tab selected">出错啦<span class="end">/) {
 			$info{error} = 1;
 		}
@@ -77,15 +75,7 @@ sub extract_video {
 			#print STDERR "LINE MATCH NOTHING:$_\n";
 		}
 	}
-	if($info{error}) {
-		return ();
-	}
-	elsif(!$info{video}) {
-		return ();
-	}
-	else {
-		return build_data(%info);
-	}
+	return %info;
 }
 sub extract_title {
 	my $title = shift;
@@ -171,18 +161,19 @@ sub build_data {
 
 sub apply_rule_video {
     my ($url,$rule) = @_;
-	my $html = $utf8->encode(get_url($url,'-v'));
+#	my $html = $utf8->encode(get_url($url,'-v'));
+	my $html = MyPlace::URLRule::Utils::get_url($url,'-v');
+	#$html = $utf8->decode($html);
 	
     my $title = undef;
     my @data;
     my @pass_data;
-    my @html = split(/<\/div><div id="/,$html);
-	foreach my $block (@html) {
-		foreach my $url (extract_video($block)) {
+	my %info = extract_video($html);
+		foreach my $url (build_data(%info)) {
 			push @data,$url if($url);
 		}
-	}
 	return (
+		info=>\%info,
 		count=>scalar(@data),
 		data=>\@data,
 		base=>$url
@@ -236,6 +227,10 @@ sub apply_rule_video_uuid {
 	}
 }
 
+sub apply_rule_video_play {
+	my $url = shift;
+}
+
 sub apply_rule_video_json {
 	my $url = shift;
 	my $rule = shift;
@@ -252,6 +247,7 @@ sub apply_rule_video_json {
 
 #	my $json = MyPlace::Weipai::_encode(safe_decode_json(get_url($url,'-v')));
 	my $json = safe_decode_json(get_url($url,'-v'));
+	print STDERR $json->{reason},"\n" if($json->{reason});
 #	use Data::Dumper;print STDERR Data::Dumper->Dump([$json],['$json']);
 #	print STDERR $json->{video_list}[0]->{video_desc};
 #	die();
@@ -282,7 +278,16 @@ sub apply_rule {
 	elsif($rule->{options} && $rule->{options}->{fullname}) {
 		$FULLNAME = 1;
 	}
-	if($url =~ m/http:\/\/(?:aliv\.|v\.)weipai\.cn|http:\/\/oldvideo\.qiniudn\.com/) {
+
+	if($url =~ m/weipai\.cn\/video/) {
+		%r = apply_rule_video($url,$rule,@_);
+	}
+	elsif(1) {
+		%r = (
+			error=>'Code needs update, sign checking failed',
+		);
+	}
+	elsif($url =~ m/http:\/\/(?:aliv\.|v\.)weipai\.cn|http:\/\/oldvideo\.qiniudn\.com/) {
 		$url =~ s/\.(?:p\.jpg|p\d+\.jpg|p\.\d+\.jpg|\d+\.jpg|mov|flv|mp4|f4v)$/.mov.3in1.jpg/;
 		$url =~ s/\/thumbnail\/.*\/video\//\/video\//;
 		return (
@@ -300,6 +305,7 @@ sub apply_rule {
 	}
 	elsif($url =~ m/weipai\.cn\/(?:share\/flash\/|video\/)([^\?\s%\_\&\#\/]+)/) {
 		unshift @_,'#FULLNAME' if($FULLNAME);
+#		%r = apply_rule_video_play('http://share.weipai.cn/video/play/id/' . $1,$rule,@_);
 		%r = apply_rule_video_json('http://w1.weipai.cn/user_video_list?blog_id=' . $1,$rule,@_);
 	}
 	elsif($url =~ m/user_video_list\?/) {
