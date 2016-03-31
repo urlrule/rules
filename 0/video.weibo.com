@@ -64,17 +64,21 @@ sub apply_rule {
 		$info{playlist} = $vhtml;
 		$info{data} = [];
 		foreach(split(/[\r\n]/,$vhtml)) {
-			if(m/^\/?([^\/]+\.mp4)$/) {
-				$info{video} = 'http://us.sinaimg.cn/' . $1;
-				$info{filename} = $1;
+			s/^http:\/\/us\.sinaimg\.cn\/?//;
+			if(m/^(.*?)([^\/]+\.mp4)$/) {
+				$info{video} = 'http://us.sinaimg.cn/' . $1 . $2;
+				$info{filename} = $2;
 			}
-			elsif(m/^(http:\/\/us\.sinaimg\.cn\/.*?([^\/]+\.mp4))$/) {
-				$info{video} = $1;	
+			elsif(m/^(.*?)([^\/]+\.mp4)(\?[^\/]+)$/) {
+				$info{video} = 'http://us.sinaimg.cn/' . $1 . $2 . $3;
 				$info{filename} = $2;
 			}
 			if($info{video}) {
 				if($saveas) {
 					$info{video} .= "\t${saveas}_$info{filename}";
+				}
+				else {
+					$info{video} .= "\t$info{filename}";
 				}
 				push @{$info{data}},$info{video};
 				$info{count}++;
@@ -87,6 +91,9 @@ sub apply_rule {
 	}
 	else {
 		$info{error} = "Failed parse page: $url\n";
+	}
+	if($info{data}) {
+		$info{download} = $info{data};
 	}
     return %info;
 }

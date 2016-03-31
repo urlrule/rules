@@ -159,8 +159,10 @@ sub process_page {
 				}
 				if($loc =~ m/weibo\.com/) {
 					if($loc =~ m/video\.weibo\.com/) {
+#						push @{$post->{images}},[$loc,".mp4"];
 						$loc = "$loc&title=" . $post->{info} if($post->{info});
-						push @pass_data,$loc;
+						push @data,$loc;
+#						push @data,($info ? $loc . $post->{info};
 					}
 					next;
 				}
@@ -405,14 +407,12 @@ sub apply_rule {
 		return process_weibo($url,$level,$rule);
 	}
 	if(!$level) {
-		
 		if($url =~ m/http:\/\/weibo\.com\/p\/([^\/]+)$/) {
 			my $pid = $1;
 			my $html = get_url($url,'-v');
 			if($html =~ m/file=([^"&]+\.m3u8[^"&]*)/) {
 				return (
-					pass_data=>['http://video.weibo.com/p/' . $pid],
-					level=>0,
+					data=>['http://video.weibo.com/p/' . $pid],
 				);
 			}
 		}
