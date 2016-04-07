@@ -27,14 +27,25 @@ sub apply_rule {
 }
 =cut
 
-use MyPlace::URLRule::Utils qw/get_url/;
+use MyPlace::URLRule::Utils qw/get_url decode encode/;
+use utf8;
 
 #http://mo.vlook.cn/mobile/mta/home/qs/dWlkPTIxNDA1MDU=
 sub apply_rule {
     my ($url,$rule) = @_;
-	my $UID;
-	if($url =~ m/\/qs\/([^\/\?\&]+)/) {
-		$UID = $1;
+	my %info;
+	if($url =~ m/\/qs\/VBOX_([^\/]+)/) {
+		$url = "http://www.vlook.cn/videoBox/qs/$1";
+	}
+	if($url =~ m/\/videoBox\/qs\/([^\/]+)/) {
+		$info{qs} = $1;
+		$info{uid} = 'VBOX_' . $1;
+		$info{id} = $1;
+	}
+	elsif($url =~ m/\/qs\/([^\/\?\&]+)/) {
+		$info{qs} = $1;
+		$info{uid} =  $1;
+		$info{id} = $1;
 	}
 	else {
 		return (
@@ -44,18 +55,41 @@ sub apply_rule {
 	}
 	my $PREFIX = "http://www.vlook.cn/mobile/mta/home/qs/";
 	my $SIZE = 10;
-	my $murl = $PREFIX . $UID;
-	my $html = get_url($murl,'-v');
+	my $murl = $PREFIX . $info{id};
 	my $lastpage = 1;
-	if($html =~ m/<dd>.+?>(\d+)<.+?<\/dd>/) {
-		$lastpage = int($1 / $SIZE);
-		$lastpage += 1 if($1 % $SIZE);
+	my $html;
+	if($url =~ m/\/videoBox\//) {
+		$SIZE = 12;
+		$murl = $url;
+		$html = get_url($murl,'-v');
+		$html = decode('utf8',$html);
+		if($html =~ m/<div[^>]+class="detail_op"[^>]+_data="{boxId:(\d+),name:'([^']+)'/) {
+			$info{boxId} = $1;
+			$info{name} = $2;
+			$info{id} = $1;
+		}
+		if($html =~ m/<span>视频<\/span><br\/><font>(\d+)</) {
+			$info{videos_count} = $1;
+		}
+		$PREFIX = 'http://www.vlook.cn/ajx/n/avideoBox.video?qs=' . $info{uid} . '&t=all&b=' . $info{boxId} . "&";
+	}
+	else {
+		$PREFIX = $PREFIX . $info{id} . "?";
+		$html = get_url($murl,'-v');
+		if($html =~ m/<dd>.+?>(\d+)<.+?<\/dd>/) {
+				$info{videos_count} = $1;
+		}
+	}
+	if($info{videos_count}) {
+		$lastpage = int($info{videos_count} / $SIZE);
+		$lastpage += 1 if($info{videos_count} % $SIZE);
 	}
     my @pass_data;
 	foreach my $idx(1 .. $lastpage) {
-		push @pass_data,$PREFIX . $UID . "?no=$idx&size=$SIZE";
+		push @pass_data,$PREFIX . "no=$idx&size=$SIZE";
 	}
     return (
+		info=>\%info,
         count=>0,
         data=>undef,
         pass_count=>scalar(@pass_data),

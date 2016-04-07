@@ -44,21 +44,51 @@ use MyPlace::URLRule::Utils qw/get_url/;
 
 sub apply_rule {
     my ($url,$rule) = @_;
-	my $html = get_url($url,'-v');
+
 	my %i;
-    foreach(split(/\n/,$html)) {
-		if(!$i{uname} and m/<span class="font1">([^<>]+)/) {
-			$i{uname} = $1;
-			$i{uname} =~ s/@[^@]+$//;
-			$i{uname} =~ s/[\r\n\s]+//g;
-		}
-		elsif(!$i{uid} and m/<a[^>]+href="\/ta\/video\/qs\/([^\/"]+)"[^>]+id="selected"/) {
-			$i{uid} = $1;
-			$i{profile} = $i{uid};
-		}
-		last if($i{uid} and $i{uname});
+	if($url =~ m/\/qs\/VBOX_([^\/]+)/) {
+		$url = "http://www.vlook.cn/videoBox/qs/$1";
 	}
-	$i{url} = 'http://www.vlook.cn/ta/qs/' . $i{uid};
+	if($url =~ m/\/videoBox\/qs\/([^\/]+)/) {
+		$i{qs} = $1;
+		$i{uid} = 'VBOX_' . $1;
+		$i{id} = $1;
+	}
+	elsif($url =~ m/\/qs\/([^\/\?\&]+)/) {
+		$i{qs} = $1;
+		$i{uid} =  $1;
+		$i{id} = $1;
+	}
+	else {
+		return (
+			count=>0,
+			error=>"Invalid URL",
+		);
+	}
+	my $html = get_url($url,'-v');
+	if($url =~ m/\/videoBox\/qs\/([^\/]+)/) {
+		$i{uid} = 'VBOX_' . $1;
+		$i{url} = 'http://www.vlook.cn/videoBox/qs/' . $1;
+		if($html =~ m/<div[^>]+class="detail_op"[^>]+_data="{boxId:(\d+),name:'([^']+)'/) {
+			$i{boxId} = $1;
+			$i{uname} = $2;
+		}
+	}
+	else {
+	    foreach(split(/\n/,$html)) {
+			if(!$i{uname} and m/<span class="font1">([^<>]+)/) {
+				$i{uname} = $1;
+				$i{uname} =~ s/@[^@]+$//;
+				$i{uname} =~ s/[\r\n\s]+//g;
+			}
+			if(!$i{uid} and m/<a[^>]+href="\/ta\/video\/qs\/([^\/"]+)"[^>]+id="selected"/) {
+				$i{uid} = $1;
+			}
+			last if($i{uid} and $i{uname});
+		}
+		$i{url} = 'http://www.vlook.cn/ta/qs/' . $i{uid};
+	}
+	$i{profile} = $i{uid};
 	$i{host} = 'vlook.cn';
 	return %i;
 }

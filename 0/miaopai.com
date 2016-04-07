@@ -100,11 +100,17 @@ sub apply_rule {
 		#	$info{hour} = $3;
 		#	$info{minute} = $4;
 		#}
-		elsif(m/<p>\s*(.+?)\s*<\/p>/) {
+		elsif((!$info{desc}) and m/<p>\s*(.+?)\s*<\/p>/) {
 			$info{desc} = $1;
 			$info{desc} =~ s/<[^>]+>//g;
 			$info{desc} =~ s/\s+$//;
 			$info{maxlen} = 60;
+		}
+		elsif((!$info{image}) and m/src="([^"]+miaopai\.com\/stream\/[^"]+\.jpg)"/) {
+			$info{image} = $1;
+		}
+		elsif(m/<a class="one_title[^>]+title="([^"]+)"/) {
+			$info{desc} = $1;
 		}
 		elsif(m/<div class="talk">/) {
 			last;
@@ -137,8 +143,8 @@ sub apply_rule {
 		return (error=>"Error parsing $url");
 	}
 	$info{month} ||= $now{month}; 
-	$info{day} ||= $now{day};
-	if($info{day} < 1) {
+#	$info{day} ||= $now{day};
+	if($info{day} and $info{day} < 1) {
 		$info{month} -=1;
 		$info{day} = 30;
 	}
@@ -157,14 +163,19 @@ sub apply_rule {
 	}
 
 	$info{month} = "0" . $info{month} if(length($info{month}) < 2);
-	$info{day} = "0" . $info{day} if(length($info{day}) < 2);
+	$info{day} = "0" . $info{day} if($info{day} and length($info{day}) < 2);
 	if($info{desc}) {
 		$info{desc} = extract_title($utf8->decode($info{desc}));
 	}
-
+	if(!$info{day}) {
+		$info{year} = '';
+		$info{month} = '';
+		$info{day} = '';
+	}
 	$info{id} =~ s/_+// if($info{id});
 	my $basename = $info{year} . $info{month} . $info{day} . "_" . $info{id};
 	$basename .= "_" . $info{desc} if($info{desc});
+	$basename =~ s/^_+//;
 	push @data,$info{videosrc} . "\t" . $basename ."." . $info{videoext}; 
 	push @data,$info{image} . "\t" . $basename . "." . $info{imageext}; 
     return (

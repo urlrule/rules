@@ -31,21 +31,35 @@ use MyPlace::URLRule::Utils qw/get_url/;
 sub apply_rule {
     my ($url,$rule) = @_;
     my $UID = undef;
-	my $SUFFIX;
-	if($url =~ m/qs\/([^#\?\&\/\\]+)(.+)$/) {
-		$UID = $1;
-		$SUFFIX = $2;
-	}
-	return (error=>"Invalid URL") unless($UID);
-	my $PREFIX = "http://www.vlook.cn/mobile/mta/home/qs/";
-	my $murl = $PREFIX . $UID . $SUFFIX;	
-	my $html = get_url($murl,'-v');
-    my @pass_data;
-    my @html = split(/<div class="video_pic2">/,$html);
-	foreach(@html) {
-		if(m/<a href="([^"]+)" class="personal_cont">/) {
-			push @pass_data,$1;
+	my @pass_data;
+
+	if($url =~ m/\/ajx\/n\/avideoBox\.video\?(?:b=(\d+)|.*&b=(\d+))/) {
+		$UID = $1 || $2;
+		if($url =~ m/\/ajx\/n\/avideoBox\.video\?(?:qs=([^&]+)|.*&qs=([^&]+))/) {
+			$UID = $1 || $2;
 		}
+		my $html = get_url($url,'-v');
+		foreach(split(/<a href=\\"/,$html)) {
+			if(m/^\\\/show\\\/qs\\\/([^\\\/'"]+)/) {
+				push @pass_data,'http://www.vlook.cn/show/qs/' . $1;
+			}
+		}
+	}
+	elsif($url =~ m/qs\/([^#\?\&\/\\]+)(.+)$/) {
+		$UID = $1;
+		my $SUFFIX = $2;
+		my $PREFIX = "http://www.vlook.cn/mobile/mta/home/qs/";
+		my $murl = $PREFIX . $UID . $SUFFIX;	
+		my $html = get_url($murl,'-v');
+	    my @html = split(/<div class="video_pic2">/,$html);
+		foreach(@html) {
+			if(m/<a href="([^"]+)" class="personal_cont">/) {
+				push @pass_data,$1;
+			}
+		}
+	}
+	else {
+		return (error=>"Invalid URL");
 	}
     return (
         count=>0,

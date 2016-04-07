@@ -40,7 +40,7 @@ sub apply_rule {
 }
 =cut
 
-use MyPlace::URLRule::Utils qw/get_url/;
+use MyPlace::URLRule::Utils qw/get_url strnum/;
 use URI::Escape;
 
 sub apply_rule {
@@ -57,7 +57,7 @@ sub apply_rule {
 	my %info;
 
 	$info{count} = 0;
-#	print STDERR $html,"\n";
+	#print STDERR $html,"\n";
 	if($html =~ m/file=([^"&]+\.m3u8[^"&]*)/) {
 		$info{playlist_url} = uri_unescape($1);
 		my $vhtml = get_url($info{playlist_url},'-v');
@@ -65,20 +65,30 @@ sub apply_rule {
 		$info{data} = [];
 		foreach(split(/[\r\n]/,$vhtml)) {
 			s/^http:\/\/us\.sinaimg\.cn\/?//;
-			if(m/^(.*?)([^\/]+\.mp4)$/) {
-				$info{video} = 'http://us.sinaimg.cn/' . $1 . $2;
+			if(m/^(.*?)([^\/]+)(\.mp4)$/) {
+				$info{video} = $_;
 				$info{filename} = $2;
+				$info{ext} = $3;
 			}
-			elsif(m/^(.*?)([^\/]+\.mp4)(\?[^\/]+)$/) {
-				$info{video} = 'http://us.sinaimg.cn/' . $1 . $2 . $3;
+			elsif(m/^(.*?)([^\/]+)(\.mp4)(\?[^\/]+)$/) {
+				$info{video} = $_;
 				$info{filename} = $2;
+				$info{ext} = $3;
+			}
+			my $sufx = '';
+			if($info{count}>0) {
+				$sufx = "_" .  strnum($info{count} + 1,3);
 			}
 			if($info{video}) {
+				if($info{video} !~ /^http/) {
+					$info{video} =~ s/^\/+//;
+					$info{video} = 'http://us.sinaimg.cn/' . $info{video};
+				}
 				if($saveas) {
-					$info{video} .= "\t${saveas}_$info{filename}";
+					$info{video} .= "\t${saveas}$sufx$info{ext}";
 				}
 				else {
-					$info{video} .= "\t$info{filename}";
+					$info{video} .= "\t$info{filename}$sufx$info{ext}";
 				}
 				push @{$info{data}},$info{video};
 				$info{count}++;

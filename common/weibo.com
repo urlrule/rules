@@ -66,6 +66,173 @@ sub extract_uid {
 	}
 	return $uid;
 }
+sub extract_post {
+	my $post = {};
+	local $_ = shift;
+	$_ =~ s/src="([^"]+(?:sina|weibo|sinaimg)\.(?:com|cn)[^"]*)\/(?:orj\d\d\d|thumb\d+|sq\d\d\d|mw\d\d\d\d|thumbnail|square|bmiddle|mw\d\d\d)\/([^"]+)"/src="$1\/large\/$2"/sg;
+	my $text = $_;
+	$text =~ s/[\n\r]//sg;
+	if($text =~ m/\\u/) {
+		$text =~ s/(["@])/\\$1/sg;
+		$text =~ s/\\u(....)/\\x{$1}/sg;
+		$text = (eval("\"\" . \"$text\""));
+	}
+#		if(length($text) > 20) {
+#			$text =~ s/^\s*([^，。\.,]+).+$/$1/;
+#			$text = substr($text,0,20);
+#		}
+	$post->{html}=$text;
+	$post->{content} = $text;
+	$post->{content} =~ s/<[^>]*>//g;
+	$post->{content} =~ s/[\r\n\s]+/ /g;
+	$post->{images}=[];
+	$post->{links} = [];
+	if(m/mid="([^"]+)"/) {
+		$post->{mid}=$1;
+	}
+	if(m/feedtype="([^"]+)"/) {
+		$post->{feedtype} = $1;
+	}
+	if((!$post->{info}) and m/<a[^>]*href="\/\d+\/([^\?"]+)[^"]*"[^>]*title="([^"]+)"/) {
+		#$post->{info} = "$2_$1_" . $post->{text};
+		$post->{info} = "$2_$1";#_" . $post->{text};
+		$post->{info} =~ s/[\/\?]/_/g;
+		$post->{info} =~ s/[-\s:]//g;
+	}
+	foreach my $line (split(/[\r\n]/,$_)) {
+		while($line =~ m/<img[^>]*src\s*=\s*(['"])([^>]+?)\1/sg) {
+			my $src = $2;
+			#next unless($src =~ m/large|original/);
+			next if($src =~ m/\/style\/images\/|sinajs|http:\/\/tp\d+\.sinaimg\.cn|http:\/\/tc\.sinaimg/);
+
+			if($src =~ m/\.([^\.\/]+)$/) {
+				push @{$post->{images}},[$src,".$1"];
+			}
+			else {
+				push @{$post->{images}},[$src,".jpg"];
+			}
+		}
+		while($line =~ m/href="(http:\/\/t\.cn[^"]+)/g) {
+			my $loc = expand_url($1);
+			if($loc =~ m/mob\.com/) {
+				$loc = expand_url($loc);
+			}
+			if($loc =~ m/url\.cn/) {
+				$loc = expand_url($loc);
+			}
+			if($loc =~ m/weibo\.com/) {
+				if($loc =~ m/video\.weibo\.com/) {
+#						push @{$post->{images}},[$loc,".mp4"];
+					$loc = "$loc&title=" . $post->{info} if($post->{info});
+					push @{$post->{data}},$loc;
+#						push @data,($info ? $loc . $post->{info};
+				}
+				next;
+			}
+			$loc = $loc . "\t" . $post->{info} if($post->{info});
+			push @{$post->{links}},$loc;
+		}
+	}
+	return $post;
+}
+
+sub process_post {
+	my($url,$level,$rule) = @_;	
+	my $content = get_url($url,'-v');
+	my @data;
+	local $_ = extract_post($content);
+		my $idx = 0;
+		my @images = @{$_->{images}} if($_->{images});
+		my $count = @{$_->{images}} if($_->{images});;
+		my $title = $_->{info};
+		my $html = $_->{html};
+		my $with_images = 1;
+		my @outer_links;
+
+		if($OPTS{WEIPAI}) {
+			my @shots;
+			my @links;
+			foreach(@images) {
+				my $url = $_->[0];
+				if($url =~ m/http:\/\/(?:aliv\.|v\.)weipai\.cn|http:\/\/oldvideo\.qiniudn\.com/) {
+					push @shots,$url;
+				}
+				else {
+					push @data,$_->[0] . "\t" . $title ."_" .strnum($idx,3) .   $_->[1];
+				}
+			}
+			if($html =~ m/weipai\.cn/) {
+				while($html =~ m/href="(http:\/\/t\.cn[^"]+)/g) {
+					my $loc = expand_url($1);
+					if($loc =~ m/mob\.com/) {
+						$loc = expand_url($loc);
+					}
+					if($loc =~ m/url\.cn/) {
+						$loc = expand_url($loc);
+					}
+					if($loc =~ m/weipai\.cn\/video\/[^\/]+$/) {
+						push @links,$loc;
+					}
+					else {
+						push @data,$loc;
+					}
+				}
+			}
+			if(@links) {
+				push @data,@links;
+			}
+			elsif(@shots) {
+				push @data,@shots;
+			}
+			$with_images = 0;
+		}
+		elsif($OPTS{HTML}) {
+			push @data,$_->{html};
+			$with_images = 0;
+		}
+		elsif($OPTS{LINKS}) {
+			if($_->{links}) {
+				push @data,(@{$_->{links}});
+				delete $_->{links};
+			}
+			$with_images = 1;
+		}
+		if(!$with_images) {
+		}
+		elsif($count>0) {
+			push @data, $images[0]->[0] . "\t" . $title . $images[0]->[1];
+			my $idx = 1;
+			while($idx<$count) {
+				my $img = $images[$idx];
+				$idx++;
+				push @data,$img->[0] . "\t" . $title ."_" .strnum($idx,3) .   $img->[1];
+			}
+		}
+		else {
+			print STDERR "No images found for post <$title>\n";
+		}
+		if($_->{links}) {
+			foreach my $loc(@{$_->{links}}) {
+				push @outer_links,$loc;
+			}
+		}
+		delete $_->{html};
+		#push @data,new_html_data($html,$title,$url);
+
+	my %r = (
+		info=>$_,
+		count=>scalar(@data),
+		data=>\@data,
+		url=>$url,
+	);
+	$r{outer_links} = \@outer_links if(@outer_links);
+	if(@outer_links) {
+		#push @{$r{data}},grep(/(?:miaopai.com|meipai.com|weipai.cn|p\.weibo.com|video\.weibo\.com)/,@outer_links);
+		push @{$r{data}},grep(/(?:weipai.cn|p\.weibo.com|video\.weibo\.com|xiaoying\.tv\/v\/)/,@outer_links);
+	}
+	return %r;
+
+}
 
 sub process_page {
 	my($url,$level,$rule,$page,$maxretry) = @_;
@@ -105,71 +272,11 @@ sub process_page {
 		$load_more=1;
 	}
 	foreach(@blocks) {
-		my $post = {};
-		$_ =~ s/src="([^"]+(?:sina|weibo|sinaimg)\.(?:com|cn)[^"]*)\/(?:orj480|thumb150|sq480|mw1024|thumbnail|square|bmiddle|mw690)\/([^"]+)"/src="$1\/large\/$2"/sg;
-		my $text = $_;
-		$text =~ s/[\n\r]//sg;
-		if($text =~ m/\\u/) {
-			$text =~ s/(["@])/\\$1/sg;
-			$text =~ s/\\u(....)/\\x{$1}/sg;
-			$text = (eval("\"\" . \"$text\""));
+		my $post = extract_post($_);
+		if($post) {
+			push @posts,$post;
+			push @data,@{$post->{data}} if($post->{data});
 		}
-#		if(length($text) > 20) {
-#			$text =~ s/^\s*([^，。\.,]+).+$/$1/;
-#			$text = substr($text,0,20);
-#		}
-		$post->{html}=$text;
-		$post->{content} = $text;
-		$post->{content} =~ s/<[^>]*>//g;
-		$post->{content} =~ s/[\r\n\s]+/ /g;
-		$post->{images}=[];
-		$post->{links} = [];
-		if(m/mid="([^"]+)"/) {
-			$post->{mid}=$1;
-		}
-		if(m/feedtype="([^"]+)"/) {
-			$post->{feedtype} = $1;
-		}
-		if((!$post->{info}) and m/<a[^>]*href="\/(\d+\/[^\?"]+)[^"]*"[^>]*title="([^"]+)"/) {
-			#$post->{info} = "$2_$1_" . $post->{text};
-			$post->{info} = "$2_$1";#_" . $post->{text};
-			$post->{info} =~ s/[\/\?]/_/g;
-			$post->{info} =~ s/[-\s:]//g;
-		}
-		foreach my $line (split(/[\r\n]/,$_)) {
-			while($line =~ m/<img[^>]*src\s*=\s*(['"])([^>]+?)\1/sg) {
-				my $src = $2;
-				#next unless($src =~ m/large|original/);
-				next if($src =~ m/\/style\/images\/|sinajs/);
-
-				if($src =~ m/\.([^\.\/]+)$/) {
-					push @{$post->{images}},[$src,".$1"];
-				}
-				else {
-					push @{$post->{images}},[$src,".jpg"];
-				}
-			}
-			while($line =~ m/href="(http:\/\/t\.cn[^"]+)/g) {
-				my $loc = expand_url($1);
-				if($loc =~ m/mob\.com/) {
-					$loc = expand_url($loc);
-				}
-				if($loc =~ m/url\.cn/) {
-					$loc = expand_url($loc);
-				}
-				if($loc =~ m/weibo\.com/) {
-					if($loc =~ m/video\.weibo\.com/) {
-#						push @{$post->{images}},[$loc,".mp4"];
-						$loc = "$loc&title=" . $post->{info} if($post->{info});
-						push @data,$loc;
-#						push @data,($info ? $loc . $post->{info};
-					}
-					next;
-				}
-				push @{$post->{links}},$loc;
-			}
-		}
-		push @posts,$post;
 	}
 	foreach(@posts) {
 		my $idx = 0;
@@ -229,16 +336,17 @@ sub process_page {
 		}
 		if(!$with_images) {
 		}
-		elsif($count == 1) {
+		elsif($count>0) {
 			push @data, $images[0]->[0] . "\t" . $title . $images[0]->[1];
-#			$html .= "<img src=\"" . $title . $images[0]->[1] . "\"><br/>";
+			my $idx = 1;
+			while($idx<$count) {
+				my $img = $images[$idx];
+				$idx++;
+				push @data,$img->[0] . "\t" . $title ."_" .strnum($idx,3) .   $img->[1];
+			}
 		}
 		else {
-			foreach(@images) {
-				$idx++;
-				push @data,$_->[0] . "\t" . $title ."_" .strnum($idx,3) .   $_->[1];
-#				$html .= "<img src=\"" . $title ."_" . strnum($idx,3) .  $_->[1] . "\"><br/>";
-			}
+			print STDERR "No images found for post <$title>\n";
 		}
 		if($_->{links}) {
 			foreach my $loc(@{$_->{links}}) {
@@ -292,7 +400,7 @@ sub process_page {
 	$r{outer_links} = \@outer_links if(@outer_links);
 	if(@outer_links) {
 		#push @{$r{data}},grep(/(?:miaopai.com|meipai.com|weipai.cn|p\.weibo.com|video\.weibo\.com)/,@outer_links);
-		push @{$r{data}},grep(/(?:weipai.cn|p\.weibo.com|video\.weibo\.com)/,@outer_links);
+		push @{$r{data}},grep(/(?:weipai.cn|p\.weibo.com|video\.weibo\.com|xiaoying\.tv)/,@outer_links);
 	}
 	return %r;
 }
@@ -416,8 +524,9 @@ sub apply_rule {
 				);
 			}
 		}
-
-
+		elsif($url =~ m/^http:\/\/weibo.com\/\d+\/[^\/]+$/) {
+			return process_post($url,$level,$rule);
+		}
 		my $page = 1;
 		if($url =~ m/&page=(\d+)/) {
 			$page = $1;
