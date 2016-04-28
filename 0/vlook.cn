@@ -72,20 +72,6 @@ sub apply_rule {
 
     my $title = undef;
     my @data;
-	#my @pass_data;
-    #my @html = split(/\n/,$html);
-
-#  <meta property="og:type" content="video" />
-#  <meta property="og:url" content="http://www.vlook.cn/show/1955873" />
-#  <meta property="og:title" content="3个乳房的女人牵着三个男人像遛狗一样……画面太诡异了！" />
-#  <meta property="og:description" content="3个乳房的女人牵着三个男人像遛狗一样……画面太诡异了！" />
-#  <meta property="og:image" content="http://image.vlook.cn:80/static/pic/snap_8/75w_.jpg" />
-#  <meta property="og:videosrc" content="http://www.vlook.cn/app/vplayer/flv/qs/YklkPTE5NTU4NzM=/flv.swf" />
-#  <meta property="og:site_name" content="微录客" />  
-#  <meta name ="weibo:video:url" content="http://www.vlook.cn/show/sina/1955873" />
-#  <meta name="weibo:video:duration" content="140" />
-#  <meta name="weibo:video:create_at" content="2014-12-31 13:01:32" />
-
 	my %info;
 	while($html =~ m/<meta[^>]+(?:name|property)\s*=\s*"([^"]+)"[^>]+content\s*=\s*"([^"]+)"/g) {
 		$info{$1} = $2;
@@ -100,14 +86,11 @@ sub apply_rule {
 		$title = $info{'og:title'};
 	}
 	my $video;
-	if($html =~ m/<source[^>]*src="([^"]+)/) {
+	if($html =~ m/createPlayer\('([^']+\.mp4)'/) {
 		$video = $1;
 	}
-	elsif($info{'og:image'} and $info{'og:image'} =~ m/[^"]+\/([^\/"]+)\.jpg$/) {
-		my $vid = $1;
-		$video = "http://download1.vlook.cn/video/high/$vid.mp4";
-		#$videos{vga} = "http://download1.vlook.cn/video/vga/$vid.mp4";
-		$info{vid} = $vid;
+	elsif($html =~ m/<source[^>]*src="([^"]+)/) {
+		$video = $1;
 	}
 	elsif($html =~ m/&player_src=([^&"]+)/) {
 		$video = $1;

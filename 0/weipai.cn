@@ -279,15 +279,15 @@ sub apply_rule {
 		$FULLNAME = 1;
 	}
 
-	if($url =~ m/weipai\.cn\/video/) {
-		%r = apply_rule_video($url,$rule,@_);
-	}
-	elsif(1) {
-		%r = (
-			error=>'Code needs update, sign checking failed',
-		);
-	}
-	elsif($url =~ m/http:\/\/(?:aliv\.|v\.)weipai\.cn|http:\/\/oldvideo\.qiniudn\.com/) {
+#	if($url =~ m/weipai\.cn\/video/) {
+#		%r = apply_rule_video($url,$rule,@_);
+#	}
+#	elsif(1) {
+#		%r = (
+#			error=>'Code needs update, sign checking failed',
+#		);
+#	}
+	if($url =~ m/http:\/\/(?:aliv\.|v\.)weipai\.cn|http:\/\/oldvideo\.qiniudn\.com/) {
 		$url =~ s/\.(?:p\.jpg|p\d+\.jpg|p\.\d+\.jpg|\d+\.jpg|mov|flv|mp4|f4v)$/.mov.3in1.jpg/;
 		$url =~ s/\/thumbnail\/.*\/video\//\/video\//;
 		return (

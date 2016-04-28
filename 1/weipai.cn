@@ -131,9 +131,9 @@ sub apply_rule {
     my ($url,$rule) = @_;
 	my %info;
 
-	return (
-		error=>'Code needs update, sign checking failed',
-	);
+#	return (
+#		error=>'Code needs update, sign checking failed',
+#	);
 	if($url =~ m/^(https?:\/\/[^\/]+)\/(?:user|videos|follows|fans)\/([^\/\?]+)/) {
 		$info{host} = $1;
 		$info{uid}=$2;

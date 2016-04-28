@@ -228,7 +228,7 @@ sub process_post {
 	$r{outer_links} = \@outer_links if(@outer_links);
 	if(@outer_links) {
 		#push @{$r{data}},grep(/(?:miaopai.com|meipai.com|weipai.cn|p\.weibo.com|video\.weibo\.com)/,@outer_links);
-		push @{$r{data}},grep(/(?:weipai.cn|p\.weibo.com|video\.weibo\.com|xiaoying\.tv\/v\/)/,@outer_links);
+		push @{$r{data}},grep(/(?:weipai.cn|p\.weibo.com|video\.weibo\.com|v\.xiaokaxiu\.com\/v\/|xiaoying\.tv\/v\/)/,@outer_links);
 	}
 	return %r;
 
@@ -400,7 +400,7 @@ sub process_page {
 	$r{outer_links} = \@outer_links if(@outer_links);
 	if(@outer_links) {
 		#push @{$r{data}},grep(/(?:miaopai.com|meipai.com|weipai.cn|p\.weibo.com|video\.weibo\.com)/,@outer_links);
-		push @{$r{data}},grep(/(?:weipai.cn|p\.weibo.com|video\.weibo\.com|xiaoying\.tv)/,@outer_links);
+		push @{$r{data}},grep(/(?:weipai.cn|p\.weibo.com|video\.weibo\.com|v\.xiaokaxiu\.com\/v\/|xiaoying\.tv\/v\/)/,@outer_links);
 	}
 	return %r;
 }

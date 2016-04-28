@@ -48,6 +48,12 @@ sub apply_rule {
         #    $data{$url} = 1;
         #}
     }
+	foreach(keys %data) {
+		my $filename = $_;
+		$filename =~ s/\?.*$//;
+		$filename =~ s/.*\///;
+		push @{$r{data}},$_ . "\t" . $filename;
+	}
 	push @{$r{data}},keys %data;
     return %r;
 }
