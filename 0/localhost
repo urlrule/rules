@@ -1,0 +1,22 @@
+#!/usr/bin/perl -w
+#DOMAIN : localhost
+#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#CREATED: 2016-05-09 00:42
+#UPDATED: 2016-05-09 00:42
+#TARGET : localhost 0
+package MyPlace::URLRule::Rule::0_localhost;
+use MyPlace::URLRule::Utils qw/get_url/;
+use base 'MyPlace::URLRule::Rule';
+use strict;
+use warnings;
+sub apply_rule {
+	my $self = shift;
+	return (error=>"Subroutine [apply_rule] not implemented");
+}
+return new MyPlace::URLRule::Rule::0_localhost;
+
+__END__
+
+#       vim:filetype=perl
+
+
