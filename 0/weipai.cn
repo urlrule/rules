@@ -6,7 +6,7 @@ no warnings 'redefine';
 
 #http://www.weipai.cn/user/moreOwnVideos/uid/52648e589f6c00cd1a8fde4e?page=1
 
-use MyPlace::Weipai qw/get_url safe_decode_json/;
+use MyPlace::Weipai qw/get_url safe_decode_json get_blog_id/;
 use MyPlace::URLRule::Utils qw//;
 use MyPlace::String::Utils qw/no_empty/;
 use Encode qw/find_encoding/;
@@ -150,7 +150,7 @@ sub build_data {
 		#$info{cover} . ".mov.3in1.jpg" . "\t" . $filename . ".3in1.jpg",
 		my @data;
 		push @data, $info{cover} . "\t" . $filename . ".jpg";
-		push @data,$info{video} . $ext . "\t" . $filename . $ext;
+		#push @data,$info{video} . $ext . "\t" . $filename . $ext;
 		push @data,'http://www.weipai.cn/video/' . ($info{video_id} || $info{blog_id}) . "\t" . $filename . ".ts";
 		#if($info{video_play_url}) {
 		#	push @data,$info{video_play_url} . "\t" . $filename . ".ts";
@@ -213,12 +213,9 @@ sub extract_video_list {
 
 sub apply_rule_video_uuid {
 	my $url = shift;
-	my $html = get_url($url,'-v');
-	if($html =~ m/url\s*:\s*"(http:\/\/www\.weipai\.cn\/video\/([^\/]+)")/) {
-		return apply_rule_video_json('http://w1.weipai.cn/user_video_list?blog_id=' . $1,@_);
-	}
-	elsif($html =~ m[video/download/id/([^/]+)/]) {
-		return apply_rule_video_json('http://w1.weipai.cn/user_video_list?blog_id=' . $1,@_);
+	my $id = get_blog_id($url);
+	if($id) {
+		return apply_rule_video_json('http://w1.weipai.cn/user_video_list?blog_id=' . $id,@_);
 	}
 	else {
 		return (
@@ -251,12 +248,25 @@ sub apply_rule_video_json {
 #	use Data::Dumper;print STDERR Data::Dumper->Dump([$json],['$json']);
 #	print STDERR $json->{video_list}[0]->{video_desc};
 #	die();
-	my @data = extract_video_list($json->{video_list},$FLAGS);
+	my @data;
+	my $info = $json;
+	if($json->{video_list} and ref $json->{video_list}) {
+		@data = extract_video_list($json->{video_list},$FLAGS);
+		my $v = $json->{video_list};
+		if(@$v) {
+			$info = $v->[0];	
+			foreach(qw/uname username user_name user nickname nick nick_name/) {
+				if($info->{$_}) {
+					$info->{$_} = $utf8->encode($info->{$_});
+				}
+			}
+		}
+	}
 	return (
 		count=>scalar(@data),
 		data=>\@data,
 		base=>$url,
-		info=>$json,
+		info=>$info,
 	);
 }
 
@@ -360,6 +370,7 @@ sub apply_rule {
 	my @video_list;
 	my $count = 0;
 	my @data;
+	my @vdata;
 	if($info->{"diary_list"}) {
 		foreach(@{$info->{"diary_list"}}) {
 			if($_->{video_list}) {
@@ -372,10 +383,24 @@ sub apply_rule {
 	if($info->{'user_video_list'}) {
 		push @video_list,$info->{'user_video_list'};
 	}
+	my %VNAME;
 	foreach my $vl(@video_list) {
 		foreach my $v(@$vl) {
-			my %vd  = apply_rule_video_json('http://w1.weipai.cn/user_video_list?blog_id=' . $v->{blog_id} || $v->{video_id});
-			push @data,@{$vd{data}} if($vd{data});
+			my $id = $v->{blog_id} || $v->{video_id};
+			my %vd  = apply_rule_video_json('http://w1.weipai.cn/user_video_list?blog_id=' . $id);
+			if($vd{data}) {
+				foreach(@{$vd{data}}) {
+					if(m/^([^\t]+)\t+(.+)\.([^\.]+)$/) {
+						if($VNAME{$2 . "." . $3}) {
+							push @data,$1 . "\t" . $2 . "_$id" . "." . $3;
+						}
+						else {
+							$VNAME{$2 . "." . $3} = 1;
+							push @data,$_;
+						}
+					}
+				}
+			}
 		}	
 	}
 	$r{count} = scalar(@data);

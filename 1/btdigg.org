@@ -30,7 +30,7 @@ sub apply_rule {
        'pages_pre'=>'$2',
        'pages_suf'=>'$3',
        'pages_start'=>undef,
-	   'pages_limit'=>30,
+	   'pages_limit'=>10,
        'title_exp'=>undef,
        'title_map'=>undef,
        'charset'=>undef

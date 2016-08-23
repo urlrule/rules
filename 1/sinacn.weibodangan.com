@@ -39,21 +39,22 @@ sub apply_rule {
  );
 }
 =cut
-
+use MyPlace::URLRule::Utils qw/get_url/;
 sub apply_rule {
     my ($url,$rule) = @_;
-	if($url =~ m/\/user\/(\d+)/) {
-		return (
-			uid=>$1,
-			profile=>"/user/$1",
-			host=>'sinacn.weibodangan.com',
-			url=>"http://sinacn.weibodangan.com/user/$1",
-			pass_data=>["http://sinacn.weibodangan.com/user/$1"],
-			title=>$1,
-		);
+	my $html = get_url($url,'-v');
+	my $t = time;
+	my @pass_data= ($url);
+	if($html =~ m/<a[^>]+id="next_page"[^>]+href="([^"]+)"/) {
+		my $n = $1;
+		$n =~ s/#[^\/]+$//;
+		$n = $n . "&t" . $t;
+		push @pass_data,$n;
 	}
 	return (
-		error=>"Failed parsing url",
+        pass_count=>scalar(@pass_data),
+        pass_data=>\@pass_data,
+        base=>$url,
 	);
 }
 

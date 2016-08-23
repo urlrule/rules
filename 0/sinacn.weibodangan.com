@@ -51,6 +51,10 @@ sub apply_rule {
     my @pass_data;
     my @html = split(/<a class="screen_name"/,$html);
 	my @posts;
+	my $max_id = 0;
+	if($url =~ m/max_id=(\d+)/) {
+		$max_id = $1;
+	}
 	foreach(@html) {
 		my $post;
 		if(m/id="weibo(\d+)"/) {
@@ -61,10 +65,10 @@ sub apply_rule {
 			$post->{uid} = $4;
 			$post->{date} =~ s/[-:_ ]//g;
 		}
-		while(m/<img[^>]+bigcursor" src="(http:\/\/[^"\/]+)\/[^"\/]+\/([^"]+)"/g) {
-			push @{$post->{imgs}},"$1/large/$2";
+		while(m/<img[^>]+data-rel=['"]([^'"]+)/g) {
+			push @{$post->{imgs}},$1;
 		}
-		while(m/<a class="href" data-url="([^"]+)"/g) {
+		while(m/<a[^>]+data-url=["']([^'"]+)/g) {
 			push @{$post->{links}},$1;
 		}
 		push @posts,$post if($post);
@@ -96,7 +100,13 @@ sub apply_rule {
 		}
 	}
 	if($html =~ m/<a[^>]+id="next_page"[^>]+href="([^"]+)"/) {
-		push @pass_data,$1;
+		my $nurl = $1;
+		if($max_id and $nurl =~ m/max_id=(\d+)/) {
+			push @pass_data,$nurl unless($max_id  == $1);
+		}
+		else {
+			push @pass_data,$nurl;
+		}
 	}
     return (
 		info=>\@posts,

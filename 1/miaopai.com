@@ -10,7 +10,7 @@ sub apply_rule {
        '#use quick parse'=>1,
        'data_exp'=>undef,
        'data_map'=>undef,
-       'pass_exp'=>'scid=([^&"]+)',
+       'pass_exp'=>'[\?\&]scid=([^&"]+)',
        'pass_map'=>'"http://www.miaopai.com/show/$1.htm"',
        'pass_name_map'=>undef,
        'pages_exp'=>undef,

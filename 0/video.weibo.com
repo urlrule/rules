@@ -49,6 +49,9 @@ sub apply_rule {
 	if($url =~ m/http:\/\/video\.weibo\.com\/p\/(.+)$/) {
 		$url = 'http://weibo.com/p/' . $1;
 	}
+	elsif($url =~ m/\/player\/([^\/]+)/) {
+		$url = 'http://video.weibo.com/show?fid=' . $1;
+	}
 	my $html = get_url($url,'-v');
 	my $saveas;
 	if($url =~ m/title=([^&\/]+)/) {
@@ -57,10 +60,12 @@ sub apply_rule {
 	my %info;
 
 	$info{count} = 0;
-	#print STDERR $html,"\n";
+#	print STDERR $html,"\n";
+
 	if($html =~ m/file=([^"&]+\.m3u8[^"&]*)/) {
 		$info{playlist_url} = uri_unescape($1);
 		my $vhtml = get_url($info{playlist_url},'-v');
+#		die($vhtml);
 		$info{playlist} = $vhtml;
 		$info{data} = [];
 		foreach(split(/[\r\n]/,$vhtml)) {

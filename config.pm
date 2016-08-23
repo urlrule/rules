@@ -25,10 +25,13 @@ $MyPlace::URLRule::Config = {
 		'btkitty.so'=>'btkitty.org',
 		'bttiantang.cc'=>'bttiantang.com',
 		'torrentkitty.net'=>'torrentkitty.org',
+		'torrentkitty.me'=>'torrentkitty.org',
+		'torrentkitty.tv'=>'torrentkitty.org',
 		'67.220.90.4' =>'sexinsex.net',
 		'segirlsong.com' => 'sex8.cc',
 		'sxclub8.com'=>'sex8.cc',
 		'btdigg.ws'=>'btdigg.me',
+		'kickasstorrentsan.com','kat.cr',
 	},
 };
 

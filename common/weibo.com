@@ -1,8 +1,9 @@
 #!/usr/bin/perl -w
+package MyPlace::URLRule::Rule::common_weibo_com;
 use strict;
 use utf8;
-
 use MyPlace::URLRule::Utils qw/get_url get_html strnum new_html_data expand_url/;
+use base 'MyPlace::URLRule::Rule';
 
 my $CONFIG_PID = '100505';
 
@@ -228,7 +229,7 @@ sub process_post {
 	$r{outer_links} = \@outer_links if(@outer_links);
 	if(@outer_links) {
 		#push @{$r{data}},grep(/(?:miaopai.com|meipai.com|weipai.cn|p\.weibo.com|video\.weibo\.com)/,@outer_links);
-		push @{$r{data}},grep(/(?:weipai.cn|p\.weibo.com|video\.weibo\.com|v\.xiaokaxiu\.com\/v\/|xiaoying\.tv\/v\/)/,@outer_links);
+		push @{$r{data}},grep(/(?:huajiao\.com|yizhibo\.com|weipai\.cn|p\.weibo.com|video\.weibo\.com|v\.xiaokaxiu\.com\/v\/|xiaoying\.tv\/v\/)/,@outer_links);
 	}
 	return %r;
 
@@ -400,7 +401,7 @@ sub process_page {
 	$r{outer_links} = \@outer_links if(@outer_links);
 	if(@outer_links) {
 		#push @{$r{data}},grep(/(?:miaopai.com|meipai.com|weipai.cn|p\.weibo.com|video\.weibo\.com)/,@outer_links);
-		push @{$r{data}},grep(/(?:weipai.cn|p\.weibo.com|video\.weibo\.com|v\.xiaokaxiu\.com\/v\/|xiaoying\.tv\/v\/)/,@outer_links);
+		push @{$r{data}},grep(/(?:huajiao\.com|yizhibo\.com|weipai.cn|p\.weibo.com|video\.weibo\.com|v\.xiaokaxiu\.com\/v\/|xiaoying\.tv\/v\/)/,@outer_links);
 	}
 	return %r;
 }
@@ -434,6 +435,7 @@ sub process_pages {
 	my $maxp = 1;
 	if($lasthtml !~ m/<title>Sina Visitor System<\/title>/) {
 		while($lasthtml =~ m/(?:&|&amp;)page=(\d+)/g) {
+			next if($1 eq 400);
 			if($1 > $maxp) {
 				$maxp = $1;
 			}
@@ -504,6 +506,7 @@ sub process_weibo {
 }
 
 sub apply_rule {
+	my $self = shift;
 	my $url = shift;
 	my $rule = shift;
 	my $level = $rule->{level} || 0;
@@ -540,5 +543,7 @@ sub apply_rule {
 		return process_weibo($url,$level,$rule);
 	}
 }
+
+return new MyPlace::URLRule::Rule::common_weibo_com;
 
 # vim:filetype=perl
