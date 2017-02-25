@@ -62,10 +62,20 @@ sub apply_rule {
 	$info{count} = 0;
 #	print STDERR $html,"\n";
 
+	my $vhtml;
 	if($html =~ m/file=([^"&]+\.m3u8[^"&]*)/) {
 		$info{playlist_url} = uri_unescape($1);
-		my $vhtml = get_url($info{playlist_url},'-v');
-#		die($vhtml);
+		$vhtml = get_url($info{playlist_url},'-v');
+	}
+	elsif($html =~ m/flashvars=\\"file=(http[^"&]+)(?:\\"|&)/) {
+		$vhtml = uri_unescape($1);
+		$info{playlist_url} = $vhtml;
+	}
+	elsif($html =~ m/flashvars\s*=\s*"file=(http[^"&]+)["&]/) {
+		$vhtml = uri_unescape($1);
+		$info{playlist_url} = $vhtml;
+	}
+	if($vhtml) {
 		$info{playlist} = $vhtml;
 		$info{data} = [];
 		foreach(split(/[\r\n]/,$vhtml)) {

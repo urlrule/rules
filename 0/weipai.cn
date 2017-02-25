@@ -151,7 +151,9 @@ sub build_data {
 		my @data;
 		push @data, $info{cover} . "\t" . $filename . ".jpg";
 		#push @data,$info{video} . $ext . "\t" . $filename . $ext;
-		push @data,'http://www.weipai.cn/video/' . ($info{video_id} || $info{blog_id}) . "\t" . $filename . ".ts";
+		#push @data,'http://www.weipai.cn/video/' . ($info{video_id} || $info{blog_id}) . "\t" . $filename . ".ts";
+		push @data,$info{video_url} . "\t" . $filename . ".ts";
+
 		#if($info{video_play_url}) {
 		#	push @data,$info{video_play_url} . "\t" . $filename . ".ts";
 		#}
@@ -363,8 +365,8 @@ sub apply_rule {
 	}
 
 	
-
-	my $info = safe_decode_json(get_url($url,'-v'));
+	my $html = get_url($url,'-v');
+	my $info = safe_decode_json($html);
 	$r{info} = $info;
 	my $uid = $info->{user_id};
 	my @video_list;
@@ -385,6 +387,8 @@ sub apply_rule {
 	}
 	my %VNAME;
 	foreach my $vl(@video_list) {
+		push @data,extract_video_list($vl);
+		next;
 		foreach my $v(@$vl) {
 			my $id = $v->{blog_id} || $v->{video_id};
 			my %vd  = apply_rule_video_json('http://w1.weipai.cn/user_video_list?blog_id=' . $id);
@@ -410,7 +414,7 @@ sub apply_rule {
 		$r{level} = 0;
 		$r{pass_data} = [
 			join("&",(
-				 'http://w1.weipai.cn/home_user?day_count=7&relative=after',
+				 "http://w1.weipai.cn/user/compresseduservideos?count=20&relative=after&sort=time",
 				 "user_id=$uid",
 				 "cursor=" . $info->{next_cursor}
 				)

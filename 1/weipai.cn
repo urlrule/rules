@@ -148,7 +148,8 @@ sub apply_rule {
 	return (
 		count=>0,
 		pass_count=>1,
-		pass_data=>["http://w1.weipai.cn/home_user?day_count=7&relative=after&user_id=" . $info{uid}],
+#		pass_data=>["http://w1.weipai.cn/home_user?day_count=7&relative=after&user_id=" . $info{uid}],
+		pass_data=>["http://w1.weipai.cn/user/compresseduservideos?count=20&relative=after&sort=time&user_id=" . $info{uid}],
 		work_dir=>$info{uid},
 		level=>0,
 		info=>\%info,

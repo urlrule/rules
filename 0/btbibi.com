@@ -40,16 +40,27 @@ sub apply_rule {
 }
 =cut
 
-use MyPlace::URLRule::Utils qw/get_url create_title/;
-
+use MyPlace::URLRule::Utils qw/get_url create_torrent_title/;
 sub apply_rule {
     my ($url,$rule) = @_;
-	my $html = get_url($url,'-v');
+	my $html = get_url($url,'-v');#,'charset:utf-8');
     my $title = undef;
     my @data;
     my @pass_data;
 	if($html =~ m/<\s*[Hh]3\s*>([^<]+)/) {
-		$title = create_title($1,1);
+		$title = create_torrent_title($1,1);
+	}
+	if($html =~ m/xcount\s*\(\s*"([^"]+)\"/) {
+		my $xbytes = $1;
+		my $count = length($xbytes);
+		my $r = '';
+		for(my $i=0;$i<$count;$i++) {
+			my $c = substr($xbytes,$i,1);
+			my $o = ord($c);
+			$o = $o^7 if($o<128);
+			$r .= chr($o);
+		}
+		$html = $r if($r);
 	}
 	if($html =~ m/<a[^>]+href="(magnet:[^"]+)/) {
 		push @data, $1 . ($title ? "\t$title" : "");
