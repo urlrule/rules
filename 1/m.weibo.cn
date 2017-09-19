@@ -1,0 +1,82 @@
+#!/usr/bin/perl -w
+#DOMAIN : m.weibo.cn
+#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#CREATED: 2017-09-20 02:03
+#UPDATED: 2017-09-20 02:03
+#TARGET : https://m.weibo.cn/api/container/getIndex?containerid=2308692864673642_-_like_pic&featurecode=20000320 1
+#URLRULE: 2.0
+package MyPlace::URLRule::Rule::1_m_weibo_cn;
+use MyPlace::URLRule::Utils qw/get_url/;
+use MyPlace::JSON;
+use base 'MyPlace::URLRule::Rule';
+use strict;
+use warnings;
+
+=method1
+sub apply_rule {
+	my $self = shift;
+	return $self->apply_quick(
+	   'data_exp'=>undef,
+	   'data_map'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
+       'pages_start'=>undef,
+	   'pages_limit'=>undef,
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef
+	);
+}
+=cut
+
+
+sub apply_rule {
+	my $self = shift;
+    my ($url,$rule) = @_;
+	my $html = get_url($url,'-v');
+	my $json = decode_json($html);
+	if(!$json) {
+		return (error=>"Error parsing content\n");
+	}
+    my @pass_data;
+	my $info = {};
+	foreach(qw/containerid title_top total page/) {
+		$info->{$_} = $json->{cardlistInfo}->{$_};
+	}
+	my $pages = int($info->{total} / 12)+1;
+    my $title = $url;
+	if($title =~ m/.*containerid=\d+_-_([^&]+).*/) {
+		$title = $1;
+	}
+	else {
+		$title = 'posts';
+	}
+	my $purl = $url;
+	$purl =~ s/#[^#]+$//;
+	$purl =~ s/page=\d+&?//;
+	$purl =~ s/&+$//;
+	foreach(1 .. $pages) {
+		push @pass_data,$purl . "&page=" . $_;
+	}
+    return (
+		info=>$info,
+        pass_count=>scalar(@pass_data),
+        pass_data=>\@pass_data,
+        base=>$url,
+        title=>$title,
+    );
+}
+
+return new MyPlace::URLRule::Rule::1_m_weibo_cn;
+1;
+
+__END__
+
+#       vim:filetype=perl
+
+
