@@ -13,7 +13,7 @@ sub apply_rule {
        'pass_exp'=>undef,
        'pass_map'=>undef,
        'pass_name_map'=>undef,
-       'pages_exp'=>'href\s*=\s*"([^"]*\/)(\d+)(\/0.html)"',
+       'pages_exp'=>'href\s*=\s*["\']([^\'"]*\/)(\d+)(\/0\/0.html)[\'"]',
        'pages_map'=>'$2',
        'pages_pre'=>'$1',
        'pages_suf'=>'$3',

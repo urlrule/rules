@@ -85,12 +85,12 @@ sub apply_rule {
 			$info{day} = $now{day} -1;
 			$info{month} = $now{month};
 		}
-		elsif(m/<h2><b>(\d+)-(\d+)-(\d+)/) {
+		elsif(m/^\s*<span>(\d+)-(\d+)-(\d+)<\/span>/) {
 			$info{year} = $1;
 			$info{month} = $2;#($1 < 10 ? "0$1" : $1);
 			$info{day} = $3;#($2 < 10 ? "0$2" : $2);
 		}
-		elsif(m/<h2><b>(\d+)-(\d+)/) {
+		elsif(m/^\s*<span>(\d+)-(\d+)/) {
 			$info{month} = $1;#($1 < 10 ? "0$1" : $1);
 			$info{day} = $2;#($2 < 10 ? "0$2" : $2);
 		}
@@ -100,7 +100,7 @@ sub apply_rule {
 		#	$info{hour} = $3;
 		#	$info{minute} = $4;
 		#}
-		elsif((!$info{desc}) and m/<p>\s*(.+?)\s*<\/p>/) {
+		elsif((!$info{desc}) and m/^\s*<p>\s*(.+?)\s*<\/p>/) {
 			$info{desc} = $1;
 			$info{desc} =~ s/<[^>]+>//g;
 			$info{desc} =~ s/\s+$//;
@@ -109,10 +109,22 @@ sub apply_rule {
 		elsif((!$info{image}) and m/src="([^"]+miaopai\.com\/stream\/[^"]+\.jpg)"/) {
 			$info{image} = $1;
 		}
+		elsif((!$info{scid}) and m/^\s*"scid":"([^"]+)"/) {
+			$info{scid} = $1;
+		}
+		elsif((!$info{image}) and m/^\s*"poster":"([^"]+)"/) {
+			$info{image} = $1;
+		}
+		elsif((!$info{video}) and m/^\s*"videoSrc":"([^"]+)"/) {
+			$info{video} = $1;
+		}
+		elsif((!$info{title}) and m/^\s*"title":"([^"]+)"/) {
+			$info{title} = $1;
+		}
 		elsif(m/<a class="one_title[^>]+title="([^"]+)"/) {
 			$info{desc} = $1;
 		}
-		elsif(m/<div class="talk">/) {
+		elsif(m/<div class="footer">/) {
 			last;
 		}
 	}
@@ -124,19 +136,10 @@ sub apply_rule {
 	}
 	$info{imageext} = 'jpg';
 	$info{videoext} = 'mp4';
-	if($info{image} =~ m/^(.+)\/stream\/([^_\/]+)___[^\.\/]+\.([^\.]+)$/) {
-		$info{host} = $1;
-		$info{id} = $2;
-		$info{imageext} = $3;
-		$info{videosrc} = $info{host} ."/stream/" . $info{id} . "__." . $info{videoext};
-	}
-	elsif($url =~ m/\/show\/([^\.]+)\.html?$/) {
-		$info{videosrc} = "http://dlcdn.yixia.com/stream/$1.mp4";
-		$info{id} = $1;
-	}
-	elsif($info{videosrc}) {
-		if($info{videosrc} =~ m/\.([^\.]+)$/) {
+	if($info{video}) {
+		if($info{video} =~ m/\.([^\.]+)$/) {
 			$info{videoext} = $1;
+			$info{videoext} =~ s/[\?#].*$//;
 		}
 	}
 	else{ 
@@ -176,7 +179,7 @@ sub apply_rule {
 	my $basename = $info{year} . $info{month} . $info{day} . "_" . $info{id};
 	$basename .= "_" . $info{desc} if($info{desc});
 	$basename =~ s/^_+//;
-	push @data,$info{videosrc} . "\t" . $basename ."." . $info{videoext}; 
+	push @data,$info{video} . "\t" . $basename ."." . $info{videoext}; 
 	push @data,$info{image} . "\t" . $basename . "." . $info{imageext}; 
     return (
 		info=>\%info,

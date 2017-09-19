@@ -16,7 +16,7 @@ sub apply_rule {
 
 #Specify data mining method
        'data_exp'=>'<img[^>]+oksrc="([^"]+)',
-       'data_map'=> sub {$_[2] =~ s/_\d+x\d+\.jpg/.jpg/r;},
+       'data_map'=> sub {$_[2] =~ s/_\d+x\d+\.([^\.]+)$/.$1/r;},
 
 #Specify data mining method for nextlevel
        'pass_exp'=>undef,

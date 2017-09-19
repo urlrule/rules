@@ -91,9 +91,15 @@ sub apply_rule {
 			$info{$key} =~ s/['+]//g;
 		}
 	}
+
 	$title = uc($info{Infohash} || "") . ".torrent"; 
 	$title = $info{Size} . "_" . $title if($info{Size});
 	$title = $info{Name} . "_" . $title if($info{Name});
+	$title =~ s/^\s+//;
+	$title =~ s/\s+$//;
+	if($info{Download} =~ m/^https?:\/\/savebt\.com/i) {
+		$info{Download} = 'magnet:?xt=urn:btih:' . $info{Infohash} . "&dn=" . $title;
+	}
 	push @data,$info{Download} . "\t" . $title;
 	
     return (
