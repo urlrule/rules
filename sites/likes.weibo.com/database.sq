@@ -1,6 +1,7 @@
-#OUTPUT: http://likes.weibo.com/${ID}
-#OUTPUT: 2
-#OUTPUT: likes.weibo.com
-#OPTION: level	2
+#OUTPUT: http://poster.weibo.com/${ID}/likes
+#OUTPUT: 3
+#OUTPUT: poster.weibo.com
+#OPTION: level	3
+#INCLUDE: ../weibo.com/database.sq
 u/5248073967	一个人一些好音乐
-
+u/1110855203	AK888888888888 

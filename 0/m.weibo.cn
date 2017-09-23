@@ -86,9 +86,12 @@ sub apply_rule {
 			}
 			foreach my $mblog(@blogs) {
 				my $id =  undef;
+				my $created = undef;
 				if($mblog and (ref $mblog eq 'HASH')) {
 				#use MyPlace::Debug::Dump;print STDERR debug_dump($mblog);
 					$id = $mblog->{id};
+					use MyPlace::String::Utils qw/strtime2/;
+					$created = strtime2($mblog->{created_at},5);
 					if(!$id) {
 						$id = $mblog->{scheme};
 						$id =~ s/^.*mblogid=(\d+).*$/$1/;
@@ -118,7 +121,9 @@ sub apply_rule {
 				}
 				push @srcs,$pic_big if($pic_big);
 				$id = $id ? "$id\_" : "";
+				$id = $created . "_" . $id if($created);
 				foreach(@srcs) {
+					s/:\/\/wx(\d+)/:\/\/ww$1/;
 					next if($dup{$_});
 					if(m/\/([^\/]+)$/) {
 						next if($dup{$_});

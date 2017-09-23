@@ -37,3 +37,17 @@
 2016-01-11 21:00:31: urlrule grep 唐馨baby --hosts weibo.com --follow
 2016-01-11 21:08:51: urlrule grep 唐馨baby --hosts weibo.com --follow
 2016-01-11 21:09:24: urlrule grep 唐馨baby --hosts weibo.com --follow
+2017-09-20 19:26:25: urlrule --hosts likes.weibo.com add http://weibo.com/u/3732815664
+2017-09-20 19:26:39: urlrule --hosts likes.weibo.com add --url http://weibo.com/u/3732815664
+2017-09-20 19:26:47: urlrule --hosts likes.weibo.com add --url http://weibo.com/u/3732815664
+2017-09-20 19:27:13: urlrule add http://weibo.com/u/3732815664
+2017-09-20 19:30:12: urlrule add http://weibo.com/u/3732815664 --host likes.weibo.com
+2017-09-20 19:36:18: urlrule add http://weibo.com/u/3732815664 --host likes.weibo.com
+2017-09-20 19:54:12: urlrule --host poster.weibo.com add http://weibo.com/u/2633824761
+2017-09-23 03:25:59: urlrule --host weibo.com,poster.weibo.com,likes.weibo.com http://weibo.com/u/3085583527
+2017-09-23 03:26:05: urlrule --host weibo.com,poster.weibo.com,likes.weibo.com add http://weibo.com/u/3085583527
+2017-09-23 03:26:54: urlrule --host weibo.com,poster.weibo.com,likes.weibo.com add http://weibo.com/u/3085583527
+2017-09-23 03:29:50: urlrule --host weibo.com,poster.weibo.com,likes.weibo.com add http://weibo.com/u/3085583527
+2017-09-23 03:31:00: urlrule --host weibo.com,poster.weibo.com,likes.weibo.com add http://weibo.com/u/3085583527
+2017-09-23 03:32:33: urlrule --host weibo.com,poster.weibo.com,likes.weibo.com add http://weibo.com/1146430453
+2017-09-23 03:34:03: urlrule --host weibo.com,poster.weibo.com,likes.weibo.com add http://weibo.com/u/1110855203?is_hot=1&noscale_head=1#_0

@@ -1,3 +1,7 @@
 2015-02-14 03:00:08: urlrule --hosts meipai.com add 南湘baby 21028698
 2015-02-14 03:00:20: urlrule --hosts meipai.com list .*
 2015-02-14 03:00:40: urlrule --hosts meipai.com list .*
+2017-09-23 01:47:05: urlrule --hosts likes.weibo.com list
+2017-09-23 01:47:14: urlrule --hosts likes.weibo.com *
+2017-09-23 01:47:17: urlrule --hosts likes.weibo.com list *
+2017-09-23 01:47:21: urlrule --hosts likes.weibo.com list .*
