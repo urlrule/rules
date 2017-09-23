@@ -1,0 +1,7 @@
+#OUTPUT: http://poster.weibo.com/${ID}
+#OUTPUT: 3
+#OUTPUT: poster.weibo.com
+#OPTION: level	3
+#INCLUDE: ../weibo.com/database.sq
+u/3881439579	GIF出处大全
+u/1110855203	AK888888888888 
