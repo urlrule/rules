@@ -33,6 +33,8 @@ $MyPlace::URLRule::Config = {
 		'sxclub8.com'=>'sex8.cc',
 		'btdigg.ws'=>'btdigg.me',
 		'kickasstorrentsan.com','kat.cr',
+		'btdigg.xyz'=>'btdigg.me',
+		'sobt8.com'=>'sobt5.com',
 	},
 };
 
