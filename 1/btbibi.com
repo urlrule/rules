@@ -9,7 +9,7 @@
 use strict;
 no warnings 'redefine';
 
-
+=method1
 sub apply_rule {
  return (
  #Set quick parsing method on
@@ -39,15 +39,23 @@ sub apply_rule {
 }
 =cut
 
-=method2
 use MyPlace::URLRule::Utils qw/get_url/;
 
 sub apply_rule {
     my ($url,$rule) = @_;
+	return (
+		base=>$url,
+		pass_data=>[$url],
+		pass_count=>1,
+	);
+	$url =~ s/\+([^\/]*)$/ $1/g;
 	my $html = get_url($url,'-v');
     my $title = undef;
     my @data;
     my @pass_data;
+	while($html =~ m/<a[^>]+href="([^"]*\/h\/[^"]+\.html)"[^>]+>\s*<[Hh]4>/g) {
+		push @pass_data,"$1";
+	}
     #my @html = split(/\n/,$html);
     return (
         count=>scalar(@data),

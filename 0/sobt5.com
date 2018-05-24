@@ -9,7 +9,7 @@
 use strict;
 no warnings 'redefine';
 
-
+=method1
 sub apply_rule {
  return (
  #Set quick parsing method on
@@ -44,25 +44,38 @@ sub apply_rule {
 }
 =cut
 
-=method2
-use MyPlace::URLRule::Utils qw/get_url/;
-
+use MyPlace::URLRule::Utils qw/get_url create_title/;
 sub apply_rule {
     my ($url,$rule) = @_;
-	my $html = get_url($url,'-v');
+	my $html = get_url($url,'-v');#,'charset:utf-8');
     my $title = undef;
     my @data;
     my @pass_data;
-    #my @html = split(/\n/,$html);
+	my @html = split("<div class=\"item-title\">",$html);
+	foreach(@html) {
+		my $t;
+		my $h;
+		if(m/<\s*[Hh]3\s*>(.+?)<\s*\/[Hh]3\s*>/) {
+			$t = $1;
+			$t =~ s/<[^>]+>//g;
+			$t =~ s/\[email&#160;protected\]@*//g;
+			$t =~ s/^\s+//;
+			$t =~ s/\s+$//;
+			$t = create_title($t);
+			if(m/href="[^"]*\/torrent\/([A-Za-z0-9]+)\.html"/) {
+				$h = uc($1);
+				push @data,"magnet:?xt=urn:btih:$h&dn=$t\t$t";
+			}
+		}
+	}
+	
     return (
         count=>scalar(@data),
         data=>\@data,
-        pass_count=>scalar(@pass_data),
-        pass_data=>\@pass_data,
         base=>$url,
-        title=>$title,
     );
 }
+
 
 =cut
 

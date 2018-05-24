@@ -11,7 +11,7 @@ sub apply_rule {
        '#use quick parse'=>1,
 
 #Specify data mining method
-       'data_exp'=>'<h2>([^<]+)<.+?class=\'infohash\'>([^<]+).+?href=\'http:\/\/storebt.com\/torrent\/([^\/\.]+)',
+       'data_exp'=>'<h2>([^<]+)<.+?class=\'infohash\'>([^<]+).+?href=\'https?:\/\/storebt.com\/torrent\/([^\/\.]+)',
        'data_map'=>'"https://storebt.com/down/$3/$1.torrent\t$1_" . uc($2) . ".torrent"',
 
 #Specify data mining method for nextlevel
@@ -42,10 +42,12 @@ my %LNG = (
 	'种子名称'=>'Name',
 	'种子大小'=>'Size',
 	'文件列表'=>'File List',
+	'磁力链接'=>'Magnet',
 );
 sub apply_rule {
     my ($url,$rule) = @_;
 	my $html = get_url($url,'-v');
+	print STDERR $html,"\n";
     my $title = undef;
     my @data;
     my @pass_data;
@@ -72,6 +74,7 @@ sub apply_rule {
 			}
 			$v = js_unescape($v);	
 			$info{$k} = $v;
+			print STDERR "$k => $v\n";
 		}
 		elsif(m/\<h2\>404 Not Found.*<h2[^>]+>([^<]+)/) {
 			return (error=>$1,info=>\%info);
@@ -97,7 +100,7 @@ sub apply_rule {
 	$title = $info{Name} . "_" . $title if($info{Name});
 	$title =~ s/^\s+//;
 	$title =~ s/\s+$//;
-	if($info{Download} =~ m/^https?:\/\/savebt\.com/i) {
+	if($info{Download} =~ m/^https?:\/\/(?:storetorrents|savebt)\./i) {
 		$info{Download} = 'magnet:?xt=urn:btih:' . $info{Infohash} . "&dn=" . $title;
 	}
 	push @data,$info{Download} . "\t" . $title;

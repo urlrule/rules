@@ -40,32 +40,30 @@ sub apply_rule {
 }
 =cut
 
-use MyPlace::URLRule::Utils qw/get_url create_torrent_title/;
+use MyPlace::URLRule::Utils qw/get_url create_title/;
 sub apply_rule {
     my ($url,$rule) = @_;
 	my $html = get_url($url,'-v');#,'charset:utf-8');
     my $title = undef;
     my @data;
     my @pass_data;
-	if($html =~ m/<\s*[Hh]3\s*>([^<]+)/) {
-		$title = create_torrent_title($1,1);
-	}
-	if($html =~ m/xcount\s*\(\s*"([^"]+)\"/) {
-		my $xbytes = $1;
-		my $count = length($xbytes);
-		my $r = '';
-		for(my $i=0;$i<$count;$i++) {
-			my $c = substr($xbytes,$i,1);
-			my $o = ord($c);
-			$o = $o^7 if($o<128);
-			$r .= chr($o);
+	my @html = split("<li",$html);
+	foreach(@html) {
+		my $t;
+		my $h;
+		if(m/\s+class="list-group-item">([^\r\n]+)/) {
+			$t = $1;
+			$t =~ s/<[^>]+>//g;
+			$t =~ s/^\s+//;
+			$t =~ s/\s+$//;
+			$t =~ s/\[email&#160;protected\]@*//g;
+			$t = create_title($t);
+			if(m/href="magnet:.*btih:([^><"&]+)/) {
+				$h = uc($1);
+				push @data,"magnet:?xt=urn:btih:$h&dn=$t\t$t";
+			}
 		}
-		$html = $r if($r);
 	}
-	if($html =~ m/<a[^>]+href="(magnet:[^"]+)/) {
-		push @data, $1 . ($title ? "\t$title" : "");
-	}
-
 	
     return (
         count=>scalar(@data),

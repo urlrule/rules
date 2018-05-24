@@ -40,6 +40,9 @@ sub apply_rule {
 			$realurl = $loc;
 		}
 	}
+	if($url =~ m/^https/) {
+		$realurl =~ s/^http:\/\//https:\/\//;
+	}
     return (
 		count=>0,
 		pass_count=>1,

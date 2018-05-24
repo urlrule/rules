@@ -44,18 +44,27 @@ sub apply_rule {
 
 sub apply_rule {
     my ($url,$rule) = @_;
-	my @pass_data;
-	if($url =~ m/^http:\/\/[^\/]+\/(.+)$/) {
-		push @pass_data,'http://btbibi.com/s/1/' . $1 . '.html';
+	my $https;
+    my @pass_data;
+	if($url =~ m/^https:/) {
+		$https = 1;
 	}
+	if($url =~ m/^https?:\/\/([^\/]+)\/(.+)$/) {
+		push @pass_data,($https ? 'https' : 'http' ) . "://$1/v1/list.php?q=$2";
+	}
+    my $title = undef;
+    my @data;
+    #my @html = split(/\n/,$html);
     return (
+        count=>scalar(@data),
+        data=>\@data,
         pass_count=>scalar(@pass_data),
         pass_data=>\@pass_data,
         base=>$url,
+        title=>$title,
     );
 }
 
-=cut
 
 1;
 
