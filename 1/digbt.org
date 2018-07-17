@@ -1,0 +1,63 @@
+#!/usr/bin/perl -w
+#DOMAIN : www.digbt.org
+#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#CREATED: 2018-05-28 03:32
+#UPDATED: 2018-05-28 03:32
+#TARGET : https://www.digbt.org/search/%E5%8F%8B%20%E6%AF%8D/ 1
+#URLRULE: 2.0
+package MyPlace::URLRule::Rule::1_www_digbt_org;
+use MyPlace::URLRule::Utils qw/get_url/;
+use base 'MyPlace::URLRule::Rule';
+use strict;
+use warnings;
+
+sub apply_rule {
+	my $self = shift;
+	return $self->apply_quick(
+	   'data_exp'=>undef,
+	   'data_map'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+       'pages_exp'=>'href="(\/search\/[^"]+-(?:time|length|relavance)-)(\d+)(\/)"',
+       'pages_map'=>'$2',
+       'pages_pre'=>'$1',
+       'pages_suf'=>'$3',
+       'pages_start'=>undef,
+	   'pages_limit'=>undef,
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef
+	);
+}
+=cut
+
+=method2
+
+sub apply_rule {
+	my $self = shift;
+    my ($url,$rule) = @_;
+	my $html = get_url($url,'-v');
+    my $title = undef;
+    my @data;
+    my @pass_data;
+    #my @html = split(/\n/,$html);
+    return (
+        count=>scalar(@data),
+        data=>\@data,
+        pass_count=>scalar(@pass_data),
+        pass_data=>\@pass_data,
+        base=>$url,
+        title=>$title,
+    );
+}
+
+=cut
+return new MyPlace::URLRule::Rule::1_www_digbt_org;
+1;
+
+__END__
+
+#       vim:filetype=perl
+
+

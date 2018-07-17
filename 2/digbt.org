@@ -1,0 +1,67 @@
+#!/usr/bin/perl -w
+#DOMAIN : digbt.org
+#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#CREATED: 2018-05-28 03:39
+#UPDATED: 2018-05-28 03:39
+#TARGET : https://digbt.org/search/%E5%8F%8B%20%E6%AF%8D/ 2
+#URLRULE: 2.0
+package MyPlace::URLRule::Rule::2_digbt_org;
+use MyPlace::URLRule::Utils qw/get_url/;
+use base 'MyPlace::URLRule::Rule';
+use strict;
+use warnings;
+
+=method1
+sub apply_rule {
+	my $self = shift;
+	return $self->apply_quick(
+	   'data_exp'=>undef,
+	   'data_map'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
+       'pages_start'=>undef,
+	   'pages_limit'=>undef,
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef
+	);
+}
+=cut
+
+
+sub apply_rule {
+	my $self = shift;
+    my ($url,$rule) = @_;
+	if($url =~ m/(.*)\/search\/([^\/]+)(-[^-]+-\d+)\/(.*)/) {
+		my $p = $1;
+		my $s = $2;
+		my $m = $3;
+		my $z = $4 || "";
+		#		require URI::Escape;
+		#		$s = URI::Escape::uri_escape($s);
+		$s =~ s/-/ /g;
+		$s =~ s/^\s+//;
+		$s =~ s/\s+$//;
+		$s =~ s/\s{2,}/ /g;
+		$url = "$p/search/$s$m/$z";
+	}
+    return (
+        pass_count=>1,
+        pass_data=>[$url],
+        base=>$url,
+    );
+}
+
+return new MyPlace::URLRule::Rule::2_digbt_org;
+1;
+
+__END__
+
+#       vim:filetype=perl
+
+
