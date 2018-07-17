@@ -30,7 +30,13 @@ use MyPlace::URLRule::Utils qw/get_url/;
 
 sub apply_rule {
     my ($url,$rule) = @_;
-	my $html = get_url($url,'-v');
+	my $rurl = $url;
+	my $uid;
+	if($url =~ m/(.*\/u)\/([^\/]+)\/?$/) {
+		$rurl = "$1/$2/relation/follow.htm";
+		$uid = $2;
+	}
+	my $html = get_url($rurl,'-v');
     my $title = undef;
     my @data;
     my @pass_data;
@@ -48,8 +54,16 @@ sub apply_rule {
 			$info{host} = $2;
 			$info{uid} = $3;
 		}
-		elsif(m/var\s+maxnum\s*=\s*(\d+)/) {
-			$info{pages} = $1;
+		#elsif(m/var\s+maxnum\s*=\s*(\d+)/) {
+		#	$info{pages} = $1;
+		#}
+		elsif(m/<li><b><a title="视频"[^>]+>(\d+)视频/) {
+			if($1>0) {
+				$info{pages} = int(($1-1)/4)+1;
+			}
+			else {
+				$info{pages} = 0;
+			}
 		}
 		elsif(m/var\s+(url|suids|fen_type)\s*=["']([^"']+)["']/) {
 			$info{$1} = $2;

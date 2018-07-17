@@ -85,12 +85,12 @@ sub apply_rule {
 			$info{day} = $now{day} -1;
 			$info{month} = $now{month};
 		}
-		elsif(m/^\s*<span>(\d+)-(\d+)-(\d+)<\/span>/) {
+		elsif(m/^\s*<span>(\d+)-(\d+)-(\d+)[\s:\d]*<\/span>/) {
 			$info{year} = $1;
 			$info{month} = $2;#($1 < 10 ? "0$1" : $1);
 			$info{day} = $3;#($2 < 10 ? "0$2" : $2);
 		}
-		elsif(m/^\s*<span>(\d+)-(\d+)/) {
+		elsif(m/^\s*<span>(\d+)-(\d+)[\s:\d]*<\/span>/) {
 			$info{month} = $1;#($1 < 10 ? "0$1" : $1);
 			$info{day} = $2;#($2 < 10 ? "0$2" : $2);
 		}
@@ -175,8 +175,8 @@ sub apply_rule {
 		$info{month} = '';
 		$info{day} = '';
 	}
-	$info{id} =~ s/_+// if($info{id});
-	my $basename = $info{year} . $info{month} . $info{day} . "_" . $info{id};
+	$info{scid} =~ s/_+// if($info{scid});
+	my $basename = $info{year} . $info{month} . $info{day} . "_" . $info{scid};
 	$basename .= "_" . $info{desc} if($info{desc});
 	$basename =~ s/^_+//;
 	push @data,$info{video} . "\t" . $basename ."." . $info{videoext}; 
