@@ -63,7 +63,7 @@ sub apply_rule {
 		$murl = $url;
 		$html = get_url($murl,'-v');
 		$html = decode('utf8',$html);
-		if($html =~ m/<div[^>]+class="detail_op"[^>]+_data="{boxId:(\d+),name:'([^']+)'/) {
+		if($html =~ m/<div[^>]+class="detail_op"[^>]+_data="\{boxId:(\d+),name:'([^']+)'/) {
 			$info{boxId} = $1;
 			$info{name} = $2;
 			$info{id} = $1;

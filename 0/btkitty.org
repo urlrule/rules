@@ -47,7 +47,7 @@ my %LNG = (
 sub apply_rule {
     my ($url,$rule) = @_;
 	my $html = get_url($url,'-v');
-	print STDERR $html,"\n";
+	#print STDERR $html,"\n";
     my $title = undef;
     my @data;
     my @pass_data;
@@ -73,8 +73,9 @@ sub apply_rule {
 				$v =~ s/<[^>]*>//g;
 			}
 			$v = js_unescape($v);	
+			$v =~ s/\s*\[email&#160;protected\]\s*//g;
 			$info{$k} = $v;
-			print STDERR "$k => $v\n";
+			#print STDERR "$k => $v\n";
 		}
 		elsif(m/\<h2\>404 Not Found.*<h2[^>]+>([^<]+)/) {
 			return (error=>$1,info=>\%info);

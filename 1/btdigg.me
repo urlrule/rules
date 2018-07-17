@@ -19,8 +19,8 @@ sub apply_rule {
        'data_map'=>undef,
 
 #Specify data mining method for nextlevel
-       'pass_exp'=>'<dt><a[^>]+href="https?(:\/\/[^"]+\.html)',
-       'pass_map'=>'"https$1"',
+       'pass_exp'=>'<dt><a[^>]+href="(?:https?:\/\/|:\/\/|\/\/)([^"]+\.html)',
+       'pass_map'=>'"https://$1"',
        'pass_name_map'=>undef,
 
 #Specify pages mining method

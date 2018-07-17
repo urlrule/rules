@@ -105,7 +105,7 @@ sub extract_post {
 			my $src = $2;
 			#next unless($src =~ m/large|original/);
 			next if($src =~ m/\/style\/images\/|sinajs|http:\/\/tp\d+\.sinaimg\.cn|http:\/\/tc\.sinaimg/);
-
+			$src =~ s/^:?\/\//http:\/\//;
 			if($src =~ m/\.([^\.\/]+)$/) {
 				push @{$post->{images}},[$src,".$1"];
 			}

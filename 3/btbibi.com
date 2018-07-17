@@ -50,7 +50,7 @@ sub apply_rule {
 		$https = 1;
 	}
 	if($url =~ m/^https?:\/\/([^\/]+)\/(.+)$/) {
-		push @pass_data,($https ? 'https' : 'http' ) . "://$1/v1/list.php?q=$2";
+		push @pass_data,($https ? 'https' : 'http' ) . "://$1/v2/list.php?q=$2";
 	}
     my $title = undef;
     my @data;

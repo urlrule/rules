@@ -26,6 +26,7 @@ $MyPlace::URLRule::Config = {
 		'btkitty.pet'=>'btkitty.org',
 		'cnbtkitty.com'=>'btkitty.org',
 		'cnbtkitty.org'=>'btkitty.org',
+		'cnbtkitty.xyz'=>'btkitty.org',
 		'bttiantang.cc'=>'bttiantang.com',
 		'torrentkitty.net'=>'torrentkitty.org',
 		'torrentkitty.me'=>'torrentkitty.org',
@@ -39,6 +40,7 @@ $MyPlace::URLRule::Config = {
 		'btdigg.xyz'=>'btdigg.me',
 		'sobt8.com'=>'sobt5.com',
 		'btdigg.cc'=>'btdigg.me',
+		'btmule.org'=>'sobt5.com',
 	},
 };
 

@@ -114,6 +114,16 @@ sub apply_rule {
 			$info{error} = "No video found on page: $url\n";
 		}
 	}
+	elsif($html =~ m/video_src=([^&]+)/){
+		$info{video} = uri_unescape($1);
+		$info{video} =~ s/^:?\/\//http:\/\//;
+		push @{$info{data}},$info{video}  . "\t$saveas.mp4";
+		if($html =~ m/cover_img=([^&]+)/) {
+			$info{cover} = uri_unescape($1);
+			$info{cover} =~ s/^:?\/\//http:\/\//;
+			push @{$info{data}},$info{cover}  . "\t$saveas.jpg";
+		}
+	}
 	else {
 		$info{error} = "Failed parse page: $url\n";
 	}

@@ -25,9 +25,9 @@ sub apply_rule {
        'pass_name_map'=>undef,
 
 #Specify pages mining method
-       'pages_exp'=>'<a[^>]+href="([^"]+&page=)(\d+)"',
+       'pages_exp'=>'<a[^>]+href="https?([^"]+&page=)(\d+)"',
        'pages_map'=>'$2',
-       'pages_pre'=>'$1',
+       'pages_pre'=>'"https$1"',
        'pages_suf'=>'',
        'pages_start'=>undef,
 	   'pages_limit'=>undef,
