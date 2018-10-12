@@ -1,0 +1,83 @@
+#!/usr/bin/perl -w
+#http://www.vlook.cn/api/flash_home/pushVideo?s=9&bId=2255532&t=1
+#Sat Apr 12 22:41:41 2014
+use strict;
+no warnings 'redefine';
+
+
+=method1
+sub apply_rule {
+ return (
+       '#use quick parse'=>1,
+       'data_exp'=>undef,
+       'data_map'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
+       'pages_start'=>undef,
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef
+ );
+}
+=cut
+
+use MyPlace::URLRule::Utils qw/get_url extract_title/;
+use Encode qw/find_encoding/;
+my $utf8 = find_encoding('utf8');
+
+sub apply_rule {
+    my ($url,$rule) = @_;
+	my $text = get_url($url,'-v');
+    my $title = undef;
+    my @data;
+	my @items = split(/<item/,$text);
+	foreach my $html (@items) {
+		my %info;
+		while($html =~ m/<([^>]+)>([^<]+)<\/\1>/g) {
+			$info{$1} = $2;
+		}
+		next unless($info{play});
+		my $title = $info{txt};
+		my $video = $info{play};
+		$video =~ s/&amp;/&/g;
+		$video =~ s/%3A/:/g;
+		$video =~ s/%2F/\//g;
+		$video =~ s/%3F/\?/g;
+		$video =~ s/%3D/=/g;
+		$video =~ s/%26/&/g;
+		if((!$title) and $video =~ m/[&\?]vid=([^&]+)/) {
+			$title = $1
+		}
+		$title =~ s/[\/\\]+//g;
+		$title = extract_title($title);
+		if($info{'lastTime'}) {
+			my $secs = $info{'lastTime'};
+			my $m = int($secs / 60);
+			my $s = $secs % 60;
+			my $t = ($m ? "$m分钟" : "") . "$s秒";
+			$title = $title ? $title . "_$t" : "$t";
+		}
+		$title =~ s/[\/\?:\*"']//g;
+		push @data,"$video\t$title.mp4" if($video);
+		push @data,$info{img} . "\t$title.jpg" if($info{img});
+	}
+		return (
+			count=>scalar(@data),
+			data=>\@data,
+			base=>$url,
+			url=>$url,
+		);
+}
+
+=cut
+
+1;
+
+__END__
+
+#       vim:filetype=perl

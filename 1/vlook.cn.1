@@ -1,0 +1,52 @@
+#!/usr/bin/perl -w
+#http://www.vlook.cn/api/flash_home/pushVideo?s=9&bId=2255532&t=1
+#Sat Apr 12 22:41:41 2014
+use strict;
+no warnings 'redefine';
+
+
+=method1
+sub apply_rule {
+ return (
+       '#use quick parse'=>1,
+       'data_exp'=>undef,
+       'data_map'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
+       'pages_start'=>undef,
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef
+ );
+}
+=cut
+
+use MyPlace::URLRule::Utils qw/get_url extract_title/;
+
+sub apply_rule {
+    my ($url,$rule) = @_;
+	my $text = get_url($url,'-v');
+    my @pass_data;
+	while($text =~ m/<item id="(\d+)/g) {
+		push @pass_data,'http://www.vlook.cn/api/flash_home/pushVideo?s=3&bId=' . $1 . '&t=1';
+	}
+		return (
+			pass_data=>\@pass_data,
+			pass_count=>scalar(@pass_data),
+			base=>$url,
+			url=>$url,
+		);
+}
+
+=cut
+
+1;
+
+__END__
+
+#       vim:filetype=perl
