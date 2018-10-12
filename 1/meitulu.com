@@ -9,7 +9,6 @@
 use strict;
 no warnings 'redefine';
 
-
 sub apply_rule {
  return (
  #Set quick parsing method on
@@ -25,7 +24,7 @@ sub apply_rule {
        'pass_name_map'=>undef,
 
 #Specify pages mining method
-       'pages_exp'=>'<a href="([^"]+\/item\/\d+_)(\d+)(\.html)"',
+       'pages_exp'=>'<a href="([^"]*\/item\/\d+_)(\d+)(\.html)">\d+',
        'pages_map'=>'$2',
        'pages_pre'=>'$1',
        'pages_suf'=>'$3',

@@ -123,7 +123,7 @@ sub build_data {
 	return unless($info{video});
 		if(!$info{title}) {
 			$info{title} = $info{video};
-			$info{title} =~ s/^.*[\/\\]//;
+			$info{title} =~ s/^.*[\/\\](.+?)$/\U$1/;
 		}
 		#use Data::Dumper;print STDERR Dumper(\%info);
 		my $filename = "$info{year}$info{month}$info{day}$info{hour}$info{minute}" .
@@ -151,7 +151,7 @@ sub build_data {
 		my @data;
 		push @data, $info{cover} . "\t" . $filename . ".jpg";
 		#push @data,$info{video} . $ext . "\t" . $filename . $ext;
-		#push @data,'http://www.weipai.cn/video/' . ($info{video_id} || $info{blog_id}) . "\t" . $filename . ".ts";
+		push @data,'http://www.weipai.cn/video/' . ($info{video_id} || $info{blog_id}) . "\t" . $filename . ".ts";
 		push @data,$info{video_url} . "\t" . $filename . ".ts";
 
 		#if($info{video_play_url}) {
@@ -368,7 +368,11 @@ sub apply_rule {
 	my $html = get_url($url,'-v');
 	my $info = safe_decode_json($html);
 	$r{info} = $info;
-	my $uid = $info->{user_id};
+	my $uid = $info->{user_id} || $info->{uid} || $info->{user};
+	if((!$uid) and $url =~ m/(?:user_id|uid)=([^&]+)/) {
+		$uid = $1;
+		$info->{user_id} = $uid;
+	}
 	my @video_list;
 	my $count = 0;
 	my @data;

@@ -26,133 +26,23 @@ sub apply_rule {
 }
 =cut
 
-use MyPlace::URLRule::Utils qw/get_url extract_title/;
-use Encode qw/find_encoding/;
-my $utf8 = find_encoding('utf8');
-use JSON qw//;
-my $JS;
-sub decode_json1 {
-	if(!$JS)  {
-		$JS = JSON->new();
-		$JS->relaxed;
-	}
-	my $json = eval { $JS->decode(@_); };
-	if($@) {
-		print STDERR "Error deocding JSON text:$@\n";
-		$@ = undef;
-	}
-	else {
-		return $json;
-	}
-}
-
+use MyPlace::Vlook qw/get_video get_blog_info get_blog_id/;
 
 sub apply_rule {
     my ($url,$rule) = @_;
-	my $realurl = $url;
-	if($url =~ m/\/ta\/qs\//) {
-		$realurl =~ s/^(.*\/[^\/%&\?]+).+?$/$1/;
-	}
-	my $html = get_url($realurl,'-v');#,'-v','charset:utf8');
-
-	if($html =~ m/\$Gobal\["\$aboutUrl"\]="(.*\/qs\/)([^\?\/%\&\"]+)/) {
-		#	my $ajxurl = "http://www.vlook.cn$1$2";
-		#my $ajxtext = get_url($ajxurl,'-v');
-		#my $json = decode_json1($ajxtext);
-		#print STDERR $json->{rst}->[0],"\n";
-		#return (info=>$json);
-#	}
-#	else {
-		#if($realurl =~ m/\/qs\/([^\?\/%\&]+)/) {
-		$realurl = "http://www.vlook.cn/mobile/index/show/qs/$2";
-
-
-		$html = get_url($realurl,'-v');
-	}
-
-    my $title = undef;
-    my @data;
-	my %info;
-	while($html =~ m/<meta[^>]+(?:name|property)\s*=\s*"([^"]+)"[^>]+content\s*=\s*"([^"]+)"/g) {
-		$info{$1} = $2;
-	}
-	$title = $info{'og:title'};
-	if((!$title) and $html =~ m/<(?:title|TITLE)>\s*([^<]+)</) {
-		$title = $1;
-		$title =~ s/^[^：]+：\s*//;
-		$title =~ s/\s*- 微录客.*//;
-	}
-	else {
-		$title = $info{'og:title'};
-	}
-	my $video;
-	if($html =~ m/createPlayer\('([^']+\.mp4)'/) {
-		$video = $1;
-	}
-	elsif($html =~ m/<source[^>]*src="([^"]+)/) {
-		$video = $1;
-	}
-	elsif($html =~ m/&player_src=([^&"]+)/) {
-		$video = $1;
-	}
-	else {
-		return (
-			info=>\%info,
-			count=>0,
-#			error=>'No video found',
-		);
-	}
-		$video =~ s/%3A/:/g;
-		$video =~ s/%2F/\//g;
-		$video =~ s/%3F/\?/g;
-		$video =~ s/%3D/=/g;
-		$video =~ s/%26/&/g;
-
-	if(!$title) {
-		if($info{vid}) {
-			$title = $info{vid};
-		}
-		elsif($video =~ m/[&\?]vid=([^&]+)/) {
-			$title = $1
-		}
-	}
-	$title =~ s/[\/\\]+//g;
-	$title = extract_title($title);
-	if($html =~ m/<dd title="(\d+)-(\d+)-(\d+)\s*(\d+):(\d+):(\d+)/) {
-		$title = $title ? "$1$2$3$4$5$6_$title" : "$1$2$3$4$5$6";
-	}
-	elsif($info{'weibo:video:create_at'} and $info{'weibo:video:create_at'} =~ m/(\d+)-(\d+)-(\d+)\s*(\d+):(\d+):(\d+)/) {
-		$title = $title ? "$1$2$3$4$5$6_$title" : "$1$2$3$4$5$6";
-	}
-	if($html =~ m/class="icon_video_time"[^>]+alt="([^"]+)/) {
-		$title = $title ? "${title}_$1" : "$1";
-	}
-	elsif($info{'weibo:video:duration'}) {
-		my $secs = $info{'weibo:video:duration'};
-		my $m = int($secs / 60);
-		my $s = $secs % 60;
-		my $t = ($m ? "$m分钟" : "") . "$s秒";
-		$title = $title ? $title . "_$t" : "$t";
-	}
-	$title =~ s/[\/\?:\*"']//g;
-
-
-		push @data,"$realurl\t$title.mp4" if($video and $realurl);
-		push @data,$info{'og:image'} . "\t$title.jpg" if($info{'og:image'});
-		return (
-			count=>scalar(@data),
-			data=>\@data,
-			base=>$url,
-			info=>\%info,
-			url=>$url,
-			realurl=>$realurl,
-			video=>$video,
-			image=>$info{'og:image'},
-			name=>$title,
-		);
+	my @data;
+	my $info = get_blog_info($url);
+	$info->{video} = get_video($info->{bid});
+	push @data,$info->{video} . "\t" . $info->{filename} . ".mp4" if($info->{video});
+	push @data,$info->{image} . "\t" . $info->{filename} . ".jpg" if($info->{image});
+	return (
+		count=>scalar(@data),
+		data=>\@data,
+		base=>$url,
+		info=>$info,
+		url=>$url,
+	);
 }
-
-=cut
 
 1;
 

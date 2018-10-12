@@ -58,6 +58,7 @@ sub apply_rule {
 		$i{qs} = $1;
 		$i{uid} =  $1;
 		$i{id} = $1;
+		$url = 'http://www.vlook.cn/ta/qs/' . $i{qs};
 	}
 	else {
 		return (
@@ -69,7 +70,7 @@ sub apply_rule {
 	if($url =~ m/\/videoBox\/qs\/([^\/]+)/) {
 		$i{uid} = 'VBOX_' . $1;
 		$i{url} = 'http://www.vlook.cn/videoBox/qs/' . $1;
-		if($html =~ m/<div[^>]+class="detail_op"[^>]+_data="{boxId:(\d+),name:'([^']+)'/) {
+		if($html =~ m/<div[^>]+class="detail_op"[^>]+_data="\{boxId:(\d+),name:'([^']+)'/) {
 			$i{boxId} = $1;
 			$i{uname} = $2;
 		}
@@ -93,7 +94,6 @@ sub apply_rule {
 	return %i;
 }
 
-=cut
 
 1;
 

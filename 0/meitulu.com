@@ -1,54 +1,49 @@
 #!/usr/bin/perl -w
-
-#DOMAIN : www.meitulu.com
+#DOMAIN : meitulu.com
 #AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
-#CREATED: 2015-12-27 01:43
-#UPDATED: 2015-12-27 01:43
-#TARGET : http://www.meitulu.com/item/1869.html
-
+#CREATED: 2018-08-30 13:34
+#UPDATED: 2018-08-30 13:34
+#TARGET : https://meitulu.com/item/14537.html
+#URLRULE: 2.0
+package MyPlace::URLRule::Rule::0_meitulu_com;
+use MyPlace::URLRule::Utils qw/get_url extract_title create_title/;
+use base 'MyPlace::URLRule::Rule';
 use strict;
-no warnings 'redefine';
+use warnings;
 
-
+=method1
 sub apply_rule {
- return (
- #Set quick parsing method on
-       '#use quick parse'=>1,
-
-#Specify data mining method
-       'data_exp'=>'<img[^>]+src=([^ >]+)[^>]+class=content_img',
-       'data_map'=>'$1 . "\t:DOWNLOADER_AUTONAME"',
-
-#Specify data mining method for nextlevel
+	my $self = shift;
+	return $self->apply_quick(
+	   'data_exp'=>undef,
+	   'data_map'=>undef,
        'pass_exp'=>undef,
        'pass_map'=>undef,
        'pass_name_map'=>undef,
-
-#Specify pages mining method
        'pages_exp'=>undef,
        'pages_map'=>undef,
        'pages_pre'=>undef,
        'pages_suf'=>undef,
        'pages_start'=>undef,
 	   'pages_limit'=>undef,
-
        'title_exp'=>undef,
        'title_map'=>undef,
        'charset'=>undef
- );
+	);
 }
 =cut
 
-=method2
-use MyPlace::URLRule::Utils qw/get_url/;
-
 sub apply_rule {
+	my $self = shift;
     my ($url,$rule) = @_;
 	my $html = get_url($url,'-v');
     my $title = undef;
     my @data;
     my @pass_data;
-    #my @html = split(/\n/,$html);
+    my @html = split(/\n/,$html);
+	while($html =~ m/<img[^>]+src="([^"]+\/images\/img\/([^\/"]+)\/([^\/"]+))"[^>]+class="content_img"/g) {
+		push @data,"$1\t$2_$3";
+	}
     return (
         count=>scalar(@data),
         data=>\@data,
@@ -59,8 +54,7 @@ sub apply_rule {
     );
 }
 
-=cut
-
+return new MyPlace::URLRule::Rule::0_meitulu_com;
 1;
 
 __END__

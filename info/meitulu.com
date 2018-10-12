@@ -48,7 +48,7 @@ sub apply_rule {
     my @html = split(/\n/,$html);
 	my %info;
 	foreach(@html) {
-		if(m/<title>([^_]+)/) {
+		if(m/<img[^>]+images\/tag\/[^>]+alt="([^"]+)"/) {
 			$info{uname} = $1;
 			last;
 		}

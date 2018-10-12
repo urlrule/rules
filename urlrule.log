@@ -51,3 +51,7 @@
 2017-09-23 03:31:00: urlrule --host weibo.com,poster.weibo.com,likes.weibo.com add http://weibo.com/u/3085583527
 2017-09-23 03:32:33: urlrule --host weibo.com,poster.weibo.com,likes.weibo.com add http://weibo.com/1146430453
 2017-09-23 03:34:03: urlrule --host weibo.com,poster.weibo.com,likes.weibo.com add http://weibo.com/u/1110855203?is_hot=1&noscale_head=1#_0
+2018-08-31 04:02:21: urlrule add https://www.nvshens.com/girl/25998/
+2018-08-31 04:06:44: urlrule add https://weibo.com/vivien520xj
+2018-08-31 04:07:52: urlrule add https://www.nvshens.com/girl/23068/
+2018-08-31 04:08:00: urlrule list 艾米酱aimee

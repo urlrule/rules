@@ -70,6 +70,10 @@ sub extract_uid {
 sub extract_post {
 	my $post = {};
 	local $_ = shift;
+	$_ =~ s/.*pl\.content\.weiboDetail\.index/({"ns":"pl.content.weiboDetail.index/m;
+	$_ =~ s/\\(["\/]+)/$1/g;
+	$_ =~ s/\s*\\+[ntr]+\s*//g;
+	$_ =~ s/\s*\\+[ntr]+\s*//g;
 	$_ =~ s/src="([^"]+(?:sina|weibo|sinaimg)\.(?:com|cn)[^"]*)\/(?:orj\d\d\d|thumb\d+|sq\d\d\d|mw\d\d\d\d|thumbnail|square|bmiddle|mw\d\d\d)\/([^"]+)"/src="$1\/large\/$2"/sg;
 	my $text = $_;
 	$text =~ s/[\n\r]//sg;
@@ -105,6 +109,7 @@ sub extract_post {
 			my $src = $2;
 			#next unless($src =~ m/large|original/);
 			next if($src =~ m/\/style\/images\/|sinajs|http:\/\/tp\d+\.sinaimg\.cn|http:\/\/tc\.sinaimg/);
+			next if($src =~ m/beacon\.sina\.|tva[^\.]+\.sinaimg\.|weibo\.com\/a\/vpaint|dslb\.cdn\./);
 			$src =~ s/^:?\/\//http:\/\//;
 			if($src =~ m/\.([^\.\/]+)$/) {
 				push @{$post->{images}},[$src,".$1"];
@@ -510,7 +515,7 @@ sub apply_rule {
 	my $url = shift;
 	my $rule = shift;
 	my $level = $rule->{level} || 0;
-	if($url =~ m/http:\/\/([^\.]+)\.weibo\.com/) {
+	if($url =~ m/https?:\/\/([^\.]+)\.weibo\.com/) {
 		$OPTS{TYPE} = $1;
 		$OPTS{uc($1)} = 1;
 	}
@@ -518,7 +523,7 @@ sub apply_rule {
 		return process_weibo($url,$level,$rule);
 	}
 	if(!$level) {
-		if($url =~ m/http:\/\/weibo\.com\/p\/([^\/]+)$/) {
+		if($url =~ m/https?:\/\/weibo\.com\/p\/([^\/]+)$/) {
 			my $pid = $1;
 			my $html = get_url($url,'-v');
 			if($html =~ m/file=([^"&]+\.m3u8[^"&]*)/) {
@@ -527,7 +532,10 @@ sub apply_rule {
 				);
 			}
 		}
-		elsif($url =~ m/^http:\/\/weibo.com\/\d+\/[^\/]+$/) {
+		elsif($url =~ m/^https?:\/\/weibo.com\/\d+\/[^\/]+$/) {
+			return process_post($url,$level,$rule);
+		}
+		elsif($url =~ m/^https?:\/\/weibo.com\/status\/[^\/]+$/) {
 			return process_post($url,$level,$rule);
 		}
 		my $page = 1;

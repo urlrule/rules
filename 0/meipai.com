@@ -73,6 +73,14 @@ sub apply_rule {
 	$info{desc} = "";
 	my $indesc;
 	foreach(@html) {
+		if(m/(<meta[^>]+property="([^"]+)"[^>]*>)/) {
+			my $a = $1;
+			my $p = $2;
+			if($a =~ m/content="([^"]+)"/) {
+				$info{$p} = $1;
+				next;
+			}
+		}
 		if($indesc) {
 			#print STDERR "DESC:$_\n";
 			last if(m/<div class="detail-count no-select"/);
@@ -127,6 +135,7 @@ sub apply_rule {
 		$info{$_} = int($info{$_}) if($info{$_});
 	}
 	$info{year} += 2000 if($info{year} and $info{year} < 2000);
+	$info{image} = $info{"og:image"} unless($info{image});
 	if(!$info{image}) {
 		return (error=>"Error parsing $url");
 	}
@@ -149,19 +158,32 @@ sub apply_rule {
 		$info{month} = 12;
 		$info{year} -= 1;
 	}
+	
+	if($info{"og:video:release_date"} and $info{"og:video:release_date"} =~ m/(\d{4})-(\d{1,2})-(\d{1,2})/) {
+		($info{year},$info{month},$info{day}) = ($1,$2,$3);
+	}
 
 	$info{month} = "0" . $info{month} if(length($info{month}) < 2);
 	$info{day} = "0" . $info{day} if(length($info{day}) < 2);
 	$info{videoext} = "mp4";
 	$info{imageext} = "jpg";
+	$info{desc} = $info{"og:title"} if($info{"og:title"});
 	if($info{desc}) {
 		$info{desc} =~ s/<[^>]+>//g;
 		$info{desc} =~ s/\s+$//;
 		$info{desc} = extract_title($utf8->decode($info{desc}));
 	}
 
+	
+	if($info{image} =~ m/^(.*?)img(\d+)\.meitudata\.com\/(.*?)\.([^\.]+)$/) {
+		$info{video} = "$1video$2.meitudata.com/$3.mp4";
+		$info{id} = $3;
+		$info{videoext} = "mp4";
+		$info{imageext} = "$4";
+	}
 	my $basename = $info{year} . $info{month} . $info{day} . "_" . $info{id};
 	$basename .= "_" . $info{desc} if($info{desc});
+
 	push @data,$info{video}  . "\t" . $basename ."." . $info{videoext} if($info{video}); 
 	push @data,$info{image} . "\t" . $basename . "." . $info{imageext}; 
     return (
