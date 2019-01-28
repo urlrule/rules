@@ -56,7 +56,9 @@ sub apply_rule {
 	return (
 		info=>\%i,
 		pass_count=>1,
-		pass_data=>["https://www.amemv.com/aweme/v1/aweme/post/?user_id=$i{uid}&count=32&max_cursor=0&aid=1128&dytk=$i{dytk}"],
+		pass_data=>[
+			"https://www.amemv.com/aweme/v1/aweme/post/?user_id=$i{uid}&count=32&max_cursor=0&aid=1128&dytk=$i{dytk}",
+		],
         base=>$url,
 		title=>$i{uid},
 	);

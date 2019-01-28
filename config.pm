@@ -41,6 +41,7 @@ $MyPlace::URLRule::Config = {
 		'sobt8.com'=>'sobt5.com',
 		'btdigg.cc'=>'btdigg.me',
 		'btmule.org'=>'sobt5.com',
+		'33bt.net'=>'9797g.com',
 	},
 };
 

@@ -1,0 +1,96 @@
+#!/usr/bin/perl -w
+#DOMAIN : dxg09.club
+#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#CREATED: 2018-11-14 00:43
+#UPDATED: 2018-11-14 00:43
+#TARGET : http://dxg09.club/thread-28683-1-1.html
+#URLRULE: 2.0
+package MyPlace::URLRule::Rule::0_dxg09_club;
+use MyPlace::URLRule::Utils qw/get_url create_title/;
+use base 'MyPlace::URLRule::Rule';
+use strict;
+use warnings;
+
+=method1
+sub apply_rule {
+	my $self = shift;
+	return $self->apply_quick(
+	   'data_exp'=>undef,
+	   'data_map'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
+       'pages_start'=>undef,
+	   'pages_limit'=>undef,
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef
+	);
+}
+=cut
+
+
+sub apply_rule {
+	my $self = shift;
+    my ($url,$rule) = @_;
+	my $base = $url;
+	if($base =~ m/^(https?:\/\/[^\/]+)/) {
+		$base = $1;
+	}
+	my $html = get_url($url,'-v');
+    my $title = undef;
+    my @data;
+    my @pass_data;
+	my %info;
+	#if($html =~ m/name="keywords" content="([^"]+)"/) {
+	if($html =~ m/^([^><]+)<br\s+\/>/m) {
+		$info{title} = create_title($1);
+		print STDERR "Title: $info{title}\n";
+	}
+	if($html =~ m/src="(\/p\.php\?ptplay=[^"]+)"/) {
+		$info{player} = "$base$1";
+	}
+	else {
+		return (
+			error=>"NO player url found",
+		);
+	}
+	if($html =~ m/zoomfile="([^"]+)"/) {
+		$info{cover} = "$base/$1";
+	}
+	print STDERR "Found player url: $info{player}\n";
+	$html = get_url($info{player},"-v");
+	if($html =~ m/src="([^"]+\.m3u8)"/) {
+		$info{playlist} = $1;
+		$info{playlist} =~ s/^.*url=//;
+		$info{pathname} = $info{playlist};
+		$info{pathname} =~ s/^.*?:\/\/[^\/]+\///;
+		$info{pathname} =~ s/\/[^\/]+$//;
+	}
+	else {
+		return (error=>"No playlist found");
+	}
+	print STDERR "Found playlist url: $info{playlist}\n";
+	$info{title} = create_title($info{pathname}) unless($info{title});
+	push @data,"$info{playlist}\t$info{title}.ts";
+	push @data,"$info{cover}\t$info{title}.jpg" if($info{cover});
+    return (
+        count=>scalar(@data),
+        data=>\@data,
+        base=>$url,
+        title=>$title,
+    );
+}
+
+return new MyPlace::URLRule::Rule::0_dxg09_club;
+1;
+
+__END__
+
+#       vim:filetype=perl
+
+

@@ -1,16 +1,15 @@
 #!/usr/bin/perl -w
-#DOMAIN : ___NAME___
-#AUTHOR : ___AUTHOR___ <___EMAIL___>
-#CREATED: ___DATE___
-#UPDATED: ___DATE___
-#TARGET : ___TARGET___
+#DOMAIN : 9797g.com
+#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#CREATED: 2019-01-27 00:30
+#UPDATED: 2019-01-27 00:30
+#TARGET : http://www.9797g.com/list/index6.html 2
 #URLRULE: 2.0
-package MyPlace::URLRule::Rule::___ID___;
+package MyPlace::URLRule::Rule::2_9797g_com;
 use base 'MyPlace::URLRule::Rule';
 use strict;
 use warnings;
 
-=method1
 sub apply_rule {
 	my $self = shift;
 	return $self->apply_quick(
@@ -19,10 +18,10 @@ sub apply_rule {
        'pass_exp'=>undef,
        'pass_map'=>undef,
        'pass_name_map'=>undef,
-       'pages_exp'=>undef,
-       'pages_map'=>undef,
-       'pages_pre'=>undef,
-       'pages_suf'=>undef,
+       'pages_exp'=>'<a href="(\/list\/.*?_)(\d+)\.html"[^>]*>\d+',
+       'pages_map'=>'$2',
+       'pages_pre'=>'$1',
+       'pages_suf'=>'".html"',,
        'pages_start'=>undef,
 	   'pages_limit'=>undef,
        'title_exp'=>undef,
@@ -30,7 +29,6 @@ sub apply_rule {
        'charset'=>undef
 	);
 }
-=cut
 
 =method2
 use MyPlace::URLRule::Utils qw/get_url create_title/;
@@ -54,7 +52,7 @@ sub apply_rule {
 }
 
 =cut
-return new MyPlace::URLRule::Rule::___ID___;
+return new MyPlace::URLRule::Rule::2_9797g_com;
 1;
 
 __END__

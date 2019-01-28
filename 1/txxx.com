@@ -1,23 +1,28 @@
 #!/usr/bin/perl -w
-#DOMAIN : ___NAME___
-#AUTHOR : ___AUTHOR___ <___EMAIL___>
-#CREATED: ___DATE___
-#UPDATED: ___DATE___
-#TARGET : ___TARGET___
+#DOMAIN : txxx.com
+#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#CREATED: 2019-01-28 03:03
+#UPDATED: 2019-01-28 03:03
+#TARGET : https://www.txxx.com/categories/milf/ 1
 #URLRULE: 2.0
-package MyPlace::URLRule::Rule::___ID___;
+package MyPlace::URLRule::Rule::1_txxx_com;
 use base 'MyPlace::URLRule::Rule';
 use strict;
 use warnings;
 
-=method1
 sub apply_rule {
 	my $self = shift;
+	if($_[0] =~ m/\/videos\//) {
+		return (
+			count=>1,
+			data=>['urlrule:' . $_[0]],
+		);
+	}
+	my $base = $_[0];
+	$base =~ s/^([^\/]+\/\/[^\/]+).*$/$1/;
 	return $self->apply_quick(
-	   'data_exp'=>undef,
-	   'data_map'=>undef,
-       'pass_exp'=>undef,
-       'pass_map'=>undef,
+       'data_exp'=>'href="[^"]*\/videos\/([^"]+)"[^>]+title=',
+       'data_map'=>"\"urlrule:$base/videos/\$1\"",
        'pass_name_map'=>undef,
        'pages_exp'=>undef,
        'pages_map'=>undef,
@@ -30,7 +35,6 @@ sub apply_rule {
        'charset'=>undef
 	);
 }
-=cut
 
 =method2
 use MyPlace::URLRule::Utils qw/get_url create_title/;
@@ -54,7 +58,7 @@ sub apply_rule {
 }
 
 =cut
-return new MyPlace::URLRule::Rule::___ID___;
+return new MyPlace::URLRule::Rule::1_txxx_com;
 1;
 
 __END__

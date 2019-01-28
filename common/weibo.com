@@ -127,11 +127,12 @@ sub extract_post {
 				$loc = expand_url($loc);
 			}
 			if($loc =~ m/weibo\.com/) {
+				if($loc =~ m/weibo\.com\/tv\/v\/.*?fid=([^&]+)/) {
+					$loc = 'http://video.weibo.com/show?fid=' . $1;
+				}
 				if($loc =~ m/video\.weibo\.com/) {
-#						push @{$post->{images}},[$loc,".mp4"];
 					$loc = "$loc&title=" . $post->{info} if($post->{info});
 					push @{$post->{data}},$loc;
-#						push @data,($info ? $loc . $post->{info};
 				}
 				next;
 			}
@@ -523,7 +524,12 @@ sub apply_rule {
 		return process_weibo($url,$level,$rule);
 	}
 	if(!$level) {
-		if($url =~ m/https?:\/\/weibo\.com\/p\/([^\/]+)$/) {
+		if($url =~ m/\/tv\/v\/.*pid=([^&]+)/) {
+			return (
+				data=>["http://video.weibo.com/show?fid=$1"],
+			);
+		}
+		elsif($url =~ m/weibo\.com\/p\/([^\/]+)$/) {
 			my $pid = $1;
 			my $html = get_url($url,'-v');
 			if($html =~ m/file=([^"&]+\.m3u8[^"&]*)/) {
@@ -532,10 +538,10 @@ sub apply_rule {
 				);
 			}
 		}
-		elsif($url =~ m/^https?:\/\/weibo.com\/\d+\/[^\/]+$/) {
+		elsif($url =~ m/weibo\.com\/\d+\/[^\/]+$/) {
 			return process_post($url,$level,$rule);
 		}
-		elsif($url =~ m/^https?:\/\/weibo.com\/status\/[^\/]+$/) {
+		elsif($url =~ m/weibo\.com\/status\/[^\/]+$/) {
 			return process_post($url,$level,$rule);
 		}
 		my $page = 1;

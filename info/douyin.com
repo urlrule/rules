@@ -42,6 +42,8 @@ sub apply_rule {
     my @data;
     my @pass_data;
 	my %i = get_info($url);;
+	delete $i{rule};
+	delete $i{posts};
 	if(!$i{uid}) {
 		return (info=>\%i,error=>"Parsing page failed");
 	}

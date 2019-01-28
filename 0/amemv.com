@@ -33,6 +33,7 @@ sub apply_rule {
 =cut
 
 use MyPlace::Douyin qw/get_info get_posts_from_url/;
+use MyPlace::String::Utils qw/strtime/;
 sub apply_rule {
 	my $self = shift;
     my ($url,$rule) = @_;
@@ -48,12 +49,15 @@ sub apply_rule {
 	}
 	foreach my $v(@{$info{posts}}) {
 		next unless($v->{aweme_id});
-		push @data,$v->{video} . "\t" . $info{user_id} . "_" . $v->{aweme_id} . ".mp4";
+		next unless($v->{video});
+		my $prefix = $info{user_id} . "_" . $v->{aweme_id};
+		$prefix = strtime($v->{create_time},-5) . "_" . $prefix if($v->{create_time});
+		push @data,$v->{video} . "\t" . $prefix . ".mp4";
 		my $idx = 1;
 		foreach my $i(@{$v->{images}}) {
-			push @data,$i . "\t" . $info{user_id} . "_" . $v->{aweme_id} . ".jpg";
+			push @data,$i . "\t" . $prefix . ".jpg";
 			last;
-			push @data,$i . "\t" . $info{user_id} . "_" . $v->{aweme_id} . "_$idx.jpg";
+			push @data,$i . "\t" . $prefix . "_$idx.jpg";
 			$idx++;
 		}
 	}

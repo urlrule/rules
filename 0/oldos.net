@@ -1,11 +1,12 @@
 #!/usr/bin/perl -w
-#DOMAIN : ___NAME___
-#AUTHOR : ___AUTHOR___ <___EMAIL___>
-#CREATED: ___DATE___
-#UPDATED: ___DATE___
-#TARGET : ___TARGET___
+#DOMAIN : disks.oldos.net
+#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#CREATED: 2018-12-30 00:29
+#UPDATED: 2018-12-30 00:29
+#TARGET : http://disks.oldos.net/OperatingSystems/
 #URLRULE: 2.0
-package MyPlace::URLRule::Rule::___ID___;
+package MyPlace::URLRule::Rule::0_disks_oldos_net;
+use MyPlace::URLRule::Utils qw/get_url create_title extract_title/;
 use base 'MyPlace::URLRule::Rule';
 use strict;
 use warnings;
@@ -32,8 +33,6 @@ sub apply_rule {
 }
 =cut
 
-=method2
-use MyPlace::URLRule::Utils qw/get_url create_title/;
 
 sub apply_rule {
 	my $self = shift;
@@ -42,19 +41,33 @@ sub apply_rule {
     my $title = undef;
     my @data;
     my @pass_data;
-    #my @html = split(/\n/,$html);
+	my @pass_name;
+    my @html = split(/\n/,$html);
+	foreach(@html) {
+		if(m/<img[^>]+alt="\[DIR\]"[^>]*>\s*<a[^>]+href="([^"]+\/)"[^>]*>(.+?)<\/a/) {
+			push @pass_data,$1;
+			push @pass_name,create_title($2);
+		}
+		elsif(m/<img[^>]+alt=[^>]*>\s*<a[^>]+href=".*\?C=/) {
+			next;
+		}
+		elsif(m/<img[^>]+alt=[^>]*>\s*<a[^>]+href="([^"]+)"[^>]*>(.+?)<\/a/) {
+			push @data,$1 . "\t" . create_title($2);
+		}
+	}
     return (
         count=>scalar(@data),
         data=>\@data,
         pass_count=>scalar(@pass_data),
         pass_data=>\@pass_data,
+		pass_name=>\@pass_name,
         base=>$url,
         title=>$title,
+		samelevel=>1,
     );
 }
 
-=cut
-return new MyPlace::URLRule::Rule::___ID___;
+return new MyPlace::URLRule::Rule::0_disks_oldos_net;
 1;
 
 __END__

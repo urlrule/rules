@@ -63,7 +63,25 @@ sub apply_rule {
 #	print STDERR $html,"\n";
 
 	my $vhtml;
-	if($html =~ m/file=([^"&]+\.m3u8[^"&]*)/) {
+	if($html =~ m/action-data="([^"]+)"/) {
+		$vhtml = $1;
+		foreach(split("&",$vhtml)) {
+			if(m/^([^=]+)=(.+)$/) {
+				$info{$1} = uri_unescape($2);
+			}
+		}
+		if($info{video_src}) {
+			$vhtml = $info{video_src};
+			$vhtml =~ s/^.*?:?\/\//http:\/\//;
+			$info{playlist_url} = $vhtml;
+		}
+		$info{prefix} = "";
+		foreach(($info{uid},$info{mid},$info{fnick})) {
+			$info{prefix} = $info{prefix} . $_ . "_" if($_);
+		}
+		$info{cover} = $info{cover_img} if($info{cover_img});
+	}
+	elsif($html =~ m/file=([^"&]+\.m3u8[^"&]*)/) {
 		$info{playlist_url} = uri_unescape($1);
 		$vhtml = get_url($info{playlist_url},'-v');
 	}
@@ -75,19 +93,24 @@ sub apply_rule {
 		$vhtml = uri_unescape($1);
 		$info{playlist_url} = $vhtml;
 	}
+	elsif($html =~ m/video_src=([^&]+)/) {
+		$vhtml = $1;
+		$vhtml = uri_unescape($1);
+		$vhtml =~ s/^.*?:?\/\//http:\/\//;
+		$info{playlist_url} = $vhtml;
+	}
 	if($vhtml) {
 		$info{playlist} = $vhtml;
-		$info{data} = [];
 		foreach(split(/[\r\n]/,$vhtml)) {
 			s/^http:\/\/us\.sinaimg\.cn\/?//;
 			if(m/^(.*?)([^\/]+)(\.mp4)$/) {
 				$info{video} = $_;
-				$info{filename} = $2;
+				$info{filename} = $info{prefix} . $2 if($2);
 				$info{ext} = $3;
 			}
 			elsif(m/^(.*?)([^\/]+)(\.mp4)(\?[^\/]+)$/) {
 				$info{video} = $_;
-				$info{filename} = $2;
+				$info{filename} = $info{prefix} . $2 if($2);
 				$info{ext} = $3;
 			}
 			my $sufx = '';
@@ -101,12 +124,15 @@ sub apply_rule {
 				}
 				if($saveas) {
 					$info{video} .= "\t${saveas}$sufx$info{ext}";
+					$info{cover} .= "\t${saveas}$sufx.jpg" if($info{cover});
 				}
 				else {
 					$info{video} .= "\t$info{filename}$sufx$info{ext}";
+					$info{cover} .= "\t$info{filename}${sufx}.jpg" if($info{cover});
 				}
 				push @{$info{data}},$info{video};
-				$info{count}++;
+				push @{$info{data}},$info{cover} if($info{cover});
+				$info{count} = scalar(@{$info{data}});
 				delete $info{video};
 			}
 		}

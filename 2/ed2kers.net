@@ -1,16 +1,16 @@
 #!/usr/bin/perl -w
-#DOMAIN : ___NAME___
-#AUTHOR : ___AUTHOR___ <___EMAIL___>
-#CREATED: ___DATE___
-#UPDATED: ___DATE___
-#TARGET : ___TARGET___
+#DOMAIN : ed2kers.net
+#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#CREATED: 2018-11-25 03:21
+#UPDATED: 2018-11-25 03:21
+#TARGET : http://ed2kers.net/%E8%BD%AF%E4%BB%B6/%E7%BC%96%E7%A8%8B%E5%BC%80%E5%8F%91/242021.html 2
 #URLRULE: 2.0
-package MyPlace::URLRule::Rule::___ID___;
+package MyPlace::URLRule::Rule::2_ed2kers_net;
+use MyPlace::URLRule::Utils qw/get_url/;
 use base 'MyPlace::URLRule::Rule';
 use strict;
 use warnings;
 
-=method1
 sub apply_rule {
 	my $self = shift;
 	return $self->apply_quick(
@@ -19,10 +19,10 @@ sub apply_rule {
        'pass_exp'=>undef,
        'pass_map'=>undef,
        'pass_name_map'=>undef,
-       'pages_exp'=>undef,
-       'pages_map'=>undef,
-       'pages_pre'=>undef,
-       'pages_suf'=>undef,
+       'pages_exp'=>'<a href=["\']([^\'"]+\/p\/)(\d+)(\.html)',
+       'pages_map'=>'$2',
+       'pages_pre'=>'$1',
+       'pages_suf'=>'$3',
        'pages_start'=>undef,
 	   'pages_limit'=>undef,
        'title_exp'=>undef,
@@ -30,11 +30,8 @@ sub apply_rule {
        'charset'=>undef
 	);
 }
-=cut
 
 =method2
-use MyPlace::URLRule::Utils qw/get_url create_title/;
-
 sub apply_rule {
 	my $self = shift;
     my ($url,$rule) = @_;
@@ -54,7 +51,7 @@ sub apply_rule {
 }
 
 =cut
-return new MyPlace::URLRule::Rule::___ID___;
+return new MyPlace::URLRule::Rule::2_ed2kers_net;
 1;
 
 __END__
