@@ -1,0 +1,94 @@
+#!/usr/bin/perl -w
+#DOMAIN : megatube.xxx
+#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#CREATED: 2019-01-29 02:13
+#UPDATED: 2019-01-29 02:13
+#TARGET : https://www.megatube.xxx/alison-tyler.pornstar 1
+#URLRULE: 2.0
+package MyPlace::URLRule::Rule::1_megatube_xxx;
+use base 'MyPlace::URLRule::Rule';
+use strict;
+use warnings;
+
+=method1
+sub apply_rule {
+	my $self = shift;
+	return $self->apply_quick(
+	   'data_exp'=>undef,
+	   'data_map'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
+       'pages_start'=>undef,
+	   'pages_limit'=>undef,
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef
+	);
+}
+=cut
+
+use MyPlace::URLRule::Utils qw/get_url create_title/;
+
+sub apply_rule {
+	my $self = shift;
+    my ($url,$rule) = @_;
+	my $html = get_url($url,'-v');
+    my $title = undef;
+    my @data;
+    my @pass_data;
+	my $base = $url;
+	$base =~ s/^([^\/]+:\/\/[^\/]+).*$/$1/;
+    my @html = split(/<div class="item\s*"/,$html);
+	my @videos;
+	foreach(@html) {
+		my %v;
+		if(m/href="([^"]*?)(\/?videos\/[^"]+)/) {
+			$v{url} = $1 ? "urlrule:$1/$2" : "urlrule:$base/$2";
+			$v{filename} = $v{url};
+			$v{filename} =~ s/\/+$//;
+			$v{filename} =~ s/^.*\///;
+			$v{filename} = create_title($v{filename});
+		}
+		next unless($v{url});
+		while(m/(?:data-original|data-mediabook|data-mediathumb|data-src)="([^"]+)"/g) {
+			push @{$v{src}},$1;
+			last;
+		}
+		foreach(@{$v{src}},$v{url}) {
+			my $src = $_;
+			my $ext = $src;
+			if($src =~ m/^\/\//) {
+				$src = "https:$src";
+			}
+			if($src =~ m/\/([^\/]+\.[^\.\/]+)$/) {
+				$ext = "_$1";
+			}
+			else {
+				$ext = ".mp4";
+			}
+			push @data,$src . "\t" . $v{filename} . $ext;
+		}
+	}
+    return (
+        count=>scalar(@data),
+        data=>\@data,
+        pass_count=>scalar(@pass_data),
+        pass_data=>\@pass_data,
+        base=>$url,
+        title=>$title,
+    );
+}
+
+return new MyPlace::URLRule::Rule::1_megatube_xxx;
+1;
+
+__END__
+
+#       vim:filetype=perl
+
+
