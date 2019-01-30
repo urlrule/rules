@@ -12,6 +12,11 @@ use warnings;
 
 sub apply_rule {
 	my $self = shift;
+	my $title = $_[0];
+	$title =~ s/^.*\/([^\/]+)\/[^\/]*$/$1/;
+	$title =~ s/\d+$//;
+	$title =~ s/[-_]+/ /g;
+	$title =~ s/\b(\w)/\U$1/g;
 	return $self->apply_quick(
 	   'data_exp'=>undef,
 	   'data_map'=>undef,
@@ -24,8 +29,7 @@ sub apply_rule {
        'pages_suf'=>'$3',
        'pages_start'=>undef,
 	   'pages_limit'=>undef,
-       'title_exp'=>undef,
-       'title_map'=>undef,
+	   'title'=>$title,
        'charset'=>undef
 	);
 }
