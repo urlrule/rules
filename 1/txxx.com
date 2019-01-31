@@ -21,7 +21,7 @@ sub apply_rule {
 	my $base = $_[0];
 	$base =~ s/^([^\/]+\/\/[^\/]+).*$/$1/;
 	return $self->apply_quick(
-       'data_exp'=>'href="[^"]*\/videos\/([^"]+)"[^>]+title=',
+       'data_exp'=>'href="[^"]*\/videos\/([^"]+)"',
        'data_map'=>"\"urlrule:$base/videos/\$1\"",
        'pass_name_map'=>undef,
        'pages_exp'=>undef,

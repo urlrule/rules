@@ -44,17 +44,22 @@ sub apply_rule {
     my @pass_data;
 	my %info;
 	if($html =~ m/<a[^>]+href="(.+get_file.+\/[^\/]+\/\?[^"]+)/) {
-		$info{url} = $1;
-		$info{url} =~ s/&amp;/&/g;
-		$info{url} =~ s/download=true/f=video.m3u8/;
+		$info{video_src} = $1;
+		$info{video_src} =~ s/&amp;/&/g;
+		$info{video_src} =~ s/download=true/f=video.m3u8/;
 		my $lt=time;
-		$info{url} =~ s/%lock_time%/$lt/;
-		$info{url} =~ s/%lock_ip%/120/;
-		$info{url} =~ s/:\/\/www\./:\/\/upload./;
+		$info{video_src} =~ s/%lock_time%/$lt/;
+		$info{video_src} =~ s/%lock_ip%/120/;
+		$info{video_src} =~ s/:\/\/www\./:\/\/upload./;
 	}
-	if((!$info{url})) {
 		my @html = split("\n",$html);
 		foreach(@html) {
+			if(m/video_url\s*=\s*"([^"]+)"/) {
+				$info{enc_url} = $1;
+			}
+			if(m/video_url\s*\+=\s*"([^"]+)/) {
+				$info{vurl2} = $1;
+			}
 			next unless(m/^\s*[\w\d]+\s*:/);
 			while(m/\b([\w\d]+)\b\s*:\s*'([^']+)'/g) {
 				$info{$1} = $2;
@@ -66,17 +71,30 @@ sub apply_rule {
 				$info{$1} = $2;
 			}
 		}
-	}
-	unless($info{pC3} or $info{url}) {
-		return (error=>"Error parsing page");
+	unless($info{pC3} or $info{video_src} or $info{enc_url}) {
+		return (error=>"Error parsing page",page=>\%info);
 	}
 	if(!$info{video_id}) {
 		if($url =~ m/\/(?:videos|embed)\/(\d+)/) {
 			$info{video_id} = $1;
 		}
 	}
-	return (error=>"Error getting video_id") unless($info{video_id});
-	if($info{pC3}) {
+	return (error=>"Error getting video_id",page=>\%info) unless($info{video_id});
+	if(!$info{title}) {
+		if($html =~ m/<h2[^>]*>(.+?)<\/\s*h2/) {
+			$info{title} = $1;
+			$info{title} =~ s/<[^>]+>//g;
+			$info{title} = create_title($info{title});
+		}
+	}
+	else {
+		$info{title} = create_title($info{title});
+	}
+
+	return create_data($url,$title,\%info) if($info{video_src});
+
+
+	if(!$info{enc_url}) {
 		my $param = "$info{video_id},$info{pC3}";
 		my $posturl = "https://upload.txxx.com/sn4diyux.php";
 		my @post = qw{curl --silent};
@@ -93,41 +111,51 @@ sub apply_rule {
 		}
 		close FI;
 		if(!$info{enc_url}) {
-			return (error=>"Error decoding url");
+			return (error=>"Error decoding url",page=>\%info);
 		}
-		use Encode qw/encode/;
-		$info{enc_url} = encode("UTF-8",$info{enc_url});#,"utf8");
+	}
+		#use Encode qw/encode/;
+		#$info{enc_url} = encode("UTF-8",$info{enc_url});#,"utf8");
 		my $decoder = locate_file("tools/decode_txxx.com.js");
 		if(!-f $decoder) {
-			return (error=>"Error locate decoder $decoder");
+			return (error=>"Error locate decoder $decoder",page=>\%info);
 		}
 		print STDERR "Using $decoder\n";
 		if(!open FI,'-|','node',$decoder,$info{enc_url}) {
-			return (error=>"Error executing decoder");
+			return (error=>"Error executing decoder",page=>\%info);
 		}
-		my $url = join("",<FI>);
+		my $durl = join("",<FI>);
 		close FI;
-		$info{url} = $url;
-	}
-	unless($info{url}) {
-		return (error=>"Error cracking page");
-	}
-
-	if(!$info{title}) {
-		if($html =~ m/<h2[^>]*>(.+?)<\/\s*h2/) {
-			$info{title} = $1;
-			$info{title} =~ s/<[^>]+>//g;
-			$info{title} = create_title($info{title});
+		if($info{vurl2}) {
+			my(undef,$dpath,$lip,$lt) = split(/\|\|/,$info{vurl2});
+			$durl = $durl . "&lip=$lip&lt=$lt";
+			$info{dpath} = $dpath;
 		}
+		if($info{dpath}) {
+			$durl =~ s/([^\/]+)\/[^\/]+\/[^\/]+\/[^\/]+\//$1$info{dpath}/;
+		}
+		#if($url =~ m/tubepornclassic.com/) {
+		#	$durl = $durl . "&f=video.m3u8";
+		#}
+		$info{video_src} = $durl;
+
+	if(!$info{video_src}) {
+		return (error=>"Error cracking page",page=>\%info);
 	}
-	else {
-		$info{title} = create_title($info{title});
-	}
+	return create_data($url,$title,\%info);
+}
+sub create_data {
+	my $url = shift;
+	my $title = shift;
+	my $info = shift;
+	my %info = %$info;
+	my @data;
+
 	my $prefix = $info{title} ? $info{title} . "_" : "";
 	if($info{image}) {
 		push @data,$info{image} . "\t$prefix" . url_getname($info{image});
 	}
-	push @data,$info{url} . "\t$prefix" . url_getname($info{url});
+	push @data,$info{video_src} . "\t$prefix" . url_getname($info{video_src});
     return (
         count=>scalar(@data),
         data=>\@data,

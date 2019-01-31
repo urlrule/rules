@@ -25,16 +25,22 @@ sub apply_rule {
 	$title =~ s/\d+$//;
 	$title =~ s/[-_]+/ /g;
 	$title =~ s/\b(\w)/\U$1/g;
+	my $page_pre = $_[0];
+	my $page_suf = "/";
+	if($page_pre =~ m/^(.+)\/([^\/]+)$/) {
+		$page_pre = "$1/";
+		$page_suf = "/$2";
+	}
 	return $self->apply_quick(
 	   'data_exp'=>undef,
 	   'data_map'=>undef,
        'pass_exp'=>undef,
        'pass_map'=>undef,
        'pass_name_map'=>undef,
-       'pages_exp'=>'href="([^"]*?\/)(\d+)(\/[^"]*)"[^>]+(?:data-action="ajax"|title="Page\s+)',
-       'pages_map'=>'$2',
-       'pages_pre'=>'$1',
-       'pages_suf'=>'$3',
+       'pages_exp'=>'<a[^>]+data-query="page:(\d+)"',
+       'pages_map'=>'$1',
+       'pages_pre'=>"\"$page_pre\"",
+       'pages_suf'=>"\"$page_suf\"",
        'pages_start'=>undef,
 	   'pages_limit'=>undef,
 	   'title'=>$title,

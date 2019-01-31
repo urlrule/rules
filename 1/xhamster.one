@@ -1,11 +1,11 @@
 #!/usr/bin/perl -w
-#DOMAIN : ___NAME___
-#AUTHOR : ___AUTHOR___ <___EMAIL___>
-#CREATED: ___DATE___
-#UPDATED: ___DATE___
-#TARGET : ___TARGET___
+#DOMAIN : xhamster.one
+#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#CREATED: 2019-02-01 03:14
+#UPDATED: 2019-02-01 03:14
+#TARGET : https://xhamster.one/videos/spyfam-step-mom-christiana-cinn-fucks-big-dick-step-son-7731170
 #URLRULE: 2.0
-package MyPlace::URLRule::Rule::___ID___;
+package MyPlace::URLRule::Rule::0_xhamster_one;
 use base 'MyPlace::URLRule::Rule';
 use strict;
 use warnings;
@@ -32,29 +32,29 @@ sub apply_rule {
 }
 =cut
 
-=method2
-use MyPlace::URLRule::Utils qw/get_url get_safename url_getname/;
+use MyPlace::URLRule::Utils qw/get_url create_title url_getname/;
 
 sub apply_rule {
 	my $self = shift;
     my ($url,$rule) = @_;
 	my $html = get_url($url,'-v');
-    my $title = undef;
-    my @data;
     my @pass_data;
-    #my @html = split(/\n/,$html);
+	my @html = split(/\n/,$html);
+	foreach(@html) {
+		while(m/href="([^"]*\/videos\/[^"]+)"[^>]+data/g) {
+			my $v = $1;
+			my $t = url_getname($v);
+			push @pass_data,"urlrule:$v\t$t.mp4";
+		}
+	}
     return (
-        count=>scalar(@data),
-        data=>\@data,
-        pass_count=>scalar(@pass_data),
-        pass_data=>\@pass_data,
+        count=>scalar(@pass_data),
+        data=>\@pass_data,
         base=>$url,
-        title=>$title,
     );
 }
 
-=cut
-return new MyPlace::URLRule::Rule::___ID___;
+return new MyPlace::URLRule::Rule::0_xhamster_one;
 1;
 
 __END__

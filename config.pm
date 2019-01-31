@@ -42,6 +42,7 @@ $MyPlace::URLRule::Config = {
 		'btdigg.cc'=>'btdigg.me',
 		'btmule.org'=>'sobt5.com',
 		'33bt.net'=>'9797g.com',
+		'tubepornclassic.com'=>'txxx.com',
 	},
 };
 
