@@ -23,7 +23,7 @@ sub apply_rule {
 	$title =~ s/%20/ /g;
 	$title =~ s/%2[Bb]/+/g;
 	$title =~ s/\d+$//;
-	$title =~ s/[-_]+/ /g;
+	$title =~ s/[-_\+]+/ /g;
 	$title =~ s/\b(\w)/\U$1/g;
 	return $self->apply_quick(
 	   'data_exp'=>undef,
@@ -37,6 +37,7 @@ sub apply_rule {
        'pages_suf'=>'$3',
        'pages_start'=>undef,
 	   'pages_limit'=>undef,
+	   'pages_error'=>200,
 	   'title'=>$title,
        'charset'=>undef
 	);

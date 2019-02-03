@@ -5,7 +5,7 @@
 #UPDATED: 2019-01-29 23:49
 #TARGET : https://spankbang.com/3ts/pornstar/mona+wales 1
 #URLRULE: 2.0
-package MyPlace::URLRule::Rule::1_spankbang_com;
+package MyPlace::URLRule::Rule::2_spankbang_com;
 use base 'MyPlace::URLRule::Rule';
 use strict;
 use warnings;
@@ -48,25 +48,33 @@ sub apply_rule {
 	my $last = 1;
 	my $prev = "";
 	my $suff = "";
+	my @links;
 	foreach(@html) {
-		while(m/<a[^>]+href="([^"]+\?page=)(\d+)([^"]*)"/g) {
-			if($last < $2) {
-				$last = $2;
-				$prev = $1;
-				$suff = $3;
-			}
-
-		}
-		while(m/<a[^>]+href="([^"]+\/)(\d+)(\/)"/g) {
-			if($last < $2) {
-				$last = $2;
-				$prev = $1;
-				$suff = $3;
-			}
-
+		while(m/<a[^>]+href="([^"]+)/g) {
+			push @links,$1;
 		}
 	}
-	$last = 10 if($last >10);
+	foreach(@links) {
+		next if(m/\/tags?\/\d+\/[^\/]*$/);
+		if(m/^(.+\?page=)(\d+)(.*)$/) {
+			if($last < $2) {
+				$last = $2;
+				$prev = $1;
+				$suff = $3;
+			}
+		}
+		elsif(m/^(.+\/)(\d+)(\/[^\/]*)$/g) {
+			if($last < $2) {
+				$last = $2;
+				$prev = $1;
+				$suff = $3;
+			}
+		}
+	}
+	if($last > 200) {
+		return ("error"=>"Too much page [$last] return, something maybe wrong");
+	}
+	#$last = 10 if($last >10);
 	push @pass_data,$url;
 	foreach(2 .. $last) {
 		push @pass_data,url_getfull("$prev$_$suff",$url,@urlinfo);
@@ -79,7 +87,7 @@ sub apply_rule {
     );
 }
 
-return new MyPlace::URLRule::Rule::1_spankbang_com;
+return new MyPlace::URLRule::Rule::2_spankbang_com;
 1;
 
 __END__

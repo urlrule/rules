@@ -5,7 +5,7 @@
 #UPDATED: 2019-02-01 03:14
 #TARGET : https://xhamster.one/videos/spyfam-step-mom-christiana-cinn-fucks-big-dick-step-son-7731170
 #URLRULE: 2.0
-package MyPlace::URLRule::Rule::0_xhamster_one;
+package MyPlace::URLRule::Rule::1_xhamster_one;
 use base 'MyPlace::URLRule::Rule';
 use strict;
 use warnings;
@@ -54,7 +54,7 @@ sub apply_rule {
     );
 }
 
-return new MyPlace::URLRule::Rule::0_xhamster_one;
+return new MyPlace::URLRule::Rule::1_xhamster_one;
 1;
 
 __END__
