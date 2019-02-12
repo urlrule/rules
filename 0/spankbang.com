@@ -59,8 +59,8 @@ sub apply_rule {
 			my $src = $_;
 			$src = url_getfull($src,$url,$base,$path);
 			my $ext = url_getname($src);
-			if($src =~ m/\/([^\/]+\.[^\.\/\?]+)$/) {
-				$ext = "_$1";
+			if($ext =~ m/^[^\/]+\.[^\.\/\?]+$/) {
+				$ext = "_$ext";
 			}
 			else {
 				$ext = ".mp4";

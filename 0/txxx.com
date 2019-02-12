@@ -38,6 +38,7 @@ use MyPlace::URLRule qw/locate_file/;
 sub apply_rule {
 	my $self = shift;
     my ($url,$rule) = @_;
+	$url =~ s/^([^\/]+)\/\/txxx\.com/$1\/\/www.txxx.com/;
 	my $html = get_url($url,'-v');
     my $title = undef;
     my @data;
@@ -102,8 +103,10 @@ sub apply_rule {
 		push @post,'--referer',$url;
 		push @post,'--form-string',"param=$param";
 		print STDERR "<Posting data> $posturl ...\n";
+		#print STDERR join(" ",@post),"\n";
 		open FI,'-|',@post;
 		while(<FI>) {
+			#print STDERR $_;
 			if(m/"video_url"\s*:\s*"([^"]+)"/) {
 				$info{enc_url} = $1;
 				last;

@@ -40,26 +40,33 @@ sub apply_rule {
 }
 =cut
 
-use MyPlace::Weibo::Photo qw/get_photos get_url/;
+use MyPlace::Weibo::Photo qw/get_photos get_url get_photo/;
 
 sub apply_rule {
     my ($url,$rule) = @_;
 	my %info;
-	foreach(qw/album_id page count/) {
-		if($url =~ m/[\?&]$_=([^&]+)/) {
-			$info{$_} = $1;
-		}
+    my @data;
+	my $st;
+	my @ph;
+	if($url =~ m/\/talbum\/detail\/photo_id\//) {
+		($st,@ph) = get_photo($url);	
 	}
-	my($st,@ph) = get_photos($info{album_id},$info{page},$info{count});
+	else {
+		foreach(qw/album_id page count/) {
+			if($url =~ m/[\?&]$_=([^&]+)/) {
+				$info{$_} = $1;
+			}
+		}
+		($st,@ph) = get_photos($info{album_id},$info{page},$info{count});
+	}
 	if(!$st) {
 		return (error=>join(" ",@ph),info=>\%info);
 	}
-    my @data;
 	foreach(@ph) {
 		push @data,$_->{src};
 	}
     return (
-		#photos=>\@ph,
+		photos=>\@ph,
         count=>scalar(@data),
         data=>\@data,
         pass_count=>0,

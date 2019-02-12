@@ -73,9 +73,14 @@ sub apply_rule {
 	unless($info{$hq}) {
 		return (error=>"Error parsing page",page=>\%info);
 	}
-	$title = url_getname($url);
-	push @data,$info{thumburl} . "\t$title.jpg" if($info{thumburl});
-	push @data,$info{$hq} . "\t$title.mp4";
+	my $urlname = url_getname($url);
+	foreach($info{thumburl},$info{$hq}) {
+		next if(!$_);
+		push @data,$_ . "\t" . $urlname . "_" . url_getname($_);
+	}
+
+	#	push @data,$info{thumburl} . "\t$title.jpg" if($info{thumburl});
+	#push @data,$info{$hq} . "\t$title.mp4";
 
 
     return (

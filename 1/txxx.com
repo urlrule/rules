@@ -9,7 +9,7 @@ package MyPlace::URLRule::Rule::1_txxx_com;
 use base 'MyPlace::URLRule::Rule';
 use strict;
 use warnings;
-
+=method1
 sub apply_rule {
 	my $self = shift;
 	if($_[0] =~ m/\/videos\//) {
@@ -35,9 +35,8 @@ sub apply_rule {
        'charset'=>undef
 	);
 }
-
-=method2
-use MyPlace::URLRule::Utils qw/get_url create_title/;
+=cut
+use MyPlace::URLRule::Utils qw/get_url create_title url_getinfo/;
 
 sub apply_rule {
 	my $self = shift;
@@ -47,17 +46,26 @@ sub apply_rule {
     my @data;
     my @pass_data;
     #my @html = split(/\n/,$html);
+	if($html =~ m/<div class="page-error">([^<]+)/) {
+		return (error=>$1);
+	}
+	my $base = $url;
+	$base =~ s/^([^\/]+\/\/[^\/]+).*$/$1/;
+	my %dups;
+    while($html =~ m/href="[^"]*\/videos\/([^"]+)"/g) {
+		my $id = $1;
+		$id =~ s/\?utm_source=search$//;
+		next if($dups{$id});
+		$dups{$id} = 1;
+		push @data,"urlrule:$base/videos/$id";
+	}
     return (
         count=>scalar(@data),
         data=>\@data,
-        pass_count=>scalar(@pass_data),
-        pass_data=>\@pass_data,
         base=>$url,
-        title=>$title,
     );
 }
 
-=cut
 return new MyPlace::URLRule::Rule::1_txxx_com;
 1;
 

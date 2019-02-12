@@ -32,7 +32,7 @@ sub apply_rule {
 }
 =cut
 
-use MyPlace::URLRule::Utils qw/get_url create_title/;
+use MyPlace::URLRule::Utils qw/get_url url_getname/;
 
 sub apply_rule {
 	my $self = shift;
@@ -44,19 +44,18 @@ sub apply_rule {
     my @html = split(/\n/,$html);
 	my %info;
 	foreach(@html) {
-		if(m/video_url: '([^']+\/)([^\/']+)(\/?)/) {
-			$info{video} = "$1$2$3";
-			$info{filename} = $2;
-			last;
+		while(m/(preview_url|video_url)\s*:\s*'([^']+)'/g) {
+			print STDERR "$1 => $2\n";
+			$info{$1} = $2;
 		}
+		last if($info{preview_url} and $info{video_url});
 	}
-	return (error=>"Error parsing page") unless($info{video});
-	$info{title} = $url;
-	$info{title} =~ s/\/+$//;
-	$info{title} =~ s/.*\///;
-	$info{title} = create_title($info{title});
-	push @data,"$info{video}\t$info{title}_$info{filename}";
-
+	return (error=>"Error parsing page") unless($info{video_url});
+	$title = url_getname($url);
+	foreach($info{video_url},$info{preview_url}) {
+		next unless($_);
+		push @data,"$_\t$title" . "_" . url_getname($_);
+	}
     return (
         count=>scalar(@data),
         data=>\@data,

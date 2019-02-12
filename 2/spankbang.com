@@ -50,6 +50,9 @@ sub apply_rule {
 	my $suff = "";
 	my @links;
 	foreach(@html) {
+		if(m/<p class="sry">(.+?)<\/p>/) {
+			return (error=>$1);
+		}
 		while(m/<a[^>]+href="([^"]+)/g) {
 			push @links,$1;
 		}
@@ -71,7 +74,7 @@ sub apply_rule {
 			}
 		}
 	}
-	if($last > 200) {
+	if($last > 200 and $url =~ m/\/(?:tag|category)\//) {
 		return ("error"=>"Too much page [$last] return, something maybe wrong");
 	}
 	#$last = 10 if($last >10);
@@ -83,7 +86,7 @@ sub apply_rule {
         pass_count=>scalar(@pass_data),
         pass_data=>\@pass_data,
         base=>$url,
-        title=>$title,
+		#title=>$title,
     );
 }
 

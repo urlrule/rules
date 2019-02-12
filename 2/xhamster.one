@@ -76,7 +76,7 @@ sub apply_rule {
         pass_count=>scalar(@pass_data),
         pass_data=>\@pass_data,
         base=>$url,
-		title=>$title,
+		#	title=>$title,
     );
 }
 

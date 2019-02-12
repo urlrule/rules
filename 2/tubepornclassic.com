@@ -13,18 +13,18 @@ use warnings;
 sub apply_rule {
 	my $self = shift;
 	$_[0] =~ s/ /%20/g;
-	my $title = $_[0];
-	if($title =~ m/[&\?]s=([^&]+)/) {
-		$title = $1;
-	}
-	else {
-		$title =~ s/^.*\/([^\/]+)\/[^\/]*$/$1/;
-	}
-	$title =~ s/%20/ /g;
-	$title =~ s/%2[Bb]/+/g;
-	$title =~ s/\d+$//;
-	$title =~ s/[-_]+/ /g;
-	$title =~ s/\b(\w)/\U$1/g;
+#	my $title = $_[0];
+#	if($title =~ m/[&\?]s=([^&]+)/) {
+#		$title = $1;
+#	}
+#	else {
+#		$title =~ s/^.*\/([^\/]+)\/[^\/]*$/$1/;
+#	}
+#	$title =~ s/%20/ /g;
+#	$title =~ s/%2[Bb]/+/g;
+#	$title =~ s/\d+$//;
+#	$title =~ s/[-_]+/ /g;
+#	$title =~ s/\b(\w)/\U$1/g;
 	my $page_pre = $_[0];
 	my $page_suf = "/";
 	if($page_pre =~ m/^(.+)\/([^\/]+)$/) {
@@ -43,7 +43,7 @@ sub apply_rule {
        'pages_suf'=>"\"$page_suf\"",
        'pages_start'=>undef,
 	   'pages_limit'=>undef,
-	   'title'=>$title,
+	   'title'=>undef,
        'charset'=>undef
 	);
 }
