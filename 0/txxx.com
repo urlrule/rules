@@ -39,6 +39,7 @@ sub apply_rule {
 	my $self = shift;
     my ($url,$rule) = @_;
 	$url =~ s/^([^\/]+)\/\/txxx\.com/$1\/\/www.txxx.com/;
+	$url =~ s/\/\/[^\/]*tubepornclassic\.com/\/\/tubepornclassic.com/;
 	my $html = get_url($url,'-v');
     my $title = undef;
     my @data;

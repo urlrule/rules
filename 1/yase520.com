@@ -15,7 +15,9 @@ use MyPlace::URLRule::Utils qw/get_url extract_title url_getinfo url_getfull/;
 sub apply_rule {
 	my $self = shift;
     my ($url,$rule) = @_;
-	my $html = get_url($url,'-v');
+	my $rurl = $url;
+	$rurl =~ s/\/\/[^\/]*yase520\.com/\/\/www.yase9.com/;
+	my $html = get_url($rurl,'-v');
     my @data;
 	my ($base,$path,$name) = url_getinfo($url);
 	my %h;

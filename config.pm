@@ -43,6 +43,8 @@ $MyPlace::URLRule::Config = {
 		'btmule.org'=>'sobt5.com',
 		'33bt.net'=>'9797g.com',
 		'tubepornclassic.com'=>'txxx.com',
+		'ysdot.com'=>'yase520.com',
+		'yase9.com'=>'yase520.com',
 	},
 };
 

@@ -39,6 +39,7 @@ sub apply_rule {
     my ($url,$rule) = @_;
 	my $rurl = $url;
 	$rurl =~ s/\/video-(\d+)/\/player\/$1/;
+	$rurl =~ s/\/\/[^\/]*yase520\.com/\/\/www.yase9.com/;
 	my $html = get_url($rurl,'-v');
     my $title = undef;
     my @data;

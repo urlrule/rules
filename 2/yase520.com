@@ -11,6 +11,7 @@ use strict;
 use warnings;
 
 use MyPlace::URLRule::Utils qw/get_url get_safename url_getname/;
+=method1
 sub apply_rule {
 	my $self = shift;
 	#	my $url = $_[0];
@@ -33,29 +34,35 @@ sub apply_rule {
        'charset'=>undef
 	);
 }
-
-=method2
+=cut
 use MyPlace::URLRule::Utils qw/get_url get_safename url_getname/;
 
 sub apply_rule {
 	my $self = shift;
     my ($url,$rule) = @_;
-	my $html = get_url($url,'-v');
-    my $title = undef;
-    my @data;
+	my $rurl = $url;
+	$rurl =~ s/\/\/[^\/]*yase520\.com/\/\/www.yase9.com/;
+	my $html = get_url($rurl,'-v');
+	my ($pre,$last,$suf) = ("",0,"");
+	while($html =~ m/href="([^"]+\/page\/)(\d+)([^"]*)"/g) {
+		if($2 > $last) {
+			$pre = $1;
+			$last = $2;
+			$suf = $3;
+		}
+	};
     my @pass_data;
-    #my @html = split(/\n/,$html);
+	push @pass_data,$url;
+	foreach(1 .. $last) {
+		push @pass_data,"$pre$_$suf";
+	}
     return (
-        count=>scalar(@data),
-        data=>\@data,
         pass_count=>scalar(@pass_data),
         pass_data=>\@pass_data,
         base=>$url,
-        title=>$title,
     );
 }
 
-=cut
 return new MyPlace::URLRule::Rule::2_9_yase520_com;
 1;
 
