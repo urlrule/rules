@@ -39,7 +39,9 @@ sub apply_rule {
     my ($url,$rule) = @_;
 	my $rurl = $url;
 	$rurl =~ s/\/video-(\d+)/\/player\/$1/;
+	$rurl =~ s/\/player\//\/video-/;
 	$rurl =~ s/\/\/[^\/]*yase520\.com/\/\/www.yase9.com/;
+	$rurl =~ s/\/\/www\.yase9\.com/\/\/www2.yasedd.com/;
 	my $html = get_url($rurl,'-v');
     my $title = undef;
     my @data;
@@ -54,11 +56,26 @@ sub apply_rule {
 		if(m/(source|poster)\s*:\s*'([^']+)/) {
 			$info{$1} = $2;
 		}
-		last if($info{poster});
+		if(m/m3u8_url\s*=\s*'([^']+)'/) {
+			$info{source} = $1;
+		}
+		if(m/poster_url\s*=\s*'([^']+\.jpg)/) {
+			$info{poster} = $1;
+		}
+		if(m/video_buyVideo="([^"]+)/) {
+			$info{title} = $1;
+		}
+		last if($info{poster} and $info{title});
 	}
-	return (error=>"Error parsing page") unless($info{poster});
-	$info{source} = $info{poster};
-	$info{source} =~ s/\/[^\/]+$/\/hls\/hls.m3u8/;
+	return (error=>"Error parsing page") unless($info{source});
+	if($info{source} =~ m/\/\/\[domain_/) {
+		$info{source} =~ s/\[domain_dan\]/hone.yyhdyl.com/;
+		$info{source} =~ s/\[domain_shuang\]/htwo.yyhdyl.com/;
+		$info{source} =~ s/\[domain_three\]/hthree.yyhdyl.com/;
+	}
+	else {
+		$info{source} =~ s/\/[^\/]+$/\/hls\/hls.m3u8/;
+	}
 	if($info{source} =~ m/m3u8/) {
 		my $data = get_url($info{source},-v);
 		print $data,"\n";

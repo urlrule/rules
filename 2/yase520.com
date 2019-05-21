@@ -42,6 +42,7 @@ sub apply_rule {
     my ($url,$rule) = @_;
 	my $rurl = $url;
 	$rurl =~ s/\/\/[^\/]*yase520\.com/\/\/www.yase9.com/;
+	$rurl =~ s/\/\/www\.yase9\.com/\/\/www2.yasedd.com/;
 	my $html = get_url($rurl,'-v');
 	my ($pre,$last,$suf) = ("",0,"");
 	while($html =~ m/href="([^"]+\/page\/)(\d+)([^"]*)"/g) {
@@ -51,6 +52,15 @@ sub apply_rule {
 			$suf = $3;
 		}
 	};
+	if($last < 1) {
+	while($html =~ m/href="([^"]+\/[^"\/]+\?page=)(\d+)([^"]*)"/g) {
+		if($2 > $last) {
+			$pre = $1;
+			$last = $2;
+			$suf = $3;
+		}
+	}
+	}
     my @pass_data;
 	push @pass_data,$url;
 	foreach(1 .. $last) {

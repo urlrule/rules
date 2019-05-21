@@ -45,6 +45,7 @@ $MyPlace::URLRule::Config = {
 		'tubepornclassic.com'=>'txxx.com',
 		'ysdot.com'=>'yase520.com',
 		'yase9.com'=>'yase520.com',
+		'www2.yasedd.com'=>'yase520.com',
 	},
 };
 

@@ -64,6 +64,15 @@ sub apply_rule {
 			$suf = $3;
 		}
 	}
+	if($last < 1) {
+		while($html =~ m/<a[^>]+class="paginator__item[^>]+href="([^"]*?\/)(\d+)(\/[^"]*)"/g) {
+			if($2>$last) {
+				$last = $2;
+				$pre = $1;
+				$suf = $3;
+			}
+		}
+	}
 	push @pass_data,$url;
 	if($last>1) {
 		foreach(2 .. $last) {

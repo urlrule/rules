@@ -38,7 +38,7 @@ use MyPlace::URLRule qw/locate_file/;
 sub apply_rule {
 	my $self = shift;
     my ($url,$rule) = @_;
-	$url =~ s/^([^\/]+)\/\/txxx\.com/$1\/\/www.txxx.com/;
+	$url =~ s/^([^\/]+)\/\/txxx\.com/$1\/\/txxx.com/;
 	$url =~ s/\/\/[^\/]*tubepornclassic\.com/\/\/tubepornclassic.com/;
 	my $html = get_url($url,'-v');
     my $title = undef;
@@ -98,22 +98,26 @@ sub apply_rule {
 
 	if(!$info{enc_url}) {
 		my $param = "$info{video_id},$info{pC3}";
-		my $posturl = "https://upload.txxx.com/sn4diyux.php";
-		my @post = qw{curl --silent};
-		push @post,"--url",$posturl;
-		push @post,'--referer',$url;
+		my $posturl = "https://getfile.txxx.com/sn4diyux.php";
+		my @curl = qw{curl --silent};
+		my @post=('--referer',$url);
 		push @post,'--form-string',"param=$param";
 		print STDERR "<Posting data> $posturl ...\n";
-		#print STDERR join(" ",@post),"\n";
-		open FI,'-|',@post;
-		while(<FI>) {
-			#print STDERR $_;
-			if(m/"video_url"\s*:\s*"([^"]+)"/) {
-				$info{enc_url} = $1;
-				last;
-			}
+		print STDERR join(" ",@post),"\n";
+		my $res = get_url($posturl,@post);
+		if($res =~ m/"video_url"\s*:\s*"([^"]+)"/) {
+			$info{enc_url} = $1;
 		}
-		close FI;
+#		open FI,'-|',@curl,"--url",$posturl,@post;
+#		while(<FI>) {
+#			print STDERR $_;
+#			if(m/"video_url"\s*:\s*"([^"]+)"/) {
+#				$info{enc_url} = $1;
+#				last;
+#			}
+#		}
+#		close FI;
+		#die($res);
 		if(!$info{enc_url}) {
 			return (error=>"Error decoding url",page=>\%info);
 		}

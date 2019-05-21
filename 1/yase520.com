@@ -17,6 +17,7 @@ sub apply_rule {
     my ($url,$rule) = @_;
 	my $rurl = $url;
 	$rurl =~ s/\/\/[^\/]*yase520\.com/\/\/www.yase9.com/;
+	$rurl =~ s/\/\/www\.yase9\.com/\/\/www2.yasedd.com/;
 	my $html = get_url($rurl,'-v');
     my @data;
 	my ($base,$path,$name) = url_getinfo($url);
@@ -29,6 +30,16 @@ sub apply_rule {
 			url_getfull("$1/player/$2",$url,$base,$path) .
 			"\t" . extract_title($3) . ".ts";
 	}
+	while($html =~ m/<h2><a[^>]+href="([^"]+video-)(\d+)"[^>]+>(.+?)<\/a><\/h2>/g) {
+		next if($h{$2});
+		$h{$2} = 1;
+		push @data,
+			"urlrule:" . 
+			url_getfull("/player/$2",$url,$base,$path) .
+			"\t" . extract_title($3) . ".ts";
+	}
+	
+	
     return (
         count=>scalar(@data),
         data=>\@data,
