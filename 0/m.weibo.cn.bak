@@ -1,0 +1,162 @@
+#!/usr/bin/perl -w
+#DOMAIN : m.weibo.cn
+#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#CREATED: 2017-09-20 01:03
+#UPDATED: 2017-09-20 01:03
+#TARGET : https://m.weibo.cn/api/container/getIndex?containerid=2308692864673642_-_like_pic&featurecode=20000320&page=2
+#URLRULE: 2.0
+package MyPlace::URLRule::Rule::0_m_weibo_cn;
+use MyPlace::URLRule::Utils qw/get_url/;
+use MyPlace::JSON;
+use base 'MyPlace::URLRule::Rule';
+use strict;
+use warnings;
+
+=method1
+sub apply_rule {
+	my $self = shift;
+	return $self->apply_quick(
+	   'data_exp'=>undef,
+	   'data_map'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
+       'pages_start'=>undef,
+	   'pages_limit'=>undef,
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef
+	);
+}
+=cut
+
+
+sub apply_rule {
+	my $self = shift;
+    my ($url,$rule) = @_;
+	my $html = get_url($url,'-v');
+	my $json = MyPlace::JSON::decode_json($html);
+	if(!$json) {
+		return (error=>"Error parsing content\n");
+	}
+#	foreach(keys %$json) {
+#		my $v = $json->{$_};
+#		my $t = ref $v;
+#		if(!$t) {
+#			print STDERR "$_ \t = $v\n";
+#		}
+#		elsif($t eq 'HASH') {
+#			foreach my $sk(keys %$v) {
+#				my $sv = $v->{$sk};
+#				if(!ref $sv) {
+#					print STDERR "$_\->{$sk} \t = $sv\n";
+#				}
+#			}
+#		}
+#	}
+    my $title = undef;
+	my %dup;
+    my @data;
+    my @pass_data;
+	my $info = {};
+	$json = $json->{data} if($json->{data});
+	my $cards = $json->{cards} || [];
+	foreach(qw/containerid title_top total page/) {
+		$info->{$_} = $json->{cardlistInfo}->{$_};
+	}
+	$info->{cards} = [];
+	my $idx = 0;
+	foreach my $card (@$cards) {
+		$idx++;
+		my $pics = $card->{pics} || [$card];
+		push @{$info->{cards}},"[card $idx] " . scalar(@$pics) . " pictures";
+		foreach my $pic (@$pics) {
+			my @srcs;
+			my $pic_big = $pic->{pic_big};
+			#die($pic . "\n" . $pic_big);
+			my @blogs;
+			if($pic->{mblog} and (ref $pic->{mblog} eq 'HASH')) {
+				push @blogs,$pic->{mblog};
+				if($pic->{mblog}->{"retweeted_status"}) {
+					push @blogs,$pic->{mblog}->{"retweeted_status"};
+				}
+			}
+			foreach my $mblog(@blogs) {
+				my $id =  undef;
+				my $created = undef;
+				if($mblog and (ref $mblog eq 'HASH')) {
+				#use MyPlace::Debug::Dump;print STDERR debug_dump($mblog);
+					$id = $mblog->{id};
+					use MyPlace::String::Utils qw/strtime2/;
+					$created = strtime2($mblog->{created_at},5);
+					if(!$id) {
+						$id = $mblog->{scheme};
+						$id =~ s/^.*mblogid=(\d+).*$/$1/;
+					}
+					my $orig = $mblog->{original_pic};
+					my $mext = ".jpg";
+					if($orig) {
+						if($orig =~ m/\.([^\.]+)$/) {
+							$mext = ".$1";
+						}
+					}
+					my $bpics = $mblog->{pic_ids};
+					if($bpics and @{$bpics}) {
+						foreach my $bpid (@{$bpics}) {
+							push @srcs,'https://ww1.sinaimg.cn/large/' . $bpid . $mext;
+						}
+					}
+					$bpics = $mblog->{pics};
+					if($bpics and @{$bpics}) {
+						foreach my $bpic(@{$bpics}) {
+							next unless($bpic->{large});
+							next unless($bpic->{large}->{url});
+							push @srcs,$bpic->{large}->{url};
+						}
+					}
+					push @srcs,$orig if($orig);
+				}
+				push @srcs,$pic_big if($pic_big);
+				$id = $id ? "$id\_" : "";
+				$id = $created . "_" . $id if($created);
+				foreach(@srcs) {
+					s/:\/\/wx(\d+)/:\/\/ww$1/;
+					next if($dup{$_});
+					if(m/\/([^\/]+)$/) {
+						next if($dup{$_});
+						$dup{$1} = 1;
+						push @data,"$_\t$id$1";
+					}
+					else{
+						push @data,$_;
+					}
+					$dup{$_} = 1;
+				}
+			}
+		}
+	}
+    return (
+		info=>$info,
+        count=>scalar(@data),
+        data=>\@data,
+        pass_count=>scalar(@pass_data),
+        pass_data=>\@pass_data,
+        base=>$url,
+        title=>$title,
+		#json=>$json,
+
+    );
+}
+
+return new MyPlace::URLRule::Rule::0_m_weibo_cn;
+1;
+
+__END__
+
+#       vim:filetype=perl
+
+

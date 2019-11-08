@@ -1,23 +1,22 @@
 #!/usr/bin/perl -w
-#DOMAIN : ___NAME___
-#AUTHOR : ___AUTHOR___ <___EMAIL___>
-#CREATED: ___DATE___
-#UPDATED: ___DATE___
-#TARGET : ___TARGET___
+#DOMAIN : setuw.com
+#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#CREATED: 2019-06-18 02:26
+#UPDATED: 2019-06-18 02:26
+#TARGET : http://setuw.com/tag/xinggan/ 1
 #URLRULE: 2.0
-package MyPlace::URLRule::Rule::___ID___;
+package MyPlace::URLRule::Rule::1_setuw_com;
 use base 'MyPlace::URLRule::Rule';
 use strict;
 use warnings;
 
-=method1
 sub apply_rule {
 	my $self = shift;
 	return $self->apply_quick(
 	   'data_exp'=>undef,
 	   'data_map'=>undef,
-       'pass_exp'=>undef,
-       'pass_map'=>undef,
+       'pass_exp'=>'<li><a[^>]+href="([^>"]+)"[^>]*><img',
+       'pass_map'=>'$1',
        'pass_name_map'=>undef,
        'pages_exp'=>undef,
        'pages_map'=>undef,
@@ -30,10 +29,9 @@ sub apply_rule {
        'charset'=>undef
 	);
 }
-=cut
 
 =method2
-use MyPlace::WWW::Utils qw/get_url get_safename url_getname/;
+use MyPlace::URLRule::Utils qw/get_url get_safename url_getname/;
 
 sub apply_rule {
 	my $self = shift;
@@ -54,7 +52,7 @@ sub apply_rule {
 }
 
 =cut
-return new MyPlace::URLRule::Rule::___ID___;
+return new MyPlace::URLRule::Rule::1_setuw_com;
 1;
 
 __END__

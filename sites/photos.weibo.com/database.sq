@@ -1,0 +1,6 @@
+#OUTPUT: https://photos.weibo.com/${ID}
+#OUTPUT: 2
+#OUTPUT: photos.weibo.com
+#OPTION:	level	2
+#INCLUDE: ../weibo.com/database.sq
+

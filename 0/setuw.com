@@ -1,11 +1,11 @@
 #!/usr/bin/perl -w
-#DOMAIN : ___NAME___
-#AUTHOR : ___AUTHOR___ <___EMAIL___>
-#CREATED: ___DATE___
-#UPDATED: ___DATE___
-#TARGET : ___TARGET___
+#DOMAIN : setuw.com
+#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#CREATED: 2019-06-18 02:15
+#UPDATED: 2019-06-18 02:15
+#TARGET : http://setuw.com/tu/4/20ksx_tuigirl36.html
 #URLRULE: 2.0
-package MyPlace::URLRule::Rule::___ID___;
+package MyPlace::URLRule::Rule::0_setuw_com;
 use base 'MyPlace::URLRule::Rule';
 use strict;
 use warnings;
@@ -30,10 +30,10 @@ sub apply_rule {
        'charset'=>undef
 	);
 }
+
 =cut
 
-=method2
-use MyPlace::WWW::Utils qw/get_url get_safename url_getname/;
+use MyPlace::URLRule::Utils qw/get_url get_safename strnum/;
 
 sub apply_rule {
 	my $self = shift;
@@ -43,6 +43,20 @@ sub apply_rule {
     my @data;
     my @pass_data;
     #my @html = split(/\n/,$html);
+	my $idx = 0;
+	while($html =~ m/'se'\s*:\s*'([^']+)'/g) {
+		$idx++;
+		my $url = $1;
+		my $ext = ".jpg";
+		if($url =~ m/\.([^\.]+)$/) {
+			$ext = ".$1";
+		}
+		push @data,$url . "\t" . strnum($idx,3) . $ext;
+	}
+	if($html =~ m/<title>([^<]+)/) {
+		$title = get_safename($1);
+		$title =~ s/_[^_]+$//g;
+	}
     return (
         count=>scalar(@data),
         data=>\@data,
@@ -53,8 +67,7 @@ sub apply_rule {
     );
 }
 
-=cut
-return new MyPlace::URLRule::Rule::___ID___;
+return new MyPlace::URLRule::Rule::0_setuw_com;
 1;
 
 __END__

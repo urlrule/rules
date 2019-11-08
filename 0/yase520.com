@@ -40,8 +40,9 @@ sub apply_rule {
 	my $rurl = $url;
 	$rurl =~ s/\/video-(\d+)/\/player\/$1/;
 	$rurl =~ s/\/player\//\/video-/;
-	$rurl =~ s/\/\/[^\/]*yase520\.com/\/\/www.yase9.com/;
-	$rurl =~ s/\/\/www\.yase9\.com/\/\/www2.yasedd.com/;
+	#$rurl =~ s/\/\/[^\/]*yase520\.com/\/\/www.yase9.com/;
+	#$rurl =~ s/\/\/www\.yase9\.com/\/\/www2.yasedd.com/;
+	$rurl =~ s/:\/\/[^\/]+/:\/\/9.yasedd1.com/;
 	my $html = get_url($rurl,'-v');
     my $title = undef;
     my @data;
@@ -71,7 +72,8 @@ sub apply_rule {
 	if($info{source} =~ m/\/\/\[domain_/) {
 		$info{source} =~ s/\[domain_dan\]/hone.yyhdyl.com/;
 		$info{source} =~ s/\[domain_shuang\]/htwo.yyhdyl.com/;
-		$info{source} =~ s/\[domain_three\]/hthree.yyhdyl.com/;
+		$info{source} =~ s/\[domain_three\]/head.yyhdyl.com/;
+		$info{source} =~ s/\[domain_fourth\]/head2.yyhdyl.com/;
 	}
 	else {
 		$info{source} =~ s/\/[^\/]+$/\/hls\/hls.m3u8/;

@@ -1,0 +1,76 @@
+#!/usr/bin/perl -w
+#DOMAIN : likes.weibo.cn
+#AUTHOR : Eotect Nahn <eotect@myplace>
+#CREATED: 2019-11-03 00:57
+#UPDATED: 2019-11-03 00:57
+#TARGET : likes.weibo.cn
+#URLRULE: 2.0
+package MyPlace::URLRule::Rule::likes_weibo_cn;
+use base 'MyPlace::URLRule::Rule';
+use strict;
+use warnings;
+
+=method1
+sub apply_rule {
+	my $self = shift;
+	return $self->apply_quick(
+	   'data_exp'=>undef,
+	   'data_map'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
+       'pages_start'=>undef,
+	   'pages_limit'=>undef,
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef
+	);
+}
+=cut
+
+use MyPlace::URLRule::Utils qw/get_url get_safename url_getname/;
+
+sub apply_rule {
+	my $self = shift;
+    my ($url,$rule) = @_;
+	my $oid;
+	foreach(
+		qr/m\.weibo\.cn\/(\d+)/,
+		qr/weibo\.com\/(\d+)/,
+		qr/weibo\.cn\/(?:u|profile)\/(\d+)/,
+		qr/weibo\.com\/(?:u|profile)\/(\d+)/,
+		qr/containerid=\d\d\d\d\d\d(\d+)/,
+		qr/weibo\.cn\/p\/230869(\d+)/,
+	) {
+		if($url =~ $_) {
+			$oid = $1;
+			last;
+		}
+	}
+	if($oid) {
+		my $nurl = 'https://m.weibo.cn/api/container/getIndex?containerid=230869' . $oid;
+		return (
+			pass_data=>[$nurl . "_-_mix",$nurl . '_-_like_pic'],
+			pass_count=>2,
+			base=>$url,
+			title=>$oid,
+			link_mtm=>'../../../../.mtm/done.txt',
+		);
+	}
+	else {
+		return (error=>"Invalild URL");
+	}
+}
+return new MyPlace::URLRule::Rule::likes_weibo_cn;
+1;
+
+__END__
+
+#       vim:filetype=perl
+
+
+

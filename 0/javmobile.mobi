@@ -46,6 +46,11 @@ sub apply_rule {
 		$info{$1} = $2;
 	}
 	if(!$info{"video:url"}) {
+		if($html =~ m/<source[^>]+src="([^"]+)/) {
+			$info{"video:url"} = $1;
+		}
+	}
+	if(!$info{"video:url"}) {
 		return (error=>"Error parsing page");
 	}
 	my $vurl = expand_url($info{"video:url"});

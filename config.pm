@@ -46,6 +46,7 @@ $MyPlace::URLRule::Config = {
 		'ysdot.com'=>'yase520.com',
 		'yase9.com'=>'yase520.com',
 		'www2.yasedd.com'=>'yase520.com',
+		'9.yasedd1.com'=>'yase520.com',
 	},
 };
 

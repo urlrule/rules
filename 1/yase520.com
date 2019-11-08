@@ -16,8 +16,9 @@ sub apply_rule {
 	my $self = shift;
     my ($url,$rule) = @_;
 	my $rurl = $url;
-	$rurl =~ s/\/\/[^\/]*yase520\.com/\/\/www.yase9.com/;
-	$rurl =~ s/\/\/www\.yase9\.com/\/\/www2.yasedd.com/;
+	#$rurl =~ s/\/\/[^\/]*yase520\.com/\/\/www.yase9.com/;
+	#$rurl =~ s/\/\/www\.yase9\.com/\/\/www2.yasedd.com/;
+	$rurl =~ s/:\/\/[^\/]+/:\/\/9.yasedd1.com/;
 	my $html = get_url($rurl,'-v');
     my @data;
 	my ($base,$path,$name) = url_getinfo($url);

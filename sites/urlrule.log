@@ -5,3 +5,5 @@
 2017-09-23 01:47:14: urlrule --hosts likes.weibo.com *
 2017-09-23 01:47:17: urlrule --hosts likes.weibo.com list *
 2017-09-23 01:47:21: urlrule --hosts likes.weibo.com list .*
+2019-11-02 02:59:32: urlrule list --hosts likes.weibo.com Sesadit
+2019-11-02 03:00:56: urlrule list --hosts likes.weibo.com Sesadit

@@ -1,7 +1,10 @@
-#OUTPUT: http://weibo.com/${ID}
+#OUTPUT: https://m.weibo.cn/${ID}
 #OUTPUT: 2
 #OUTPUT: weibo.com
 #OPTION:	level	2
+#OLDENTERY #OUTPUT: http://weibo.com/${ID}	
+#OLDENTERY #OUTPUT: 'https://m.weibo.cn/api/container/getIndex?containerid=230413${ID}_-_WEIBO_SECOND_PROFILE_WEIBO&page_type=03&page=1',	
+#OLDENTERY #OUTPUT: 2	
 u/3641606555	有道云笔记收藏
 u/3746483867	Vicky小恶魔
 u/1851516477	Monkey_小潘鼠
@@ -2799,3 +2802,31 @@ u/2897616037	滕井酱
 u/6219679507	安迪应儿
 u/5173730112	阿硕小丸子
 u/6343583387	丁悦儿
+3881439579	GIF出处大全
+3542297544	GIF馆
+3866984432	中国好胸精选
+3566757273	美胸研究院
+2754693685	另类GIF你懂的
+5245321455	福利GIF王子
+u/7278694354	用户7278694354
+u/2866875962	付佳美同學
+u/6006733038	阿姨屁股大
+u/1693411242	鄢爽雨
+u/1085120001	虎牙妹kana酱
+u/2160271657	吕萌希子
+u/1767870363	杨菲妃volar
+u/1838215400	派派ParisYYY
+u/5725781217	热女孩
+u/3723944603	靓女日常
+u/2206849133	倩女美图
+u/1456028480	美女尤物
+u/3932484763	内涵系美女
+u/6663428169	今日份快乐get
+u/5880804753	高颜值在线
+u/6446088408	湿身小娇娘
+u/6540698715	网红四绝
+u/5204239476	污萌表妹
+u/7199756823	啪妹日常
+u/7225290804	污力满满的妹子
+u/5802745814	内涵图bot
+u/5838624011	PandaGoddess

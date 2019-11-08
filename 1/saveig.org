@@ -1,11 +1,11 @@
 #!/usr/bin/perl -w
-#DOMAIN : ___NAME___
-#AUTHOR : ___AUTHOR___ <___EMAIL___>
-#CREATED: ___DATE___
-#UPDATED: ___DATE___
-#TARGET : ___TARGET___
+#DOMAIN : saveig.org
+#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#CREATED: 2019-11-06 02:31
+#UPDATED: 2019-11-06 02:31
+#TARGET : https://saveig.org/parkssunwoo.me/ 1
 #URLRULE: 2.0
-package MyPlace::URLRule::Rule::___ID___;
+package MyPlace::URLRule::Rule::1_saveig_org;
 use base 'MyPlace::URLRule::Rule';
 use strict;
 use warnings;
@@ -32,29 +32,41 @@ sub apply_rule {
 }
 =cut
 
-=method2
 use MyPlace::WWW::Utils qw/get_url get_safename url_getname/;
 
 sub apply_rule {
 	my $self = shift;
     my ($url,$rule) = @_;
+	my $host;
+	my $id;
+	my $uname;
+	if($url =~ m/https?:\/\/([^\/]+)\/([^\/]+)/) {
+		$host = $1;
+		$id = $2;
+	}
 	my $html = get_url($url,'-v');
-    my $title = undef;
-    my @data;
-    my @pass_data;
-    #my @html = split(/\n/,$html);
+	if($html =~ m/data-username="([^"]+)"/) {
+		$id = $1;
+	}
+	if($html =~ m/<h1[^>]*>(.+?)<\/h1/) {
+		$uname = $1;
+	}
+	else {
+		$uname = $id;
+	}
     return (
-        count=>scalar(@data),
-        data=>\@data,
-        pass_count=>scalar(@pass_data),
-        pass_data=>\@pass_data,
+        pass_count=>1,
+        pass_data=>[$url],
         base=>$url,
-        title=>$title,
+        title=>$id,
+		profile=>$id,
+		uname=>ucfirst($uname),
+		host=>$host,
+		id=>$id,
     );
 }
 
-=cut
-return new MyPlace::URLRule::Rule::___ID___;
+return new MyPlace::URLRule::Rule::1_saveig_org;
 1;
 
 __END__

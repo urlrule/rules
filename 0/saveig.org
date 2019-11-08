@@ -1,0 +1,102 @@
+#!/usr/bin/perl -w
+#DOMAIN : saveig.org
+#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#CREATED: 2019-11-06 02:40
+#UPDATED: 2019-11-06 02:40
+#TARGET : https://saveig.org/parkssunwoo.me/
+#URLRULE: 2.0
+package MyPlace::URLRule::Rule::0_saveig_org;
+use base 'MyPlace::URLRule::Rule';
+use strict;
+use warnings;
+
+=method1
+sub apply_rule {
+	my $self = shift;
+	return $self->apply_quick(
+	   'data_exp'=>undef,
+	   'data_map'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
+       'pages_start'=>undef,
+	   'pages_limit'=>undef,
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef
+	);
+}
+=cut
+
+use MyPlace::String::Utils qw/strtime2/;
+use MyPlace::WWW::Utils qw/get_url get_safename url_getname/;
+#https://saveig.org/api/posts?id=5384100434&cursor=QVFBanNyRGE5LWdyRmJtSWZTSGUtX194MGRZb1RBZENMS3ZwVGpLRzhDTGlpd0RFRmNjSWYwM2luUGFUV2x2YWNzY0NCTUdPa194MndZVm5KWFpOdzZJTw==&lang=en&username=parkssunwoo.me
+sub apply_rule {
+	my $self = shift;
+    my ($url,$rule) = @_;
+	my $html = get_url($url,'-v');
+    my $title = undef;
+    my @data;
+    my @pass_data;
+	my %info;
+	my @links;
+	if($url =~ m/.*\?(.+)$/) {
+		foreach(split('&',$1)) {
+			if(m/^([^=]+)=(.+)$/) {
+				$info{$1} = $2;
+			}
+		}
+	}
+	while($html =~ m/data-(\w+)="([^"]+)/g) {
+		$info{$1} = $2;
+	}
+	while($html =~ m/class="time"[^>]*>([^><]+)<.+?class="download"[^>]*href="(http[^"]+)"/g) {
+		push @links,[$1,$2];
+	}
+	while($html =~ m/"time":"([^"]+)"[^\{\}]+?"src":"([^"]+)"/g) {
+		push @links,[$1,$2];
+	}
+	while($html =~ m/"src":"([^"]+)"[^\{\}]+?"time":"([^"]+)"/g) {
+		push @links,[$2,$1];
+	}
+	if($html =~ m/"cursor":"([^"]+)"/) {
+		$info{cursor} = $1;
+	}
+	if($url =~ m/(https?:\/\/[^\/]+)/) {
+		$info{host} = $1;
+	}
+	push @pass_data,$info{host} . "/api/posts?id=" . ($info{id} || $info{owner}) . 
+		"&cursor=" . $info{cursor} . 
+		"&lang=en" . 
+		"&username=" . $info{username};
+	foreach(@links) {
+		my $url = $_->[1];
+		my $time = $_->[0];
+		my $name = $url;
+		$name =~ s/\?.+$//;
+		$name =~ s/^.*\///;
+		push @data,$_->[1] . "\t" . strtime2($time,5) . "_" . $name;
+	}
+    return (
+        count=>scalar(@data),
+        data=>\@data,
+        pass_count=>scalar(@pass_data),
+        pass_data=>\@pass_data,
+		same_level=>1,
+        base=>$url,
+        title=>$title,
+    );
+}
+
+return new MyPlace::URLRule::Rule::0_saveig_org;
+1;
+
+__END__
+
+#       vim:filetype=perl
+
+

@@ -1,11 +1,11 @@
 #!/usr/bin/perl -w
-#DOMAIN : ___NAME___
-#AUTHOR : ___AUTHOR___ <___EMAIL___>
-#CREATED: ___DATE___
-#UPDATED: ___DATE___
-#TARGET : ___TARGET___
+#DOMAIN : setuw.com
+#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#CREATED: 2019-06-18 02:36
+#UPDATED: 2019-06-18 02:36
+#TARGET : http://setuw.com/tag/xinggan/ 2
 #URLRULE: 2.0
-package MyPlace::URLRule::Rule::___ID___;
+package MyPlace::URLRule::Rule::2_setuw_com;
 use base 'MyPlace::URLRule::Rule';
 use strict;
 use warnings;
@@ -32,17 +32,34 @@ sub apply_rule {
 }
 =cut
 
-=method2
-use MyPlace::WWW::Utils qw/get_url get_safename url_getname/;
+use MyPlace::URLRule::Utils qw/url_getfull get_url get_safename/;
+
+sub p_page {
+	my $url = shift;
+	my @r;
+	my $html = get_url($url,'-v');
+	push @r,$url;
+	if($html =~ m/<div class="turnpage"><a href="([^"]+)"/) {
+		my $nurl = url_getfull($1,$url);
+		push @r,p_page($nurl) unless($url eq $nurl);
+	}
+	return @r;
+}
 
 sub apply_rule {
 	my $self = shift;
     my ($url,$rule) = @_;
-	my $html = get_url($url,'-v');
     my $title = undef;
     my @data;
-    my @pass_data;
-    #my @html = split(/\n/,$html);
+    my @pass_data = ($url);
+	my $html = get_url($url,'-v');
+	if($html =~ m/<h1[^>]*>([^<]+)/) {
+		$title = get_safename($1);
+	}
+	if($html =~ m/<div class="turnpage"><a href="([^"]+)"/) {
+		my $nurl = url_getfull($1,$url);
+		push @pass_data,p_page($nurl) unless($url eq $nurl);
+	}
     return (
         count=>scalar(@data),
         data=>\@data,
@@ -53,8 +70,7 @@ sub apply_rule {
     );
 }
 
-=cut
-return new MyPlace::URLRule::Rule::___ID___;
+return new MyPlace::URLRule::Rule::2_setuw_com;
 1;
 
 __END__

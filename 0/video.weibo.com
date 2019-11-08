@@ -55,7 +55,7 @@ sub apply_rule {
 	my $html = get_url($url,'-v');
 	my $saveas;
 	if($url =~ m/title=([^&\/]+)/) {
-		$saveas = $1;
+		$saveas = uri_unescape($1);
 	}
 	my %info;
 
