@@ -39,7 +39,9 @@ sub apply_rule {
             }
         }
 		if(m/src2\s*="([^"]+)"/) {
-			$data{$1} = 1;
+			my $u = $1;
+			$u =~ s/\?.*$//;
+			$data{$u} = 1;
 		}
         #elsif($_ =~ m/src\s*=\s*"([^"]*\/users\/\d+[^"]+)"/) 
         #{

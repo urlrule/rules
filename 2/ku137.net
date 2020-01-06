@@ -1,0 +1,62 @@
+#!/usr/bin/perl -w
+#DOMAIN : ku137.net
+#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#CREATED: 2020-01-07 01:37
+#UPDATED: 2020-01-07 01:37
+#TARGET : https://www.ku137.net/plus/search.php?q=%C0%EE%BF%C9%BF%C9 2
+#URLRULE: 2.0
+package MyPlace::URLRule::Rule::2_ku137_net;
+use base 'MyPlace::URLRule::Rule';
+use strict;
+use warnings;
+
+sub apply_rule {
+	my $self = shift;
+	return $self->apply_quick(
+	   'data_exp'=>undef,
+	   'data_map'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+       'pages_exp'=>"<a[^>]+href='([^']+PageNo=)(\\d+)([^']*)'",
+       'pages_map'=>'$2',
+       'pages_pre'=>'$1',
+       'pages_suf'=>'$3',
+       'pages_start'=>undef,
+	   'pages_limit'=>undef,
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef
+	);
+}
+
+=method2
+use MyPlace::WWW::Utils qw/get_url get_safename url_getname/;
+
+sub apply_rule {
+	my $self = shift;
+    my ($url,$rule) = @_;
+	my $html = get_url($url,'-v');
+    my $title = undef;
+    my @data;
+    my @pass_data;
+    #my @html = split(/\n/,$html);
+    return (
+        count=>scalar(@data),
+        data=>\@data,
+        pass_count=>scalar(@pass_data),
+        pass_data=>\@pass_data,
+        base=>$url,
+        title=>$title,
+    );
+}
+
+=cut
+return new MyPlace::URLRule::Rule::2_ku137_net;
+1;
+
+__END__
+
+#       vim:filetype=perl
+
+

@@ -1,0 +1,78 @@
+#!/usr/bin/perl -w
+#DOMAIN : ku137.net
+#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#CREATED: 2020-01-07 01:21
+#UPDATED: 2020-01-07 01:21
+#TARGET : https://www.ku137.net/b/95/33787.html
+#URLRULE: 2.0
+package MyPlace::URLRule::Rule::0_ku137_net;
+use base 'MyPlace::URLRule::Rule';
+use strict;
+use warnings;
+
+=method1
+sub apply_rule {
+	my $self = shift;
+	return $self->apply_quick(
+	   'data_exp'=>undef,
+	   'data_map'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
+       'pages_start'=>undef,
+	   'pages_limit'=>undef,
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef
+	);
+}
+=cut
+
+use MyPlace::WWW::Utils qw/get_url get_safename url_getname/;
+
+sub apply_rule {
+	my $self = shift;
+    my ($url,$rule) = @_;
+	my $html = get_url($url,'-v','charset:gb2312');
+    my $title = undef;
+    my @data;
+    my @pass_data;
+    my @html = split(/\n/,$html);
+	my %info;
+	foreach(@html) {
+		if(m/<a[^>]+(https?:\/\/[^>]+\.(zip|rar|7z|mp4))/) {
+			$info{download} = $1;
+			$info{ext} = $2;
+		}
+		elsif(m/<meta[^>]+name="keywords"[^>]+content="([^"]+)/) {
+			$info{content} = $1;
+		}
+		elsif(m/<meta[^>]+content="([^"]+)"[^>]+name="keyword"/) {
+			$info{content} = $1;
+		}
+		last if($info{content} and $info{download});
+	}
+	if($info{content} and $info{download}) {
+		@data = ($info{download} . "\t" . get_safename($info{content}) . "." . $info{ext});
+	}
+    return (
+		info=>\%info,
+        count=>scalar(@data),
+        data=>\@data,
+        base=>$url,
+        title=>$title,
+    );
+}
+
+return new MyPlace::URLRule::Rule::0_ku137_net;
+1;
+
+__END__
+
+#       vim:filetype=perl
+
+

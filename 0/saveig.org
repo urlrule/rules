@@ -75,11 +75,14 @@ sub apply_rule {
 		"&username=" . $info{username};
 	foreach(@links) {
 		my $url = $_->[1];
+		$url =~ s/&amp;/&/g;
 		my $time = $_->[0];
 		my $name = $url;
 		$name =~ s/\?.+$//;
 		$name =~ s/^.*\///;
-		push @data,$_->[1] . "\t" . strtime2($time,5) . "_" . $name;
+		my $prefix = strtime2($time,5);
+		#$prefix =~ s/\d\d$/00/;
+		push @data,$url . "\t" . $prefix . "_" . $name;
 	}
     return (
         count=>scalar(@data),

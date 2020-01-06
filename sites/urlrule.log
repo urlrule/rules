@@ -7,3 +7,9 @@
 2017-09-23 01:47:21: urlrule --hosts likes.weibo.com list .*
 2019-11-02 02:59:32: urlrule list --hosts likes.weibo.com Sesadit
 2019-11-02 03:00:56: urlrule list --hosts likes.weibo.com Sesadit
+2019-11-15 03:31:48: urlrule list 高兮妍
+2019-11-15 03:32:07: urlrule list 高兮妍Maggie
+2019-11-15 03:32:27: urlrule list --db 高兮妍Maggie
+2019-11-15 03:32:31: urlrule list --db 高兮妍
+2019-11-15 03:32:35: urlrule list --db 高兮妍,moko.cc
+2019-11-15 03:32:40: urlrule list --db /高兮妍/

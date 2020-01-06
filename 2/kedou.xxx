@@ -1,0 +1,101 @@
+#!/usr/bin/perl -w
+#DOMAIN : megatube.xxx
+#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#CREATED: 2019-01-29 02:34
+#UPDATED: 2019-01-29 02:34
+#TARGET : https://www.megatube.xxx/alison-tyler.pornstar 2
+#URLRULE: 2.0
+package MyPlace::URLRule::Rule::2_megatube_xxx;
+use base 'MyPlace::URLRule::Rule';
+use strict;
+use warnings;
+
+=method1
+sub apply_rule {
+	my $self = shift;
+	return $self->apply_quick(
+	   'data_exp'=>undef,
+	   'data_map'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
+       'pages_start'=>undef,
+	   'pages_limit'=>undef,
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef
+	);
+}
+=cut
+
+use MyPlace::URLRule::Utils qw/get_url create_title/;
+
+sub apply_rule {
+	my $self = shift;
+    my ($url,$rule) = @_;
+	my $html = get_url($url,'-v');
+    my $title = undef;
+    my @data;
+    my @pass_data;
+	my $base = $url;
+	$base =~ s/\/[^\/]*$/\//;
+	
+	my $last = 1;
+	my $block_id = "list_videos";
+	my %params;
+	while($html =~ m/data-parameters="([^"]+;from[^:]*:(\d+))/g) {
+		if($last < $2) {
+			$last = $2;
+		}
+		foreach(split(";",$1)) {
+			if(m/([^:]+):(.*)/) {
+				$params{$1} = $2;
+			}
+		}
+	}
+	if($html =~ m/data-block-id="([^"]+)/) {
+		$block_id = $1;
+	}
+	if($last > 200) {
+		return ("error"=>"Too much page [$last] return, something maybe wrong");
+	}
+	$title = $url;
+	$title =~ s/\/+$//;
+	$title =~ s/.*\///;
+	$title =~ s/[-_]+/ /g;
+	$title =~ s/\.[^\.]+$//;
+	$title =~ s/\b(\w)/\U$1/g;
+	
+	$base = "$base?mode=async&function=get_block&block_id=$block_id";
+	foreach(keys %params) {
+		$base = $base . "&$_=" . $params{$_};
+	}
+	foreach(1 .. $last) {
+		my $n = length($_);
+		$_ = "0$_" if($n<2);
+		#http://www.xiaobi009.com/search/%E5%8F%A3%E4%BA%A4/?mode=async&function=get_block&block_id=list_videos_videos_list_search_result&q=%E5%8F%A3%E4%BA%A4&category_ids=&sort_by=&from_videos=150&_=1576789714882
+		push @pass_data,$base . "&from_videos=$_";
+	}
+    #my @html = split(/\n/,$html);
+    return (
+        count=>scalar(@data),
+        data=>\@data,
+        pass_count=>scalar(@pass_data),
+        pass_data=>\@pass_data,
+        base=>$url,
+		#title=>$title,
+    );
+}
+
+return new MyPlace::URLRule::Rule::2_megatube_xxx;
+1;
+
+__END__
+
+#       vim:filetype=perl
+
+

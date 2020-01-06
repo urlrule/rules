@@ -1,0 +1,83 @@
+#!/usr/bin/perl -w
+#DOMAIN : xiaobi009.com
+#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#CREATED: 2019-12-20 04:43
+#UPDATED: 2019-12-20 04:43
+#TARGET : http://www.xiaobi009.com/videos/41051/510eb3da5c0020a2b212c39373f59da4/
+#URLRULE: 2.0
+package MyPlace::URLRule::Rule::0_xiaobi009_com;
+use base 'MyPlace::URLRule::Rule';
+use strict;
+use warnings;
+
+=method1
+sub apply_rule {
+	my $self = shift;
+	return $self->apply_quick(
+	   'data_exp'=>undef,
+	   'data_map'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
+       'pages_start'=>undef,
+	   'pages_limit'=>undef,
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef
+	);
+}
+=cut
+
+use MyPlace::WWW::Utils qw/get_url get_safename url_getname extract_meta/;
+
+sub apply_rule {
+	my $self = shift;
+    my ($url,$rule) = @_;
+	my $html = get_url($url,'-v');
+    my $title = undef;
+    my @data;
+    my @pass_data;
+    my @html = split("\n",$html);
+	my %info;
+	foreach(@html) {
+		extract_meta(\%info,$_);
+		while(m/\s*(\w+)_url:\s*['"]([^'"]+)/g) {
+			$info{$1} = $2;
+		}
+		$info{filename} ||= $info{"og:title"};
+		$info{preview} ||= $info{"og:image"};
+		last if($info{filename} && $info{video} && $info{preview});
+	}
+	if($info{filename}) {
+		$info{filename} = get_safename($info{filename});
+	}
+	if($info{video}) {
+		push @data,$info{filename} ?  $info{video} . "\t" . $info{filename} . ".mp4" : $info{video};
+	}
+	if($info{preview}) {
+		push @data,$info{filename} ? $info{preview} . "\t" . $info{filename} . ".jpg" : $info{preview};
+	}
+
+    return (
+		parser=>\%info,
+        count=>scalar(@data),
+        data=>\@data,
+        pass_count=>scalar(@pass_data),
+        pass_data=>\@pass_data,
+        base=>$url,
+        title=>$title,
+    );
+}
+
+return new MyPlace::URLRule::Rule::0_xiaobi009_com;
+1;
+
+__END__
+
+#       vim:filetype=perl
+
+

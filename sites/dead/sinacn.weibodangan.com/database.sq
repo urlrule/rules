@@ -1,7 +1,5 @@
 #OUTPUT: http://sinacn.weibodangan.com/user/${ID:u/=>}
 #OUTPUT: 2
 #OUTPUT: weibo.com
-#INCLUDE: ../weibo.com/database.sq
+#####INCLUDE: ../weibo.com/database.sq
 /user/1961857111	李雪婷Anna
-
-lk9232305!	add

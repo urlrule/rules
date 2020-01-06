@@ -6,13 +6,20 @@
 #TARGET : https://m.weibo.cn/api/container/getIndex?containerid=2308692864673642_-_like_pic&featurecode=20000320&page=2
 #URLRULE: 2.0
 package MyPlace::URLRule::Rule::0_m_weibo_cn;
-use MyPlace::Weibo qw/m_get_data/;
+use MyPlace::Weibo qw/m_get_data m_get_mblog m_get_object/;
 use base 'MyPlace::URLRule::Rule';
 use strict;
 use warnings;
 
 sub apply_rule {
 	my $self = shift;
+	my $url = shift;
+	if($url =~ m/\/detail\//) {
+		return m_get_mblog($url);
+	}
+	elsif($url =~ m/[&\?](?:object_id|fid)=([^&]+)/) {
+		return m_get_object($1);
+	}
 	return m_get_data(@_);
 }
 

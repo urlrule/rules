@@ -2,7 +2,8 @@
 package MyPlace::URLRule::Rule::common_weibo_com;
 use strict;
 use utf8;
-use MyPlace::URLRule::Utils qw/get_url get_html strnum new_html_data expand_url/;
+use MyPlace::WWW::Utils qw/get_url get_html strnum new_html_data expand_url html2text/;
+use MyPlace::Weibo qw/extract_post_title m_get_mblog/;
 use base 'MyPlace::URLRule::Rule';
 
 my $CONFIG_PID = '100505';
@@ -76,7 +77,7 @@ sub extract_post {
 	$_ =~ s/\s*\\+[ntr]+\s*//g;
 	$_ =~ s/src="([^"]+(?:sina|weibo|sinaimg)\.(?:com|cn)[^"]*)\/(?:orj\d\d\d|thumb\d+|sq\d\d\d|mw\d\d\d\d|thumbnail|square|bmiddle|mw\d\d\d)\/([^"]+)"/src="$1\/large\/$2"/sg;
 	my $text = $_;
-	$text =~ s/[\n\r]//sg;
+	$text =~ s/[\n\r]/\\n/sg;
 	if($text =~ m/\\u/) {
 		$text =~ s/(["@])/\\$1/sg;
 		$text =~ s/\\u(....)/\\x{$1}/sg;
@@ -86,10 +87,6 @@ sub extract_post {
 #			$text =~ s/^\s*([^，。\.,]+).+$/$1/;
 #			$text = substr($text,0,20);
 #		}
-	$post->{html}=$text;
-	$post->{content} = $text;
-	$post->{content} =~ s/<[^>]*>//g;
-	$post->{content} =~ s/[\r\n\s]+/ /g;
 	$post->{images}=[];
 	$post->{links} = [];
 	if(m/mid="([^"]+)"/) {
@@ -103,8 +100,19 @@ sub extract_post {
 		$post->{info} = "$2_$1";#_" . $post->{text};
 		$post->{info} =~ s/[\/\?]/_/g;
 		$post->{info} =~ s/[-\s:]//g;
+		if($post->{mid}) {
+			$post->{info} =~ s/^(\d+)_/${1}_$post->{mid}_/;
+		}
 	}
-	foreach my $line (split(/[\r\n]/,$_)) {
+	$text =~ s/.*?<div class="WB_face W_fl">//;
+	$text =~ s/<div class="WB_like".*//;
+	$post->{html}=$text;
+	$post->{content} = $text;
+	$post->{content} =~ s/.*?<div class="WB_text[^>]+>//;
+	$post->{content} =~ s/<[^>]*>//g;
+	$post->{content} = html2text($post->{content});
+
+	foreach my $line (split(/[\r\n]/,$text)) {
 		while($line =~ m/<img[^>]*src\s*=\s*(['"])([^>]+?)\1/sg) {
 			my $src = $2;
 			#next unless($src =~ m/large|original/);
@@ -155,45 +163,11 @@ sub process_post {
 		my $html = $_->{html};
 		my $with_images = 1;
 		my @outer_links;
-
-		if($OPTS{WEIPAI}) {
-			my @shots;
-			my @links;
-			foreach(@images) {
-				my $url = $_->[0];
-				if($url =~ m/http:\/\/(?:aliv\.|v\.)weipai\.cn|http:\/\/oldvideo\.qiniudn\.com/) {
-					push @shots,$url;
-				}
-				else {
-					push @data,$_->[0] . "\t" . $title ."_" .strnum($idx,3) .   $_->[1];
-				}
-			}
-			if($html =~ m/weipai\.cn/) {
-				while($html =~ m/href="(http:\/\/t\.cn[^"]+)/g) {
-					my $loc = expand_url($1);
-					if($loc =~ m/mob\.com/) {
-						$loc = expand_url($loc);
-					}
-					if($loc =~ m/url\.cn/) {
-						$loc = expand_url($loc);
-					}
-					if($loc =~ m/weipai\.cn\/video\/[^\/]+$/) {
-						push @links,$loc;
-					}
-					else {
-						push @data,$loc;
-					}
-				}
-			}
-			if(@links) {
-				push @data,@links;
-			}
-			elsif(@shots) {
-				push @data,@shots;
-			}
-			$with_images = 0;
+		if($_->{content}) {
+			$_->{title} = extract_post_title($_->{content},1);
+			$title = $title . "_" . $_->{title} if($_->{title});
 		}
-		elsif($OPTS{HTML}) {
+		if($OPTS{HTML}) {
 			push @data,$_->{html};
 			$with_images = 0;
 		}
@@ -538,11 +512,14 @@ sub apply_rule {
 				);
 			}
 		}
-		elsif($url =~ m/weibo\.com\/\d+\/[^\/]+$/) {
-			return process_post($url,$level,$rule);
+		elsif($url =~ m/weibo\.com\/\d+\/([^\/]+)$/) {
+			return m_get_mblog("https://m.weibo.cn/detail/$1");
 		}
 		elsif($url =~ m/weibo\.com\/status\/[^\/]+$/) {
 			return process_post($url,$level,$rule);
+		}
+		elsif($url =~ m/m\.weibo\.cn\/detail\/.+/) {
+			return m_get_mblog($url);
 		}
 		my $page = 1;
 		if($url =~ m/&page=(\d+)/) {

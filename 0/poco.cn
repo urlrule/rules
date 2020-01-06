@@ -8,7 +8,7 @@ use strict;
 sub apply_rule {
  return (
        '#use quick parse'=>1,
-       'data_exp'=>'photoImgArr\[\d+\]\.orgimg\s*=\s*\'([^\']+)\'\s*;',
+       'data_exp'=>'data-src="([^"]+)"',
        'data_map'=>'$1',#$_ = $1;s/\.jpg_\d+x\d+_\d+$/.jpg/;$_',
        'pass_exp'=>undef,
        'pass_map'=>undef,
@@ -18,9 +18,9 @@ sub apply_rule {
        'pages_pre'=>undef,
        'pages_suf'=>undef,
        'pages_start'=>undef,
-       'title_exp'=>'var\s*__livephoto_title\s*=\s*\'([^\']+)\'\s*;',
-       'title_map'=>'$1',
-       'charset'=>'gb2312',
+       'title_exp'=>'title&quot;:&quot;(.+?)&quot;',
+       'title_map'=>'my $a = $1;$a =~ s/\\\\u([0-9a-f]+)/chr(hex($1))/eig;$a',
+       'charset'=>'utf-8',
  );
 }
 =cut
