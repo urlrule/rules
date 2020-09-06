@@ -77,7 +77,7 @@ sub apply_rule {
 	if($last > 200 and $url =~ m/\/(?:tag|category)\//) {
 		return ("error"=>"Too much page [$last] return, something maybe wrong");
 	}
-	#$last = 10 if($last >10);
+	$last = 20 if($last >20);
 	push @pass_data,$url;
 	foreach(2 .. $last) {
 		push @pass_data,url_getfull("$prev$_$suff",$url,@urlinfo);

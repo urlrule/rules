@@ -55,6 +55,7 @@ sub apply_rule {
 	}
 	return (error=>"Error parsing page") unless($info{video});
 		foreach($info{video},$info{image}) {
+			next unless($_);
 			s/&amp;/&/g;
 			my $src = $_;
 			$src = url_getfull($src,$url,$base,$path);

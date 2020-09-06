@@ -1,0 +1,89 @@
+#!/usr/bin/perl -w
+#DOMAIN : hg_22.xyz
+#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#CREATED: 2020-02-15 02:55
+#UPDATED: 2020-02-15 02:55
+#TARGET : https://hg_22.xyz/index.php/vod/player/id/4182/sid/1/nid/1.html
+#URLRULE: 2.0
+package MyPlace::URLRule::Rule::0_hg_22_xyz;
+use base 'MyPlace::URLRule::Rule';
+use strict;
+use warnings;
+
+=method1
+sub apply_rule {
+	my $self = shift;
+	return $self->apply_quick(
+	   'data_exp'=>undef,
+	   'data_map'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
+       'pages_start'=>undef,
+	   'pages_limit'=>undef,
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef
+	);
+}
+=cut
+
+use MyPlace::WWW::Utils qw/get_url url_getfull create_title_utf8 get_safename url_getname/;
+use MIME::Base64 qw/decode_base64/;
+use URI::Escape qw/uri_unescape/;
+
+sub apply_rule {
+	my $self = shift;
+    my ($url,$rule) = @_;
+	my $rurl = $url;
+	$rurl =~ s/\/play\//\/player\//;
+	my $html = get_url($url,'-v');
+    my $title = undef;
+    my @data;
+    my @pass_data;
+	my %info;
+	if($html =~ m/<h1>([^<]+)/) {
+		$info{title} = create_title_utf8($1);
+		print STDERR "  Get [TITLE]: $info{title}\n";
+	}
+	if($html =~ m/<img[^>]+class="countext-img"[^>]*src="([^"]+)/) {
+		$info{thumb} = $1;
+		$info{thumb_ext} = $info{thumb};
+		$info{thumb_ext} =~ s/.*\.([^\.]+)$/$1/;
+		$info{thumb_ext} = $info{thumb_ext} ? ".$info{thumb_ext}" : "";
+		print STDERR "  Get [THUMB]: $info{thumb}\n";
+	}
+	$html = get_url($rurl,'-v',"--referer",$url);
+	if($html =~ m/"url"\s*:\s*"(JT[^"]+)/) {
+		$info{url} = uri_unescape(decode_base64($1));
+		print STDERR "  Get [URL]: $info{url}\n";
+	}
+	return (error=>"Error parsing page") unless($info{url});
+	push @data,"m3u8:$info{url}" . ($info{title} ? "\t$info{title}.ts" : "");
+	if($info{thumb}) {
+		push @data,url_getfull($info{thumb},$url) . ($info{title} ? "\t$info{title}$info{thumb_ext}" : "");
+	}
+
+    #my @html = split(/\n/,$html);
+    return (
+        count=>scalar(@data),
+        data=>\@data,
+        pass_count=>scalar(@pass_data),
+        pass_data=>\@pass_data,
+        base=>$url,
+        title=>$title,
+    );
+}
+
+return new MyPlace::URLRule::Rule::0_hg_22_xyz;
+1;
+
+__END__
+
+#       vim:filetype=perl
+
+

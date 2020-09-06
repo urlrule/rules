@@ -1,0 +1,91 @@
+#!/usr/bin/perl -w
+#DOMAIN : adv.d8swe.xyz
+#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#CREATED: 2020-02-12 01:00
+#UPDATED: 2020-02-12 01:00
+#TARGET : http://adv.d8swe.xyz/v/tHxe7CmoEUA1wdKc
+#URLRULE: 2.0
+package MyPlace::URLRule::Rule::0_adv_d8swe_xyz;
+use base 'MyPlace::URLRule::Rule';
+use strict;
+use warnings;
+
+=method1
+sub apply_rule {
+	my $self = shift;
+	return $self->apply_quick(
+	   'data_exp'=>undef,
+	   'data_map'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
+       'pages_start'=>undef,
+	   'pages_limit'=>undef,
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef
+	);
+}
+=cut
+
+use MyPlace::WWW::Utils qw/get_url get_safename url_getname/;
+
+sub apply_rule {
+	my $self = shift;
+    my ($url,$rule) = @_;
+	my $html = get_url($url,'-v');
+    my $title = undef;
+    my @data;
+    my @pass_data;
+    my @html = split(/\n/,$html);
+	my %info;
+	foreach(@html) {
+		if(m/class="xvideo-title ib">(.+?)<\/span>/) {
+			$info{title} = get_safename($1);
+		}
+		if(m/thumb_href\s*=\s*'([^']+)/) {
+			$info{thumb} = $1;
+		}
+		foreach my $exp (qw/vip normal/) {
+			while(m/"$exp"\s*:\s*"([^"]+)"/g) {
+				my $k = $exp;
+				my $v = $1;
+				if($v =~ m/^key-/) {
+					$k = "$k" . "_url";
+				}
+				$info{$k} = $v;
+			}
+		}
+	}
+	foreach(qw/vip normal/) {
+		next if($_ eq 'vip');###VIP DOWN
+		if($info{$_} and $info{$_ . "_url"}) {
+			push @data,"http://" . $info{$_} . "/" . $info{$_ . "_url"} . "\t" . $info{title} . ".mp4";
+		}
+	}
+	if($info{thumb}) {
+		push @data,$info{thumb} . "\t" . $info{title} . ".jpg";
+	}
+    return (
+		#info=>\%info,
+        count=>scalar(@data),
+        data=>\@data,
+        pass_count=>scalar(@pass_data),
+        pass_data=>\@pass_data,
+        base=>$url,
+        title=>$title,
+    );
+}
+
+return new MyPlace::URLRule::Rule::0_adv_d8swe_xyz;
+1;
+
+__END__
+
+#       vim:filetype=perl
+
+

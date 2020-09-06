@@ -1,12 +1,11 @@
 #!/usr/bin/perl -w
-#DOMAIN : javmobile.mobi
+#DOMAIN : mmfeed.com
 #AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
-#CREATED: 2019-01-25 03:49
-#UPDATED: 2019-01-25 03:49
-#TARGET : https://javmobile.mobi/videos/%E5%87%B0%E3%81%8B%E3%81%AA%E3%82%81/ 1
+#CREATED: 2020-02-18 05:28
+#UPDATED: 2020-02-18 05:28
+#TARGET : http://www.mmfeed.com/viewthread.php?tid=1233696&extra=page%3D4%26amp%3Bfilter%3D0%26amp%3Borderby%3Ddateline 1
 #URLRULE: 2.0
-package MyPlace::URLRule::Rule::1_javmobile_mobi;
-use MyPlace::WWW::Utils qw/get_url create_title_utf8/;
+package MyPlace::URLRule::Rule::1_mmfeed_com;
 use base 'MyPlace::URLRule::Rule';
 use strict;
 use warnings;
@@ -33,29 +32,33 @@ sub apply_rule {
 }
 =cut
 
+use MyPlace::WWW::Utils qw/get_url url_getbase get_safename url_getname decode_title/;
 
 sub apply_rule {
 	my $self = shift;
     my ($url,$rule) = @_;
+	my $opts = $rule->{options} ? $rule->{options} : {};
 	my $html = get_url($url,'-v');
-    my $title = undef;
     my @data;
-	my $host = $url;
-	if($host =~ m/^(https?:\/\/[^\/]+)/) {
-		$host = $1;
+    my @pass_data;
+    my @html = split(/\n/,$html);
+	my $baseurl = url_getbase($url);
+	foreach(@html) {
+		if(m/<td class="f_folder"><a href="(.*viewthread\.php[^"]+)/) {
+			push @data,"urlrule:$baseurl/$1";
+		}
 	}
-	while($html =~ m/href="(\/to\/\d+\/[^"]+\.html)"[^>]+title="([^"]+)/g) {
-		push @data,"urlrule:$host$1\t" . create_title_utf8($2) . ".ts";
-	}
-    #my @html = split(/\n/,$html);
     return (
+        base=>$url,
         count=>scalar(@data),
         data=>\@data,
-        base=>$url,
+        pass_count=>scalar(@pass_data),
+        pass_data=>\@pass_data,
+        title=>undef,
     );
 }
 
-return new MyPlace::URLRule::Rule::1_javmobile_mobi;
+return new MyPlace::URLRule::Rule::1_mmfeed_com;
 1;
 
 __END__

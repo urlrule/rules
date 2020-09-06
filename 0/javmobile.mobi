@@ -6,7 +6,7 @@
 #TARGET : https://javmobile.mobi/to/41144/%E5%87%B0%E3%81%8B%E3%81%AA%E3%82%81%E3%81%AE%E3%80%81%E3%81%84%E3%81%A3%E3%81%B1%E3%81%84%E3%82%B3%E3%82%B9%E3%81%A3%E3%81%A6%E8%90%8C%E3%81%88%E3%81%A6%E3%82%A4%E3%81%93%E3%81%86%EF%BC%81-abp-530.html
 #URLRULE: 2.0
 package MyPlace::URLRule::Rule::0_javmobile_mobi;
-use MyPlace::URLRule::Utils qw/get_url expand_url create_title/;
+use MyPlace::WWW::Utils qw/get_url expand_url create_title_utf8/;
 use base 'MyPlace::URLRule::Rule';
 use strict;
 use warnings;
@@ -55,8 +55,8 @@ sub apply_rule {
 	}
 	my $vurl = expand_url($info{"video:url"});
 	$vurl = $info{"video:url"} unless($vurl);
-	$title = create_title($info{title});
-	push @data,$vurl . "\t" . $title . ".ts";
+	$title = create_title_utf8($info{title});
+	push @data,"m3u8:$vurl\t$title.ts";
 	push @data,$info{image} . "\t" . $title . ".jpg" if($info{image});
     #my @html = split(/\n/,$html);
     return (
@@ -72,5 +72,3 @@ return new MyPlace::URLRule::Rule::0_javmobile_mobi;
 __END__
 
 #       vim:filetype=perl
-
-

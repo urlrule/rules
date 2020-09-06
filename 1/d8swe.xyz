@@ -1,0 +1,87 @@
+#!/usr/bin/perl -w
+#DOMAIN : adv.d8swe.xyz
+#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#CREATED: 2020-02-12 01:12
+#UPDATED: 2020-02-12 01:12
+#TARGET : http://adv.d8swe.xyz/v/original 1
+#URLRULE: 2.0
+package MyPlace::URLRule::Rule::1_adv_d8swe_xyz;
+use base 'MyPlace::URLRule::Rule';
+use strict;
+use warnings;
+
+=method1
+sub apply_rule {
+	my $self = shift;
+	return $self->apply_quick(
+	   'data_exp'=>undef,
+	   'data_map'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
+       'pages_start'=>undef,
+	   'pages_limit'=>undef,
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef
+	);
+}
+=cut
+
+use MyPlace::WWW::Utils qw/create_title_from_utf8 get_url get_safename url_getname strnum/;
+
+sub apply_rule {
+	my $self = shift;
+    my ($url,$rule) = @_;
+	my $html = get_url($url,'-v');
+    my $title = undef;
+    my @data;
+    my @pass_data;
+	my %info;
+	$info{host} = $url;
+	$info{host} =~ s/^([^\/]+:\/\/[^\/]+)\/.*$/$1/;
+	use JSON;
+	my $js = JSON->new();
+	$html =~ s/[\r\n]+//g;
+	my $data;
+	if($html =~ m/xvideoData.paginator\s*=\s*\{(.+?)\}\s*;\s*xvideoData./) {
+		$data = $js->decode('{' . $1 . '}');
+	}
+	return (error=>"Error parsing page") unless(ref $data);
+	
+	foreach my $video (@{$data->{data}}) {
+		$self->get_print($info{host} . "/v/" . $video->{id_encrypt},"url",$video);
+		$self->get_print(create_title_from_utf8($video->{title}),"title",$video);
+		push @data,"urlrule:" . $video->{url} . "\t" . $video->{title} . ".mp4";
+		my $idx = 0;
+		$video->{thumbHrefs} = $js->decode($video->{thumbHrefs}) if($video->{thumbHrefs});
+		foreach(@{$video->{thumbHrefs}}) {	
+			$idx++;
+			push @data,$_ . "\t" . $video->{title} . "_" . strnum($idx,2) . ".jpg";
+		}
+		if($idx<=0) {
+			push @data,$video->{thumb_href} . "\t" . $video->{title} . ".jpg";
+		}
+	}
+    return (
+        count=>scalar(@data),
+        data=>\@data,
+        pass_count=>scalar(@pass_data),
+        pass_data=>\@pass_data,
+        base=>$url,
+        title=>$title,
+    );
+}
+
+return new MyPlace::URLRule::Rule::1_adv_d8swe_xyz;
+1;
+
+__END__
+
+#       vim:filetype=perl
+
+

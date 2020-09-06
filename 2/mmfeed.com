@@ -1,16 +1,15 @@
 #!/usr/bin/perl -w
-#DOMAIN : ___NAME___
-#AUTHOR : ___AUTHOR___ <___EMAIL___>
-#CREATED: ___DATE___
-#UPDATED: ___DATE___
-#TARGET : ___TARGET___
+#DOMAIN : mmfeed.com
+#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#CREATED: 2020-02-18 05:33
+#UPDATED: 2020-02-18 05:33
+#TARGET : http://www.mmfeed.com/forumdisplay.php?fid=41&page=4&filter=0&orderby=dateline 2
 #URLRULE: 2.0
-package MyPlace::URLRule::Rule::___ID___;
+package MyPlace::URLRule::Rule::2_mmfeed_com;
 use base 'MyPlace::URLRule::Rule';
 use strict;
 use warnings;
 
-=method1
 sub apply_rule {
 	my $self = shift;
 	return $self->apply_quick(
@@ -19,18 +18,18 @@ sub apply_rule {
        'pass_exp'=>undef,
        'pass_map'=>undef,
        'pass_name_map'=>undef,
-       'pages_exp'=>undef,
-       'pages_map'=>undef,
-       'pages_pre'=>undef,
-       'pages_suf'=>undef,
+       'pages_exp'=>'<a[^>]+href="([^"]*forumdisplay[^"]*page=)(\d+)([^"]*)',
+       'pages_map'=>'$2',
+       'pages_pre'=>'$1',
+       'pages_suf'=>'$3',
        'pages_start'=>undef,
-	   'pages_limit'=>undef,
-       'title_exp'=>undef,
-       'title_map'=>undef,
-       'charset'=>undef
+	   'pages_limit'=>2000,
+       'title_exp'=>'<title>[^\-]+-\s*([^\-]+)\s*-',
+       'title_map'=>'$1',
+       'charset'=>'gbk',
+	   'update'=>1,
 	);
 }
-=cut
 
 =method2
 use MyPlace::WWW::Utils qw/get_url get_safename url_getname/;
@@ -54,7 +53,7 @@ sub apply_rule {
 }
 
 =cut
-return new MyPlace::URLRule::Rule::___ID___;
+return new MyPlace::URLRule::Rule::2_mmfeed_com;
 1;
 
 __END__

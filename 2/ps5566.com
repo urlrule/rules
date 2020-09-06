@@ -1,16 +1,15 @@
 #!/usr/bin/perl -w
-#DOMAIN : ___NAME___
-#AUTHOR : ___AUTHOR___ <___EMAIL___>
-#CREATED: ___DATE___
-#UPDATED: ___DATE___
-#TARGET : ___TARGET___
+#DOMAIN : ps5566.com
+#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#CREATED: 2020-03-31 03:47
+#UPDATED: 2020-03-31 03:47
+#TARGET : https://ps5566.com/a/dm/4327.html 2
 #URLRULE: 2.0
-package MyPlace::URLRule::Rule::___ID___;
+package MyPlace::URLRule::Rule::2_ps5566_com;
 use base 'MyPlace::URLRule::Rule';
 use strict;
 use warnings;
 
-=method1
 sub apply_rule {
 	my $self = shift;
 	return $self->apply_quick(
@@ -19,18 +18,17 @@ sub apply_rule {
        'pass_exp'=>undef,
        'pass_map'=>undef,
        'pass_name_map'=>undef,
-       'pages_exp'=>undef,
-       'pages_map'=>undef,
-       'pages_pre'=>undef,
-       'pages_suf'=>undef,
+       'pages_exp'=>'<a[^>]+href="([^"]+Index_)(\d+)(\.html)"',
+       'pages_map'=>'$2',
+       'pages_pre'=>'$1',
+       'pages_suf'=>'$3',
        'pages_start'=>undef,
 	   'pages_limit'=>undef,
-       'title_exp'=>undef,
-       'title_map'=>undef,
+       'title_exp'=>'HOME<\/a>\s*>\s*<a[^>]+>([^<]+)<\/a>',
+       'title_map'=>'$1',
        'charset'=>undef
 	);
 }
-=cut
 
 =method2
 use MyPlace::WWW::Utils qw/get_url get_safename url_getname/;
@@ -54,7 +52,7 @@ sub apply_rule {
 }
 
 =cut
-return new MyPlace::URLRule::Rule::___ID___;
+return new MyPlace::URLRule::Rule::2_ps5566_com;
 1;
 
 __END__

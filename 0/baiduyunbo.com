@@ -1,12 +1,11 @@
 #!/usr/bin/perl -w
-#DOMAIN : javmobile.mobi
+#DOMAIN : baiduyunbo.com
 #AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
-#CREATED: 2019-01-25 03:49
-#UPDATED: 2019-01-25 03:49
-#TARGET : https://javmobile.mobi/videos/%E5%87%B0%E3%81%8B%E3%81%AA%E3%82%81/ 1
+#CREATED: 2020-02-14 03:15
+#UPDATED: 2020-02-14 03:15
+#TARGET : https://baiduyunbo.com/?id=w3H0lfRP
 #URLRULE: 2.0
-package MyPlace::URLRule::Rule::1_javmobile_mobi;
-use MyPlace::WWW::Utils qw/get_url create_title_utf8/;
+package MyPlace::URLRule::Rule::0_baiduyunbo_com;
 use base 'MyPlace::URLRule::Rule';
 use strict;
 use warnings;
@@ -33,6 +32,7 @@ sub apply_rule {
 }
 =cut
 
+use MyPlace::WWW::Utils qw/get_url get_safename url_getname/;
 
 sub apply_rule {
 	my $self = shift;
@@ -40,22 +40,24 @@ sub apply_rule {
 	my $html = get_url($url,'-v');
     my $title = undef;
     my @data;
-	my $host = $url;
-	if($host =~ m/^(https?:\/\/[^\/]+)/) {
-		$host = $1;
+    my @pass_data;
+	if($html =~ m/var m3u8url = '([^']+)'\s*\+getQueryString\('id'\)\+'\.m3u8'/) {
+		my $host = $1;
+		my $id = $url;
+		$id =~ s/.*[&\?]id=([^&]+).*/$1/;
+		push @data,"m3u8:$host$id.m3u8\t$id.ts"
 	}
-	while($html =~ m/href="(\/to\/\d+\/[^"]+\.html)"[^>]+title="([^"]+)/g) {
-		push @data,"urlrule:$host$1\t" . create_title_utf8($2) . ".ts";
-	}
-    #my @html = split(/\n/,$html);
     return (
         count=>scalar(@data),
         data=>\@data,
+        pass_count=>scalar(@pass_data),
+        pass_data=>\@pass_data,
         base=>$url,
+        title=>$title,
     );
 }
 
-return new MyPlace::URLRule::Rule::1_javmobile_mobi;
+return new MyPlace::URLRule::Rule::0_baiduyunbo_com;
 1;
 
 __END__

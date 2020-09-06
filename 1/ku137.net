@@ -26,7 +26,8 @@ sub apply_rule {
 	   'pages_limit'=>undef,
        'title_exp'=>undef,
        'title_map'=>undef,
-       'charset'=>undef
+       'charset'=>undef,
+	   'wait'=>10,
 	);
 }
 

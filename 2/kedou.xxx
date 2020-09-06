@@ -63,6 +63,7 @@ sub apply_rule {
 	if($last > 200) {
 		return ("error"=>"Too much page [$last] return, something maybe wrong");
 	}
+	$last = 30 if($last>30);
 	$title = $url;
 	$title =~ s/\/+$//;
 	$title =~ s/.*\///;

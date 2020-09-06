@@ -1,0 +1,84 @@
+#!/usr/bin/perl -w
+#DOMAIN : common.post
+#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#CREATED: 2020-05-11 02:45
+#UPDATED: 2020-05-11 02:45
+#TARGET : http://www.8541.xyz/jpfp-126488.html
+#URLRULE: 2.0
+package MyPlace::URLRule::Rule::0_common_post;
+use base 'MyPlace::URLRule::Rule';
+use strict;
+use warnings;
+
+=method1
+sub apply_rule {
+	my $self = shift;
+	return $self->apply_quick(
+	   'data_exp'=>undef,
+	   'data_map'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
+       'pages_start'=>undef,
+	   'pages_limit'=>undef,
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef
+	);
+}
+=cut
+
+use MyPlace::WWW::Utils qw/get_url get_safename url_getname new_file_data html2text/;
+
+sub apply_rule {
+	my $self = shift;
+    my ($url,$rule) = @_;
+	my $opts = $rule->{options} ? $rule->{options} : {};
+	my $html = get_url($url,'-v');
+    my @data;
+    my @pass_data;
+	my $title;
+    #my @html = split(/\n/,$html);
+	if($html =~ m/<title>([^<]+)/) {
+		$title = get_safename($1);
+		$title =~ s/\s*-\s*[^-]+$//g;
+	}
+	if(!$title) {
+		$title = url_getname($url);
+	}
+	while($html =~ m/<img[^>]+src="([^"]+)/g) {
+		push @data,$1;
+	}
+	while($html =~ m/<a[^>]+href="([^"]+)/gi) {
+		my $link = $1;
+		if($link =~ m/\.torrent$/i or $link =~ m/^magnet:/i) {
+			push @data,$link;
+		}
+	}
+	while($html =~ m/(magnet:\?[^"'\?\r\n\s]+)/g) {
+		push @data,$1;
+	}
+	if(!@data and length($html)<100) {
+		return (error=>"Maybe empty page");
+	}
+	push @data,new_file_data("content.txt",html2text($html));
+    return (
+        base=>$url,
+        count=>scalar(@data),
+        data=>\@data,
+        title=>$title,
+    );
+}
+
+return new MyPlace::URLRule::Rule::0_common_post;
+1;
+
+__END__
+
+#       vim:filetype=perl
+
+

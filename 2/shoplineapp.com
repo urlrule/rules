@@ -1,17 +1,15 @@
 #!/usr/bin/perl -w
-#DOMAIN : javmobile.mobi
+#DOMAIN : yfilos.shoplineapp.com
 #AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
-#CREATED: 2019-01-25 03:49
-#UPDATED: 2019-01-25 03:49
-#TARGET : https://javmobile.mobi/videos/%E5%87%B0%E3%81%8B%E3%81%AA%E3%82%81/ 1
+#CREATED: 2020-01-15 01:26
+#UPDATED: 2020-01-15 01:26
+#TARGET : https://yfilos.shoplineapp.com/products/%E6%8A%93%E7%9A%BA%E6%84%9F%E7%B6%81%E7%B9%A9%E4%B8%8A%E8%A1%A3 2
 #URLRULE: 2.0
-package MyPlace::URLRule::Rule::1_javmobile_mobi;
-use MyPlace::WWW::Utils qw/get_url create_title_utf8/;
+package MyPlace::URLRule::Rule::2_yfilos_shoplineapp_com;
 use base 'MyPlace::URLRule::Rule';
 use strict;
 use warnings;
 
-=method1
 sub apply_rule {
 	my $self = shift;
 	return $self->apply_quick(
@@ -20,10 +18,10 @@ sub apply_rule {
        'pass_exp'=>undef,
        'pass_map'=>undef,
        'pass_name_map'=>undef,
-       'pages_exp'=>undef,
-       'pages_map'=>undef,
-       'pages_pre'=>undef,
-       'pages_suf'=>undef,
+       'pages_exp'=>'href="([^"]+page=)(\d+)([^"]*)',
+       'pages_map'=>'$2',
+       'pages_pre'=>'$1',
+       'pages_suf'=>'$3',
        'pages_start'=>undef,
 	   'pages_limit'=>undef,
        'title_exp'=>undef,
@@ -31,8 +29,9 @@ sub apply_rule {
        'charset'=>undef
 	);
 }
-=cut
 
+=method2
+use MyPlace::WWW::Utils qw/get_url get_safename url_getname/;
 
 sub apply_rule {
 	my $self = shift;
@@ -40,22 +39,20 @@ sub apply_rule {
 	my $html = get_url($url,'-v');
     my $title = undef;
     my @data;
-	my $host = $url;
-	if($host =~ m/^(https?:\/\/[^\/]+)/) {
-		$host = $1;
-	}
-	while($html =~ m/href="(\/to\/\d+\/[^"]+\.html)"[^>]+title="([^"]+)/g) {
-		push @data,"urlrule:$host$1\t" . create_title_utf8($2) . ".ts";
-	}
+    my @pass_data;
     #my @html = split(/\n/,$html);
     return (
         count=>scalar(@data),
         data=>\@data,
+        pass_count=>scalar(@pass_data),
+        pass_data=>\@pass_data,
         base=>$url,
+        title=>$title,
     );
 }
 
-return new MyPlace::URLRule::Rule::1_javmobile_mobi;
+=cut
+return new MyPlace::URLRule::Rule::2_yfilos_shoplineapp_com;
 1;
 
 __END__
