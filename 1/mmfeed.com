@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : mmfeed.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#AUTHOR : eotect <eotect@MYPLACE>
 #CREATED: 2020-02-18 05:28
 #UPDATED: 2020-02-18 05:28
 #TARGET : http://www.mmfeed.com/viewthread.php?tid=1233696&extra=page%3D4%26amp%3Bfilter%3D0%26amp%3Borderby%3Ddateline 1

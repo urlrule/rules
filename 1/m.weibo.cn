@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : m.weibo.cn
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2017-09-20 02:03
 #UPDATED: 2017-09-20 02:03
 #TARGET : https://m.weibo.cn/api/container/getIndex?containerid=2308692864673642_-_like_pic&featurecode=20000320 1

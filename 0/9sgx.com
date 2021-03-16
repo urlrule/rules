@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 #DOMAIN : 9sgx.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2015-03-14 00:57
 #UPDATED: 2015-03-14 00:57
 #TARGET : http://9sgx.com/11549.html

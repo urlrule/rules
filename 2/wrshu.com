@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 #DOMAIN : www.wrshu.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2015-05-02 21:30
 #UPDATED: 2015-05-02 21:30
 #TARGET : http://www.wrshu.com/xiaoshuo/special/zhuanti_93_93_1.html 2

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : yfilos.shoplineapp.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#AUTHOR : eotect <eotect@MYPLACE>
 #CREATED: 2020-01-15 01:13
 #UPDATED: 2020-01-15 01:13
 #TARGET : https://yfilos.shoplineapp.com/products/%E6%8A%93%E7%9A%BA%E6%84%9F%E7%B6%81%E7%B9%A9%E4%B8%8A%E8%A1%A3

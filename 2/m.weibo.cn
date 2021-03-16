@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : m.weibo.cn
-#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#AUTHOR : eotect <eotect@MYPLACE>
 #CREATED: 2019-11-02 18:52
 #UPDATED: 2019-11-02 18:52
 #TARGET : https://m.weibo.cn/u/7124427103 2

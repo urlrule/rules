@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : nihaowua.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2021-02-02 00:35
 #UPDATED: 2021-02-02 00:35
 #TARGET : https://www.nihaowua.com/v/

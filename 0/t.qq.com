@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 #DOMAIN : t.qq.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2015-04-07 21:05
 #UPDATED: 2015-04-07 21:05
 #TARGET : http://t.qq.com/xiaoerlang2012666?mode=0&id=441152065295855&pi=2&time=1421499669

@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 #DOMAIN : xaoyao.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2016-04-09 01:26
 #UPDATED: 2016-04-09 01:26
 #TARGET : http://xaoyao.com/thread-7010-1-1.html

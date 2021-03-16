@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : meitulu.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2018-08-30 13:34
 #UPDATED: 2018-08-30 13:34
 #TARGET : https://meitulu.com/item/14537.html

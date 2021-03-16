@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 #DOMAIN : www.ganluzhe.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2015-10-03 01:21
 #UPDATED: 2015-10-03 01:21
 #TARGET : http://www.ganluzhe.com/search/%E9%99%90%E5%88%B6%E7%BA%A7_ctime_1.html

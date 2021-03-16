@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : txxx.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#AUTHOR : eotect <eotect@MYPLACE>
 #CREATED: 2019-01-28 02:28
 #UPDATED: 2019-01-28 02:28
 #TARGET : https://www.txxx.com/videos/65188/darryl-hannah/?fr=65188

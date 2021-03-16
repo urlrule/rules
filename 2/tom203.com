@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : tom203.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#AUTHOR : eotect <eotect@MYPLACE>
 #CREATED: 2020-02-14 00:52
 #UPDATED: 2020-02-14 00:52
 #TARGET : https://tom203.com/e/action/ListInfo.php?page=3&classid=52&fenlei=4&line=30&tempid=9&ph=1&andor=and&orderby=&myorder=0&totalnum=1471 2

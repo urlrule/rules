@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 #DOMAIN : www.breadsearch.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2015-09-28 00:01
 #UPDATED: 2015-09-28 00:01
 #TARGET : http://www.breadsearch.com/search/blowjob

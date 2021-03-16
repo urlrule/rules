@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : koreangirlshd.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2016-08-03 02:21
 #UPDATED: 2016-08-03 02:21
 #TARGET : http://koreangirlshd.com/model/kim-bo-ra/ 2

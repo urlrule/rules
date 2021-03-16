@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 #DOMAIN : www.bttiantang.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2015-04-17 01:25
 #UPDATED: 2015-04-17 01:25
 #TARGET : http://www.bttiantang.com/subject/20650.html

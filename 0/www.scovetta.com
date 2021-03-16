@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 #DOMAIN : www.scovetta.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2015-12-10 23:37
 #UPDATED: 2015-12-10 23:37
 #TARGET : http://www.scovetta.com/archives/fehq/DOSUtils

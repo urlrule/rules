@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : noodlemagazine.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2021-02-23 04:31
 #UPDATED: 2021-02-23 04:31
 #TARGET : https://noodlemagazine.com/watch/-123400772_456252943

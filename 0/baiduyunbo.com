@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : baiduyunbo.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#AUTHOR : eotect <eotect@MYPLACE>
 #CREATED: 2020-02-14 03:15
 #UPDATED: 2020-02-14 03:15
 #TARGET : https://baiduyunbo.com/?id=w3H0lfRP

@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 #DOMAIN : www.meitulu.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2015-12-27 02:06
 #UPDATED: 2015-12-27 02:06
 #TARGET : http://www.meitulu.com/item/1869.html 1

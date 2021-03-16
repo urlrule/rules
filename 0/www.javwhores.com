@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : www.javwhores.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#AUTHOR : eotect <eotect@MYPLACE>
 #CREATED: 2019-01-26 02:03
 #UPDATED: 2019-01-26 02:03
 #TARGET : https://www.javwhores.com/video/61989/1pondo-010319-792-kamiyama-nana-m-slut-women

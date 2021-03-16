@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : txxx.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#AUTHOR : eotect <eotect@MYPLACE>
 #CREATED: 2019-01-28 03:03
 #UPDATED: 2019-01-28 03:03
 #TARGET : https://www.txxx.com/categories/milf/ 1

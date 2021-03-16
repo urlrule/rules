@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : www.9see.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2016-08-14 02:41
 #UPDATED: 2016-08-14 02:41
 #TARGET : http://www.9see.com/share/live?uid=5511333 :common

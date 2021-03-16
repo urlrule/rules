@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : 9ku.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2020-12-23 23:04
 #UPDATED: 2020-12-23 23:04
 #TARGET : http://9ku.com/play/183176.htm

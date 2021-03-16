@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : btbiti.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2017-11-05 03:21
 #UPDATED: 2017-11-05 03:21
 #TARGET : http://btbiti.com/search/%E5%8F%B0%E6%B9%BE.html 1

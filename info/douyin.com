@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : www.douyin.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2018-09-13 23:48
 #UPDATED: 2018-09-13 23:48
 #TARGET : https://www.douyin.com/share/user/77515940979/?share_type=link 2

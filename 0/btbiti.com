@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 #DOMAIN : btbibi.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2015-09-25 01:02
 #UPDATED: 2015-09-25 01:02
 #TARGET : http://btbibi.com/h/763dgvd9d181.html

@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 #DOMAIN : www.sobt5.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2015-08-22 00:33
 #UPDATED: 2015-08-22 00:33
 #TARGET : http://www.sobt5.com/q/小早川怜子 1

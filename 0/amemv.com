@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : www.amemv.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2018-09-13 02:48
 #UPDATED: 2018-09-13 02:48
 #TARGET : https://www.amemv.com/aweme/v1/aweme/post/?user_id=57720812347&count=21&max_cursor=0&aid=1128&dytk=4830f6e279a5f53872aab9e9dc112d33

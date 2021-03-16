@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 #DOMAIN : lunvshen.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2016-01-09 02:20
 #UPDATED: 2016-01-09 02:20
 #TARGET : http://lunvshen.com/u?name=穆晹MOYI 3

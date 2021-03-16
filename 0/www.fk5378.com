@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : www.fk5378.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#AUTHOR : eotect <eotect@MYPLACE>
 #CREATED: 2019-01-25 22:25
 #UPDATED: 2019-01-25 22:25
 #TARGET : https://www.fk5378.com/video/3051

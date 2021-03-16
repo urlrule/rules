@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : setuw.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#AUTHOR : eotect <eotect@MYPLACE>
 #CREATED: 2019-06-18 02:26
 #UPDATED: 2019-06-18 02:26
 #TARGET : http://setuw.com/tag/xinggan/ 1

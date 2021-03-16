@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : www5.javwide.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#AUTHOR : eotect <eotect@MYPLACE>
 #CREATED: 2019-05-22 00:53
 #UPDATED: 2019-05-22 00:53
 #TARGET : https://www5.javwide.com/embed/xQgZd

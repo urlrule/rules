@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : ps5566.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#AUTHOR : eotect <eotect@MYPLACE>
 #CREATED: 2020-03-31 03:45
 #UPDATED: 2020-03-31 03:45
 #TARGET : https://ps5566.com/a/dm/4327.html 1

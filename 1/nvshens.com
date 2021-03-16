@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : www.nvshens.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2018-08-31 02:59
 #UPDATED: 2018-08-31 02:59
 #TARGET : https://www.nvshens.com/girl/16293/ 1

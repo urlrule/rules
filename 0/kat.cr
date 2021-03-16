@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 #DOMAIN : kat.cr
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2015-12-23 02:21
 #UPDATED: 2015-12-23 02:21
 #TARGET : https://kat.cr/usearch/borland/

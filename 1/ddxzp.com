@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : ddxzp.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#AUTHOR : eotect <eotect@MYPLACE>
 #CREATED: 2020-02-15 02:00
 #UPDATED: 2020-02-15 02:00
 #TARGET : http://ddxzp.com/video/category/free?pageNo=1&pageSize=60 1

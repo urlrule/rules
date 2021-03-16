@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : 9797g.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#AUTHOR : eotect <eotect@MYPLACE>
 #CREATED: 2019-01-27 00:27
 #UPDATED: 2019-01-27 00:27
 #TARGET : http://www.9797g.com/list/index6.html 1

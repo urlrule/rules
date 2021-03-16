@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : tom203.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#AUTHOR : eotect <eotect@MYPLACE>
 #CREATED: 2020-02-14 00:23
 #UPDATED: 2020-02-14 00:23
 #TARGET : https://tom203.com/guochanzipai/2018-10-17/12525.html

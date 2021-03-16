@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 #DOMAIN : sinacn.weibodangan.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2016-01-06 01:44
 #UPDATED: 2016-01-06 01:44
 #TARGET : http://sinacn.weibodangan.com/user/5027019119/?max_id=3920445902323399

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : noodlemagazine.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2021-02-23 04:58
 #UPDATED: 2021-02-23 04:58
 #TARGET : https://noodlemagazine.com/video/wetting her panties 2

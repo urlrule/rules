@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 #DOMAIN : item.taobao.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2015-07-03 00:23
 #UPDATED: 2015-07-03 00:23
 #TARGET : http://item.taobao.com/item.htm?spm=a1z10.3-c.w4002-10242013313.46.WUOtCr&id=520421028224

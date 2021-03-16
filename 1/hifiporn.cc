@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : hifiporn.cc
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2020-12-25 15:10
 #UPDATED: 2020-12-25 15:10
 #TARGET : https://hifiporn.cc/xxx/mom 1

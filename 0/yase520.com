@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : yase520.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#AUTHOR : eotect <eotect@MYPLACE>
 #CREATED: 2019-02-03 03:52
 #UPDATED: 2019-02-03 03:52
 #TARGET : https://yase520.com/player/981761

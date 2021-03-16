@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : posts.weibo.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2017-09-20 02:03
 #UPDATED: 2017-09-20 02:03
 #TARGET : https://posts.weibo.com/{UID}

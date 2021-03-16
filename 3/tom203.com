@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : tom203.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#AUTHOR : eotect <eotect@MYPLACE>
 #CREATED: 2020-02-14 01:14
 #UPDATED: 2020-02-14 01:14
 #TARGET : https://tom203.com/e/search/index.php?keyboard=抖音&show=title&tbname=movie&tempid=1 3

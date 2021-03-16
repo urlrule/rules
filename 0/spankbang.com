@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : spankbang.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#AUTHOR : eotect <eotect@MYPLACE>
 #CREATED: 2019-01-29 18:31
 #UPDATED: 2019-01-29 18:31
 #TARGET : https://spankbang.com/2xcl7/video/chanel+preston+the+mistress

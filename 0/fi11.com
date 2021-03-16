@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : fi11.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#AUTHOR : eotect <eotect@MYPLACE>
 #CREATED: 2020-02-24 00:12
 #UPDATED: 2020-02-24 00:12
 #TARGET : https://www.hxcpp4.com/player.aspx?math=1&id=14076

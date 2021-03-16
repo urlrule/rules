@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : koreangirlshd.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2016-08-03 02:13
 #UPDATED: 2016-08-03 02:13
 #TARGET : http://koreangirlshd.com/kim-bo-ra-seoul-adex-2015/

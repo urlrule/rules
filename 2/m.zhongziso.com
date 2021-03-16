@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : m.zhongziso.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2018-07-15 01:04
 #UPDATED: 2018-07-15 01:04
 #TARGET : https://m.zhongziso.com/list/%E4%BD%A0%E5%A5%BD/1 2

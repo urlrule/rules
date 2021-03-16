@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : spankbang.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#AUTHOR : eotect <eotect@MYPLACE>
 #CREATED: 2019-01-29 23:49
 #UPDATED: 2019-01-29 23:49
 #TARGET : https://spankbang.com/3ts/pornstar/mona+wales 1

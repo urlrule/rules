@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : javwide.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#AUTHOR : eotect <eotect@MYPLACE>
 #CREATED: 2019-05-22 01:19
 #UPDATED: 2019-05-22 01:19
 #TARGET : https://javwide.com 1

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : www.tuigod.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2016-05-26 02:05
 #UPDATED: 2016-05-26 02:05
 #TARGET : http://www.tuigod.com/d/276-2016-03-10-kitty

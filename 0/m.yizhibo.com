@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : m.yizhibo.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2016-05-21 01:41
 #UPDATED: 2016-05-21 01:41
 #TARGET : http://m.yizhibo.com/l/rIMHopz06mnam5sG.html

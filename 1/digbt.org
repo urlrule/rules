@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : www.digbt.org
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2018-05-28 03:32
 #UPDATED: 2018-05-28 03:32
 #TARGET : https://www.digbt.org/search/%E5%8F%8B%20%E6%AF%8D/ 1

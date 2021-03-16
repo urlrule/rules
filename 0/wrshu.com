@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 #DOMAIN : wrshu.com
-#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#AUTHOR : eotect <eotect@MyPlace>
 #CREATED: 2015-05-02 13:30
 #UPDATED: 2015-05-02 13:30
 #TARGET : http://wrshu.com/xiaoshuo/txt/book32732.html

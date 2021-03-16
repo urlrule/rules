@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #DOMAIN : saveig.org
-#AUTHOR : xiaoranzzz <xiaoranzzz@MYPLACE>
+#AUTHOR : eotect <eotect@MYPLACE>
 #CREATED: 2019-11-06 02:31
 #UPDATED: 2019-11-06 02:31
 #URLRULE: 2.0
