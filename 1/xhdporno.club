@@ -1,23 +1,20 @@
 #!/usr/bin/perl -w
-#DOMAIN : ___NAME___
-#AUTHOR : ___AUTHOR___ <___EMAIL___>
-#CREATED: ___DATE___
-#UPDATED: ___DATE___
-#TARGET : ___TARGET___
+#DOMAIN : xhdporno.club
+#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#CREATED: 2021-03-06 17:56
+#UPDATED: 2021-03-06 17:56
+#TARGET : https://xhdporno.club/video/mamka-v-krasnyh-chulkah-vstala-rakom-pered-zyatem-i-otdalas-v-glubokuyu-pilotku.html 1
 #URLRULE: 2.0
-package MyPlace::URLRule::Rule::___ID___;
+package MyPlace::URLRule::Rule::1_xhdporno_club;
 use base 'MyPlace::URLRule::Rule';
 use strict;
 use warnings;
 
-=method1
 sub apply_rule {
 	my $self = shift;
 	return $self->apply_quick(
-	   'data_exp'=>undef,
-	   'data_map'=>undef,
-       'pass_exp'=>undef,
-       'pass_map'=>undef,
+       'data_exp'=>'class="preview_screen"[^>]*><a[^>]+href="([^"]+)',
+       'data_map'=>'"urlrule:$1"',
        'pass_name_map'=>undef,
        'pages_exp'=>undef,
        'pages_map'=>undef,
@@ -30,10 +27,9 @@ sub apply_rule {
        'charset'=>undef
 	);
 }
-=cut
 
-=method2
-use MyPlace::WWW::Utils qw/get_url get_safename url_getname new_url_data/;
+=method 2
+use MyPlace::WWW::Utils qw/url_getfull get_url get_safename url_getname new_url_data/;
 
 sub apply_rule {
 	my $self = shift;
@@ -42,6 +38,15 @@ sub apply_rule {
 	my $html = get_url($url,'-v');
     my @data;
     my @pass_data;
+	my $m = 0;
+	my $murl = $url;
+	while($html =~ m/<a[^>]+href="([^"]*videoid=)(\d+)([^"]*)"/g) {
+		if($2 > $m) {
+			$murl = "$1$2$3";
+			$m = $2;
+		}
+	}
+	push @pass_data,url_getfull($murl,$url);
     #my @html = split(/\n/,$html);
     return (
         base=>$url,
@@ -54,7 +59,9 @@ sub apply_rule {
 }
 
 =cut
-return new MyPlace::URLRule::Rule::___ID___;
+
+
+return new MyPlace::URLRule::Rule::1_xhdporno_club;
 1;
 
 __END__

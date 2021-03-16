@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
-#DOMAIN : ___NAME___
-#AUTHOR : ___AUTHOR___ <___EMAIL___>
-#CREATED: ___DATE___
-#UPDATED: ___DATE___
+#DOMAIN : xhamster.sex
+#AUTHOR : Eotect Nahn <eotect@myplace>
+#CREATED: 2021-03-07 00:30
+#UPDATED: 2021-03-07 00:30
 #TARGET : ___TARGET___
 #URLRULE: 2.0
 package MyPlace::URLRule::Rule::___ID___;
@@ -14,8 +14,8 @@ use warnings;
 sub apply_rule {
 	my $self = shift;
 	return $self->apply_quick(
-	   'data_exp'=>undef,
-	   'data_map'=>undef,
+	   'data_exp'=>'<a[^>]+href\s*=\s*"([^"]+\/videos\/[^"]+)"[^>]+title\s*=\s*"([^"]+)"',
+	   'data_map'=>'"urlrule:$1" . "\t" . get_safename("$2") . ".mp4"',
        'pass_exp'=>undef,
        'pass_map'=>undef,
        'pass_name_map'=>undef,
@@ -31,8 +31,6 @@ sub apply_rule {
 	);
 }
 =cut
-
-=method2
 use MyPlace::WWW::Utils qw/get_url get_safename url_getname new_url_data/;
 
 sub apply_rule {
@@ -43,6 +41,9 @@ sub apply_rule {
     my @data;
     my @pass_data;
     #my @html = split(/\n/,$html);
+	while($html =~ m/<a[^>]+href\s*=\s*"([^"]+\/video\/[^"]+)"/g) {
+		push @data,"urlrule:" . $1 . "\t" . get_safename(url_getname($1)) . ".mp4";
+	}
     return (
         base=>$url,
         count=>scalar(@data),
@@ -53,12 +54,12 @@ sub apply_rule {
     );
 }
 
-=cut
 return new MyPlace::URLRule::Rule::___ID___;
 1;
 
 __END__
 
 #       vim:filetype=perl
+
 
 

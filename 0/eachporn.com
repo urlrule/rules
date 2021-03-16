@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
-#DOMAIN : ___NAME___
-#AUTHOR : ___AUTHOR___ <___EMAIL___>
-#CREATED: ___DATE___
-#UPDATED: ___DATE___
+#DOMAIN : xhamster.sex
+#AUTHOR : Eotect Nahn <eotect@myplace>
+#CREATED: 2021-03-07 00:09
+#UPDATED: 2021-03-07 00:09
 #TARGET : ___TARGET___
 #URLRULE: 2.0
 package MyPlace::URLRule::Rule::___ID___;
@@ -32,7 +32,6 @@ sub apply_rule {
 }
 =cut
 
-=method2
 use MyPlace::WWW::Utils qw/get_url get_safename url_getname new_url_data/;
 
 sub apply_rule {
@@ -43,6 +42,37 @@ sub apply_rule {
     my @data;
     my @pass_data;
     #my @html = split(/\n/,$html);
+	my %info;
+	while($html =~ m/property\s*=\s*"([^"]+)"[^>]+content\s*=\s*"([^"]+)/g) {
+		my $n = $1;
+		my $url = $2;
+		$url =~ s/^.+http/http/;
+		$info{$n} = $url;
+	}
+	while($html =~ m/(video_url|video_alt_url|preview_url)\s*:\s*'([^']+)/g) {
+		my $n = $1;
+		my $url = $2;
+		$url =~ s/^.+http/http/;
+		$info{$n} = $url;
+	}
+	my $video;
+	foreach(qw/video_alt_url video_url ya:ovs:content_url/) {
+		if($info{$_}) {
+			$video = $info{$_};
+			last;
+		}
+	}
+	return (error=>"Error parsing page") unless($video);
+	my $image;
+	foreach(qw/preview_url og:image/) {
+		$image = $info{$_} if($info{$_});
+	}
+	my $title = url_getname($url);
+	$title = get_safename($title);
+
+	push @data,$video . "\t" . $title . ".mp4";
+	push @data,$image . "\t" . $title . ".jpg" if($image);
+
     return (
         base=>$url,
         count=>scalar(@data),
@@ -53,12 +83,12 @@ sub apply_rule {
     );
 }
 
-=cut
 return new MyPlace::URLRule::Rule::___ID___;
 1;
 
 __END__
 
 #       vim:filetype=perl
+
 
 

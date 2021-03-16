@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
-#DOMAIN : ___NAME___
-#AUTHOR : ___AUTHOR___ <___EMAIL___>
-#CREATED: ___DATE___
-#UPDATED: ___DATE___
+#DOMAIN : xhamster.sex
+#AUTHOR : Eotect Nahn <eotect@myplace>
+#CREATED: 2021-03-07 00:50
+#UPDATED: 2021-03-07 00:50
 #TARGET : ___TARGET___
 #URLRULE: 2.0
 package MyPlace::URLRule::Rule::___ID___;
@@ -32,8 +32,8 @@ sub apply_rule {
 }
 =cut
 
-=method2
-use MyPlace::WWW::Utils qw/get_url get_safename url_getname new_url_data/;
+use MyPlace::WWW::Utils qw/url_getbase get_url get_safename url_getname new_url_data/;
+#https://www.xhamster.sex/tags/mom/?mode=async&function=get_block&block_id=list_videos_common_videos_list&sort_by=post_date&from=1&_=1615049301229
 
 sub apply_rule {
 	my $self = shift;
@@ -42,6 +42,16 @@ sub apply_rule {
 	my $html = get_url($url,'-v');
     my @data;
     my @pass_data;
+	my $base = $url;
+	$base =~ s/^([^\?]+)\?.+/$1/;
+	$base = $base . '?mode=async&function=get_block&block_id=list_videos_common_videos_list&sort_by=post_date'; #&from=1&_=1615049301229
+	my $last = 0;
+	while($html =~ m/data-parameters="[^"]+from:(\d+)/g) {
+		$last = $1 if($1 > $last);
+	}
+	for(1 .. $last) {
+		push @pass_data,$base . "&from=" . $_ . "&_=" . scalar(time);
+	}
     #my @html = split(/\n/,$html);
     return (
         base=>$url,
@@ -53,12 +63,12 @@ sub apply_rule {
     );
 }
 
-=cut
 return new MyPlace::URLRule::Rule::___ID___;
 1;
 
 __END__
 
 #       vim:filetype=perl
+
 
 

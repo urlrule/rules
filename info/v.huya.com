@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
-#DOMAIN : ___NAME___
-#AUTHOR : ___AUTHOR___ <___EMAIL___>
-#CREATED: ___DATE___
-#UPDATED: ___DATE___
+#DOMAIN : v.huya.com
+#AUTHOR : Eotect Nahn <eotect@myplace>
+#CREATED: 2021-03-17 04:54
+#UPDATED: 2021-03-17 04:54
 #TARGET : ___TARGET___
 #URLRULE: 2.0
 package MyPlace::URLRule::Rule::___ID___;
@@ -32,7 +32,6 @@ sub apply_rule {
 }
 =cut
 
-=method2
 use MyPlace::WWW::Utils qw/get_url get_safename url_getname new_url_data/;
 
 sub apply_rule {
@@ -42,23 +41,29 @@ sub apply_rule {
 	my $html = get_url($url,'-v');
     my @data;
     my @pass_data;
+	my %info;
+	if($url =~ m{/u/(\d+)}) {
+		%info = (
+			uid=>$1,
+			profile=>"u/$1",
+			host=>'huya.com',
+		);
+	}
+	if($html =~ m/class='detail-nick'[^>]*><span>([^<]+)/) {
+		$info{uname} = get_safename($1);
+	}
     #my @html = split(/\n/,$html);
     return (
-        base=>$url,
-        count=>scalar(@data),
-        data=>\@data,
-        pass_count=>scalar(@pass_data),
-        pass_data=>\@pass_data,
-        title=>undef,
+		%info,
     );
 }
 
-=cut
 return new MyPlace::URLRule::Rule::___ID___;
 1;
 
 __END__
 
 #       vim:filetype=perl
+
 
 

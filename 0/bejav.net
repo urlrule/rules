@@ -1,0 +1,100 @@
+#!/usr/bin/perl -w
+#DOMAIN : bejav.net
+#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#CREATED: 2020-09-19 04:36
+#UPDATED: 2020-09-19 04:36
+#TARGET : https://bejav.net/nacr-222/
+#URLRULE: 2.0
+package MyPlace::URLRule::Rule::0_bejav_net;
+use base 'MyPlace::URLRule::Rule';
+use strict;
+use warnings;
+
+=method1
+
+sub apply_rule {
+	my $self = shift;
+	return $self->apply_quick(
+	   'data_exp'=>undef,
+	   'data_map'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
+       'pages_start'=>undef,
+	   'pages_limit'=>undef,
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef
+	);
+}
+=cut
+
+
+use MyPlace::WWW::Utils qw/get_url get_safename url_getname create_title_utf8/;
+use MIME::Base64;
+
+sub link_decode {
+	my $data = shift;
+	my $rs = reverse($data);
+	$rs =~ s/-_/\+\//g;
+	$rs = decode_base64($rs);
+	$rs = reverse($rs);
+	$rs =~ s/-_/\+\//g;
+	$rs = decode_base64($rs);
+	my ($host,$file) = split '/',$rs;
+	if(index($host,"fast-stream") != -1) {
+		$rs = 'https://fsv.svjav.com/v/' . $file;
+	}
+	elsif(index($host,'fembed') != -1) {
+		$rs = 'https://www.ffem.club/v/' . $file;
+	}
+	elsif(index($host,'bitporno') != -1) {
+		$rs = 'https://www.bitporno.com/v/' . $file;
+	}
+	else {
+		$rs = undef;
+	}
+	return $rs;	
+}
+
+sub apply_rule {
+	my $self = shift;
+    my ($url,$rule) = @_;
+	my $opts = $rule->{options} ? $rule->{options} : {};
+	my $html = get_url($url,'-v');
+    my @data;
+    my @pass_data;
+	my %info;
+	if($html =~ m/<title>([^<]+)/) {
+		$info{title} = create_title_utf8($1);
+	}
+	if($html =~ m/property=og:image[^>]*\s+content=([^\s>]+)/) {
+		push @data,$1 . "\t" . $info{title} . ".jpg";
+	}
+	while($html =~ m/dtl=([^\s>]+)/g) {
+		my $link = link_decode($1);
+		if($link) {
+			push @data,"urlrule:" . $link . "\t" . $info{title} . ".mp4";
+		}
+	}
+    #my @html = split(/\n/,$html);
+    return (
+        base=>$url,
+        count=>scalar(@data),
+        data=>\@data,
+        title=>undef,
+    );
+}
+
+return new MyPlace::URLRule::Rule::0_bejav_net;
+1;
+
+__END__
+
+#       vim:filetype=perl
+
+

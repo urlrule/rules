@@ -1,11 +1,11 @@
 #!/usr/bin/perl -w
-#DOMAIN : ___NAME___
-#AUTHOR : ___AUTHOR___ <___EMAIL___>
-#CREATED: ___DATE___
-#UPDATED: ___DATE___
-#TARGET : ___TARGET___
+#DOMAIN : noodlemagazine.com
+#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#CREATED: 2021-02-23 04:58
+#UPDATED: 2021-02-23 04:58
+#TARGET : https://noodlemagazine.com/video/wetting her panties 2
 #URLRULE: 2.0
-package MyPlace::URLRule::Rule::___ID___;
+package MyPlace::URLRule::Rule::2_noodlemagazine_com;
 use base 'MyPlace::URLRule::Rule';
 use strict;
 use warnings;
@@ -32,16 +32,19 @@ sub apply_rule {
 }
 =cut
 
-=method2
-use MyPlace::WWW::Utils qw/get_url get_safename url_getname new_url_data/;
+use MyPlace::WWW::Utils qw/get_url get_safename url_getname/;
 
 sub apply_rule {
 	my $self = shift;
     my ($url,$rule) = @_;
 	my $opts = $rule->{options} ? $rule->{options} : {};
-	my $html = get_url($url,'-v');
     my @data;
     my @pass_data;
+	$url =~ s/\?.*$//;
+	push @pass_data,$url;
+	for(2 .. 10) {
+		push @pass_data,$url . "?p=$_";
+	}
     #my @html = split(/\n/,$html);
     return (
         base=>$url,
@@ -53,8 +56,7 @@ sub apply_rule {
     );
 }
 
-=cut
-return new MyPlace::URLRule::Rule::___ID___;
+return new MyPlace::URLRule::Rule::2_noodlemagazine_com;
 1;
 
 __END__

@@ -3,7 +3,7 @@ package MyPlace::URLRule::Rule::common_weibo_com;
 use strict;
 use utf8;
 use MyPlace::WWW::Utils qw/get_url get_html strnum new_html_data expand_url html2text/;
-use MyPlace::Weibo qw/extract_post_title m_get_mblog/;
+use MyPlace::Weibo qw/extract_post_title m_get_mblog m_get_user/;
 use base 'MyPlace::URLRule::Rule';
 
 my $CONFIG_PID = '100505';
@@ -446,6 +446,10 @@ sub process_weibo {
 		$user = $1;
 	}
 	my $html = get_html(&unpack_url($url),"-v");
+	if($html =~ m/location\.replace\("([^"]+)/) {
+		print STDERR "Redirect to : $1\n";
+		$html = get_html($1);
+	}
 	if($html =~ m/<div class="page_error">(.+?)<\/div/s) {
 		my $err = $1;
 		$err =~ s/<[^>]+>//sg;

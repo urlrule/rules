@@ -59,6 +59,7 @@ $MyPlace::URLRule::Config = {
 		'tom267.com'=>'tom203.com',
 		'tom889.com'=>'tom203.com',
 		'tom987.com'=>'tom203.com',
+		'tom386.com'=>'tom203.com',
 		'hxcpp4.com'=>'fi11.com',
 		'hxcpp6.com'=>'fi11.com',
 		'ar99.cc'=>'ps5566.com',
@@ -66,6 +67,14 @@ $MyPlace::URLRule::Config = {
 		'8541.xyz'=>'common.post',
 		'bang.tubemost.com'=>'spankbang.com',
 		'hxcpp10.com'=>'fi11.com',
+		'javmovies.mobi'=>'javmobile.mobi',
+		'xhamster.website'=>'xhamster.one',
+		'xhamster14.com'=>'xhamster.one',
+		'xhamster15.com'=>'xhamster.one',
+		'xhamster16.com'=>'xhamster.one',
+		'xhamster17.com'=>'xhamster.one',
+		'pornmaster.cc'=>'hifiporn.cc',
+		'mypornvid.cc'=>'hifiporn.cc',
 	},
 };
 

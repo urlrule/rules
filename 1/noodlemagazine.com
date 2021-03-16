@@ -1,11 +1,11 @@
 #!/usr/bin/perl -w
-#DOMAIN : ___NAME___
-#AUTHOR : ___AUTHOR___ <___EMAIL___>
-#CREATED: ___DATE___
-#UPDATED: ___DATE___
-#TARGET : ___TARGET___
+#DOMAIN : noodlemagazine.com
+#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#CREATED: 2021-02-23 04:52
+#UPDATED: 2021-02-23 04:52
+#TARGET : https://noodlemagazine.com/video/wetting her panties 1
 #URLRULE: 2.0
-package MyPlace::URLRule::Rule::___ID___;
+package MyPlace::URLRule::Rule::1_noodlemagazine_com;
 use base 'MyPlace::URLRule::Rule';
 use strict;
 use warnings;
@@ -32,8 +32,7 @@ sub apply_rule {
 }
 =cut
 
-=method2
-use MyPlace::WWW::Utils qw/get_url get_safename url_getname new_url_data/;
+use MyPlace::WWW::Utils qw/get_url get_safename url_getbase url_getfull/;
 
 sub apply_rule {
 	my $self = shift;
@@ -42,7 +41,15 @@ sub apply_rule {
 	my $html = get_url($url,'-v');
     my @data;
     my @pass_data;
-    #my @html = split(/\n/,$html);
+    my @html = split(/<div class="item">/,$html);
+	my $base = url_getbase($url);
+	foreach(@html) {
+		next unless(m/<a[^>]+href="([^"]*\/watch\/[^"]+)"/);
+		my $vurl = $1;
+		next unless(m/alt="([^"]+)/);
+		my $vtitle = get_safename($1);
+		push @data,"urlrule:" . url_getfull($vurl,$base) . "\t" . $vtitle . ".mp4";
+	}
     return (
         base=>$url,
         count=>scalar(@data),
@@ -53,8 +60,7 @@ sub apply_rule {
     );
 }
 
-=cut
-return new MyPlace::URLRule::Rule::___ID___;
+return new MyPlace::URLRule::Rule::1_noodlemagazine_com;
 1;
 
 __END__

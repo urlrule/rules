@@ -1,11 +1,11 @@
 #!/usr/bin/perl -w
-#DOMAIN : ___NAME___
-#AUTHOR : ___AUTHOR___ <___EMAIL___>
-#CREATED: ___DATE___
-#UPDATED: ___DATE___
-#TARGET : ___TARGET___
+#DOMAIN : nihaowua.com
+#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#CREATED: 2021-02-02 00:35
+#UPDATED: 2021-02-02 00:35
+#TARGET : https://www.nihaowua.com/v/
 #URLRULE: 2.0
-package MyPlace::URLRule::Rule::___ID___;
+package MyPlace::URLRule::Rule::0_nihaowua_com;
 use base 'MyPlace::URLRule::Rule';
 use strict;
 use warnings;
@@ -32,16 +32,26 @@ sub apply_rule {
 }
 =cut
 
-=method2
-use MyPlace::WWW::Utils qw/get_url get_safename url_getname new_url_data/;
+use MyPlace::WWW::Utils qw/get_url get_safename url_getname url_getbase expand_url/;
 
 sub apply_rule {
 	my $self = shift;
     my ($url,$rule) = @_;
 	my $opts = $rule->{options} ? $rule->{options} : {};
-	my $html = get_url($url,'-v');
     my @data;
     my @pass_data;
+	my $base = url_getbase($url);
+	my $vurl = $base . "/v/video.php?t=" . time();
+	my $nurl = expand_url($vurl);
+	if($nurl ne $vurl) {
+		my $title = $nurl;
+		$title =~ s{^.*?/(\d+)/}{$1};
+		$title =~ s{\?.+$}{};
+		$title =~ s{/(\d+)}{$1}g;
+		$title =~ s{/}{_}g;
+		push @data,$nurl . "\t" . $title;
+		push @pass_data,$url;
+	}
     #my @html = split(/\n/,$html);
     return (
         base=>$url,
@@ -50,11 +60,11 @@ sub apply_rule {
         pass_count=>scalar(@pass_data),
         pass_data=>\@pass_data,
         title=>undef,
+		level=>0,
     );
 }
 
-=cut
-return new MyPlace::URLRule::Rule::___ID___;
+return new MyPlace::URLRule::Rule::0_nihaowua_com;
 1;
 
 __END__

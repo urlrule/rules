@@ -53,6 +53,9 @@ sub apply_rule {
 	my @html = split(/\n/,$html);
 	foreach(@html) {
 		s/\\\//\//g;
+		if(m/href="([^"]*\/video-hls\/[^"]+)"/) {
+			set_info(\%info,"hls",$1);
+		}
 		while(m/"([\w\d]+)"\s*:\s*'([^']+)'/g) {
 			set_info(\%info,$1,$2);
 		}
@@ -70,15 +73,20 @@ sub apply_rule {
 		}
 	}
 	$hq = $hq . "p" if($hq);
+	$hq = "hls" if($info{hls});
 	unless($info{$hq}) {
 		return (error=>"Error parsing page",page=>\%info);
 	}
 	my $urlname = url_getname($url);
-	foreach($info{thumburl},$info{$hq}) {
+	foreach($info{thumburl}) {
 		next if(!$_);
-		push @data,$_ . "\t" . $urlname . "_" . url_getname($_);
+		my $name = url_getname($_);
+		$name =~ s/\.m3u8$/.ts/g;
+		push @data,$_ . "\t" . $urlname . "_" . $name;
 	}
-
+	if($info{$hq}) {
+		push @data,$info{hls} . "\t" . $urlname . ".mp4";
+	}
 	#	push @data,$info{thumburl} . "\t$title.jpg" if($info{thumburl});
 	#push @data,$info{$hq} . "\t$title.mp4";
 

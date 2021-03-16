@@ -46,9 +46,14 @@ sub apply_rule {
 	foreach(@html) {
 		if(m/<title>([^<]+)/) {
 			$filename = create_title_utf8($1);
+			$filename =~ s/^\s*正在播放：\s*//;
 		}
 		if(m/url=([^"&]+)/) {
-			push @data,"m3u8:$1\t$filename.ts";
+			my $url = $1;
+			if($url =~ m/^https:\/\/(play\.tomhd0\.com\/.*)$/) {
+				$url = 'http://' . $1;
+			}
+			push @data,"$url\t$filename.ts";
 			last;
 		}
 	}

@@ -1,11 +1,11 @@
 #!/usr/bin/perl -w
-#DOMAIN : ___NAME___
-#AUTHOR : ___AUTHOR___ <___EMAIL___>
-#CREATED: ___DATE___
-#UPDATED: ___DATE___
-#TARGET : ___TARGET___
+#DOMAIN : hifiporn.cc
+#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#CREATED: 2020-12-25 15:10
+#UPDATED: 2020-12-25 15:10
+#TARGET : https://hifiporn.cc/xxx/mom 1
 #URLRULE: 2.0
-package MyPlace::URLRule::Rule::___ID___;
+package MyPlace::URLRule::Rule::1_hifiporn_cc;
 use base 'MyPlace::URLRule::Rule';
 use strict;
 use warnings;
@@ -16,8 +16,8 @@ sub apply_rule {
 	return $self->apply_quick(
 	   'data_exp'=>undef,
 	   'data_map'=>undef,
-       'pass_exp'=>undef,
-       'pass_map'=>undef,
+       'data_exp'=>'class="thumbed"><a[^>]+href="([^"]+)',
+       'data_map'=>'"urlrule:$1"',
        'pass_name_map'=>undef,
        'pages_exp'=>undef,
        'pages_map'=>undef,
@@ -32,8 +32,7 @@ sub apply_rule {
 }
 =cut
 
-=method2
-use MyPlace::WWW::Utils qw/get_url get_safename url_getname new_url_data/;
+use MyPlace::WWW::Utils qw/get_url get_safename url_getname url_getbase/;
 
 sub apply_rule {
 	my $self = shift;
@@ -42,19 +41,25 @@ sub apply_rule {
 	my $html = get_url($url,'-v');
     my @data;
     my @pass_data;
-    #my @html = split(/\n/,$html);
+	my $host = url_getbase($url);
+	while($html =~ m/class="thumbed"><a[^>]+href="([^"]+)/g) {
+		my $y = $1;
+		if($y =~ m/^\//) {
+			push @data,"urlrule:" . $host . $y . "\t" . url_getname($y) . ".mp4";
+		}
+		else {
+			push @data,"urlrule:" . $y . "\t" . url_getname($y) . ".mp4";
+		}
+	}
     return (
         base=>$url,
         count=>scalar(@data),
         data=>\@data,
-        pass_count=>scalar(@pass_data),
-        pass_data=>\@pass_data,
         title=>undef,
     );
 }
 
-=cut
-return new MyPlace::URLRule::Rule::___ID___;
+return new MyPlace::URLRule::Rule::1_hifiporn_cc;
 1;
 
 __END__

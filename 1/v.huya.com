@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
-#DOMAIN : ___NAME___
-#AUTHOR : ___AUTHOR___ <___EMAIL___>
-#CREATED: ___DATE___
-#UPDATED: ___DATE___
+#DOMAIN : v.huya.com
+#AUTHOR : Eotect Nahn <eotect@myplace>
+#CREATED: 2021-03-17 04:44
+#UPDATED: 2021-03-17 04:44
 #TARGET : ___TARGET___
 #URLRULE: 2.0
 package MyPlace::URLRule::Rule::___ID___;
@@ -10,14 +10,11 @@ use base 'MyPlace::URLRule::Rule';
 use strict;
 use warnings;
 
-=method1
 sub apply_rule {
 	my $self = shift;
 	return $self->apply_quick(
-	   'data_exp'=>undef,
-	   'data_map'=>undef,
-       'pass_exp'=>undef,
-       'pass_map'=>undef,
+       'data_exp'=>'<a[^>]+href=["\'][^"\']*\/play\/([^"\']*)',
+       'data_map'=>'"urlrule:https://v.huya.com/play/$1"',
        'pass_name_map'=>undef,
        'pages_exp'=>undef,
        'pages_map'=>undef,
@@ -30,7 +27,6 @@ sub apply_rule {
        'charset'=>undef
 	);
 }
-=cut
 
 =method2
 use MyPlace::WWW::Utils qw/get_url get_safename url_getname new_url_data/;
@@ -60,5 +56,6 @@ return new MyPlace::URLRule::Rule::___ID___;
 __END__
 
 #       vim:filetype=perl
+
 
 

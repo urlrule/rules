@@ -1,11 +1,11 @@
 #!/usr/bin/perl -w
-#DOMAIN : ___NAME___
-#AUTHOR : ___AUTHOR___ <___EMAIL___>
-#CREATED: ___DATE___
-#UPDATED: ___DATE___
-#TARGET : ___TARGET___
+#DOMAIN : xhdporno.club
+#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#CREATED: 2021-03-06 17:38
+#UPDATED: 2021-03-06 17:38
+#TARGET : https://xhdporno.club/video/mamka-v-krasnyh-chulkah-vstala-rakom-pered-zyatem-i-otdalas-v-glubokuyu-pilotku.html
 #URLRULE: 2.0
-package MyPlace::URLRule::Rule::___ID___;
+package MyPlace::URLRule::Rule::0_xhdporno_club;
 use base 'MyPlace::URLRule::Rule';
 use strict;
 use warnings;
@@ -32,8 +32,8 @@ sub apply_rule {
 }
 =cut
 
-=method2
 use MyPlace::WWW::Utils qw/get_url get_safename url_getname new_url_data/;
+
 
 sub apply_rule {
 	my $self = shift;
@@ -43,6 +43,14 @@ sub apply_rule {
     my @data;
     my @pass_data;
     #my @html = split(/\n/,$html);
+	my $fn = get_safename(url_getname($url));
+	$fn =~ s/\.[^\.]+$//;
+	if($html =~ m/file\s*:\s*"([^"]+)/) {
+		push @data,new_url_data($1,$fn,"mp4");
+	}
+	if($html =~ m/poster\s*:\s*"([^"]+)/) {
+		push @data,new_url_data($1,$fn,"jpg");
+	}
     return (
         base=>$url,
         count=>scalar(@data),
@@ -53,8 +61,7 @@ sub apply_rule {
     );
 }
 
-=cut
-return new MyPlace::URLRule::Rule::___ID___;
+return new MyPlace::URLRule::Rule::0_xhdporno_club;
 1;
 
 __END__

@@ -1,0 +1,90 @@
+#!/usr/bin/perl -w
+#DOMAIN : spankbang.top
+#AUTHOR : Eotect Nahn <eotect@myplace>
+#CREATED: 2020-11-04 02:42
+#UPDATED: 2020-11-04 02:42
+#TARGET : ___TARGET___
+#URLRULE: 2.0
+package MyPlace::URLRule::Rule::___ID___;
+use base 'MyPlace::URLRule::Rule';
+use strict;
+use warnings;
+
+=method1
+sub apply_rule {
+	my $self = shift;
+	return $self->apply_quick(
+	   'data_exp'=>undef,
+	   'data_map'=>undef,
+       'pass_exp'=>undef,
+       'pass_map'=>undef,
+       'pass_name_map'=>undef,
+       'pages_exp'=>undef,
+       'pages_map'=>undef,
+       'pages_pre'=>undef,
+       'pages_suf'=>undef,
+       'pages_start'=>undef,
+	   'pages_limit'=>undef,
+       'title_exp'=>undef,
+       'title_map'=>undef,
+       'charset'=>undef
+	);
+}
+=cut
+
+use MyPlace::WWW::Utils qw/get_url get_safename url_getname create_title_utf8/;
+
+sub apply_rule {
+	my $self = shift;
+    my ($url,$rule) = @_;
+	my $opts = $rule->{options} ? $rule->{options} : {};
+	my $html = get_url($url,'-v');
+    my @data;
+    my @pass_data;
+	my %info;
+	if($html =~ m/src="([^"]+imagefap.site[^"]+)"/) {
+		$info{video} = $1;
+	}
+	$info{video} =~ s/\/player\/xvideos\//\/player\/xvideos\/mp4\//;
+	$info{video} = $info{video} . "&t=" . rand();
+	$info{video} =~ s/^\/\//https:\/\//;
+	my $videodata = get_url($info{video},'-v','--referer',$url);
+	while($videodata =~ /\.set([^\(]+)\('([^']+)/g) {
+		$info{$1} = $2;
+	}
+	$info{title} = $info{VideoTitle} unless($info{title});
+	$info{title} = create_title_utf8($info{title});
+	foreach(qw/ThumbUrl ThumbUrl169 ThumbSlideBig ThumbSlide Thumb/) {
+		if($info{$_}) {
+			push @data,$info{$_} . "\t" . $info{title} . ".jpg";
+		}
+	}
+	if($info{VideoHLS}) {
+		push @data,'m3u8:' . $info{VideoHLS} . "\t" . $info{title} . ".mp4";
+	}
+	else {
+		foreach(qw/VideoUrlHigh VideoUrlLow/) {
+			if($info{$_}) {
+				push @data,$info{$_} . "\t" . $info{title} . ".mp4";
+				last;
+			}
+		}
+	}
+    return (
+		info=>\%info,
+        base=>$url,
+        count=>scalar(@data),
+        data=>\@data,
+        title=>undef,
+    );
+}
+
+return new MyPlace::URLRule::Rule::___ID___;
+1;
+
+__END__
+
+#       vim:filetype=perl
+
+
+

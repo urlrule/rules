@@ -1,11 +1,11 @@
 #!/usr/bin/perl -w
-#DOMAIN : ___NAME___
-#AUTHOR : ___AUTHOR___ <___EMAIL___>
-#CREATED: ___DATE___
-#UPDATED: ___DATE___
-#TARGET : ___TARGET___
+#DOMAIN : pornomilf.club
+#AUTHOR : xiaoranzzz <xiaoranzzz@MyPlace>
+#CREATED: 2021-02-23 03:05
+#UPDATED: 2021-02-23 03:05
+#TARGET : https://pornomilf.club/897-polozhil-ruku-mamy-na-svoj-chlen-kogda-smotreli-film.html
 #URLRULE: 2.0
-package MyPlace::URLRule::Rule::___ID___;
+package MyPlace::URLRule::Rule::0_pornomilf_club;
 use base 'MyPlace::URLRule::Rule';
 use strict;
 use warnings;
@@ -32,8 +32,7 @@ sub apply_rule {
 }
 =cut
 
-=method2
-use MyPlace::WWW::Utils qw/get_url get_safename url_getname new_url_data/;
+use MyPlace::WWW::Utils qw/get_url get_safename url_getname/;
 
 sub apply_rule {
 	my $self = shift;
@@ -42,7 +41,20 @@ sub apply_rule {
 	my $html = get_url($url,'-v');
     my @data;
     my @pass_data;
-    #my @html = split(/\n/,$html);
+    my @html = split(/\n/,$html);
+	foreach(@html) {
+		next unless(m/(<a[^>]+class="item-link"[^>]*>)/);
+		print $1,"\n";
+		my $a = $1;
+		next unless($a =~ m/href="([^"]+)"/);
+		my $url = $1;
+		my $title=url_getname($url);
+		$title =~ s/\.[^\.]+$//;
+		if(${title} =~ m/^\d+[_-]*(.+)/) {
+			${title} = $1;
+		}
+		push @data,"urlrule:" . $url . "\t" . $title . ".mp4";
+	}
     return (
         base=>$url,
         count=>scalar(@data),
@@ -53,8 +65,7 @@ sub apply_rule {
     );
 }
 
-=cut
-return new MyPlace::URLRule::Rule::___ID___;
+return new MyPlace::URLRule::Rule::0_pornomilf_club;
 1;
 
 __END__
